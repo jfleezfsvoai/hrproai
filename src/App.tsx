@@ -7,7 +7,7 @@ import {
   Info,
   Clock,
   Stethoscope,
-  ShieldCheck, 
+  ShieldCheck,
   ChevronRight,
   Phone,
   UserCircle,
@@ -36,7 +36,7 @@ import {
   Settings,
   Sun,
   Moon,
-  Globe,
+  Globe
 } from 'lucide-react';
 
 // --- FIREBASE IMPORTS ---
@@ -81,14 +81,14 @@ const appId =
 // --- CONSTANTS ---
 const ADMIN_CREDENTIALS = [
   {
-    user: 'amy4777',
-    pass: 'amy4777',
+    user: 'Amy4777',
+    pass: 'Amy4777',
     company: 'AG Health Enterprise',
     type: 'ADMIN',
   },
   {
-    user: 'jeffer2779',
-    pass: 'jeffer2779',
+    user: 'Jeffer2779',
+    pass: 'Jeffer2779',
     company: 'Health Genexis Enterprise',
     type: 'ADMIN',
   },
@@ -112,39 +112,39 @@ const MONTHS = [
 
 // --- DICTIONARY FOR TRANSLATION ---
 const dict = {
-  PROFILE: '个人资料',
+  'PROFILE': '个人资料',
   'LEAVE APPLICATION': '请假申请',
-  PAYROLL: '工资单',
+  'PAYROLL': '工资单',
   'ADMIN PANEL': '管理面板',
   'Leave Application': '请假申请',
-  Category: '假期类别',
+  'Category': '假期类别',
   'Start Date': '开始日期',
   'End Date': '结束日期',
   'Submit Request': '提交申请',
   'Optional Public Holidays (Max 6)': '可选公共假期 (最多6天)',
-  Apply: '申请',
-  Convert: '转换',
+  'Apply': '申请',
+  'Convert': '转换',
   'Status Balances': '假期余额',
   'Annual Leave': '年假',
   'Medical Leave': '病假',
   'Public Holiday': '公共假期',
   'Unpaid Leave': '无薪假',
-  Replacement: '补假',
+  'Replacement': '补假',
   'Action History': '操作记录',
-  Records: '条记录',
-  'No records found.': '暂无记录',
-  Approvals: '审批',
-  'No pending requests.': '没有待处理的请求',
+  'Records': '条记录',
+  'No records found.': '暂无记录。',
+  'Approvals': '审批',
+  'No pending requests.': '没有待处理的请求。',
   'Chinese New Year': '农历新年',
   'Hari Raya Aidilfitri': '开斋节',
   'Wesak Day': '卫塞节',
   'Awal Muharram': '回历元旦',
-  Deepavali: '屠妖节',
+  'Deepavali': '屠妖节',
   'Christmas Day': '圣诞节',
   'Management Portal': '管理门户',
   'Sign In': '登入',
-  Username: '用户名',
-  Password: '密码',
+  'Username': '用户名',
+  'Password': '密码',
   'Create Account': '创建账号',
   'Initialize New Staff': '初始化新员工',
   'Company Profile Settings': '公司资料设置',
@@ -152,6 +152,116 @@ const dict = {
   'Payroll Engine': '工资核算引擎',
   'Generate Payslip': '生成工资单',
   'Optional Public Holidays Registry': '可选公共假期管理',
+  'Status: Confirmed Employment': '状态：已确认正式员工',
+  'Status: Probation Period': '状态：试用期',
+  'Employee Portion (Deduct)': '员工扣除部分',
+  'Employer Portion (Company)': '雇主缴纳部分',
+  'Total Deduct': '总扣除',
+  'Total Contrib': '总缴纳',
+  'Career Tracker': '职业追踪',
+  'Aggregated since day 1.': '从第一天起累计。',
+  'Total Basic': '总底薪',
+  'Total Comm': '总提成',
+  'Total EPF': '总公积金',
+  'Tenure': '工龄',
+  'Months': '个月',
+  'Requested Changes to Staff Data': '要求更改员工数据',
+  'PH Selection': '公共假期选择',
+  'Holidays to RL': '天假期转为补假',
+  'Applied Date :': '申请日期：',
+  'Estimated Net Basic': '预计净底薪',
+  'Johor Public Holidays 2026': '2026年柔佛公共假期',
+  'Payslip Record': '工资单记录',
+  'No records generated.': '没有生成记录。',
+  'Export': '导出',
+  'View': '查看',
+  'Action': '操作',
+  'Period': '期间',
+  'Basic RM': '底薪 RM',
+  'Commission': '提成',
+  'Net Total': '净收入',
+  'PDF': 'PDF',
+  'Company Name': '公司名称',
+  'SSM No.': '公司注册号 (SSM)',
+  'Tax No.': '税号',
+  'Update Settings': '更新设置',
+  'Enter new designation...': '输入新职位...',
+  'Add': '添加',
+  'Holiday Name (e.g. Thaipusam)...': '假期名称(如：大宝森节)...',
+  'Date (e.g. Jan 25)': '日期(如：Jan 25)',
+  'Employment Offer Letter': '录用通知书',
+  'Confirmation Letter': '转正信',
+  'Increment Letter': '加薪信',
+  'Warning Letter': '警告信',
+  'Generate for': '生成给',
+  'EXPORT PDF': '导出 PDF',
+  'Payslip Preview -': '工资单预览 -',
+  'Official Document': '官方文件',
+  'Employee:': '员工：',
+  'Period:': '期间：',
+  'Basic Salary:': '基本工资：',
+  'Total Deductions:': '总扣除额：',
+  'Nett Income': '净收入',
+  'GENERATING PDF...': '生成PDF中...',
+  'DOWNLOAD PDF COPY': '下载PDF副本',
+  'Set Username': '设置用户名',
+  'Set Password': '设置密码',
+  'Update Details': '更新详细信息',
+  'Legal Name': '法定姓名',
+  'Contact No.': '联系电话',
+  'IC Number': '身份证号',
+  'Gender': '性别',
+  'Male': '男',
+  'Female': '女',
+  'Designation': '职位',
+  'Join Date': '入职日期',
+  'Probation End Date': '试用期结束日期',
+  'EPF ID': '公积金账号',
+  'SOCSO ID': '社险账号',
+  'Monthly Basic (RM)': '月基本工资 (RM)',
+  'Cancel': '取消',
+  'Save Changes': '保存更改',
+  'Reject Application': '拒绝申请',
+  'Reason (Optional)': '原因 (可选)',
+  'Confirm Reject': '确认拒绝',
+  'Cancel Application': '取消申请',
+  'Are you sure you want to cancel this request?': '您确定要取消此请求吗？',
+  'Back': '返回',
+  'Confirm': '确认',
+  'Select Target Date': '选择目标日期',
+  'Submit': '提交',
+  'Status': '状态',
+  'No data.': '无数据。',
+  'Probation Policy': '试用期政策',
+  'Handle Annual Leave count?': '处理年假计算？',
+  'Proceed Counting AL': '继续计算年假',
+  'Waive (Ignore) AL': '豁免(忽略)年假',
+  'Staff Access Selection': '员工权限选择',
+  'Headcount:': '总人数：',
+  'Active': '活跃',
+  'CREATE': '创建',
+  'Ref:': '参考号：',
+  'Days': '天',
+  'Days Taken': '已用天数',
+  'No Staff Record Found': '未找到员工记录',
+  'Please click "CREATE STAFF" to initialize the database.': '请点击“创建”来初始化数据库。',
+  'Sultan Johor Birthday': '柔佛苏丹诞辰',
+  'Labour Day': '劳动节',
+  'Agong Birthday': '国家元首诞辰',
+  'National Day': '国庆日',
+  'Malaysia Day': '马来西亚日',
+  'Comm': '提成',
+  'Bonus': '奖金',
+  'Request': '请求',
+  'Contact': '联系方式',
+  'IC Identity': '身份证号',
+  'Prob. End Date': '试用期结束',
+  'Monthly Basic': '月基本工资',
+  'Daily Rate': '日工资率',
+  'EPF (11%)': '公积金 (11%)',
+  'SOCSO': '社险 (SOCSO)',
+  'EIS': '就业保险 (EIS)',
+  'EPF (13%)': '公积金 (13%)'
 };
 
 // --- HELPERS ---
@@ -168,10 +278,10 @@ const formatPHDateStr = (dateStr) => {
 
 const getTypeFullName = (type) => {
   const types = {
-    AL: 'Annual Leave (AL)',
-    MC: 'Medical Leave (MC)',
-    UPL: 'Unpaid Leave (UPL)',
-    RL: 'Replacement Leave (RL)',
+    AL: 'Annual Leave',
+    MC: 'Medical Leave',
+    UPL: 'Unpaid Leave',
+    RL: 'Replacement',
     PROFILE_UPDATE: 'Profile Update',
   };
   return types[type] || type;
@@ -189,7 +299,7 @@ const App = () => {
   const [lang, setLang] = useState('en');
 
   // Translation Helper
-  const t = (text) => (lang === 'zh' ? dict[text] || text : text);
+  const t = (text) => lang === 'zh' ? (dict[text] || text) : text;
 
   // --- APP STATE ---
   const [hrSubTab, setHrSubTab] = useState('PROFILE');
@@ -365,40 +475,22 @@ const App = () => {
     });
 
     // Optional PHs Sync
-    const unsubPHs = onSnapshot(
-      doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'),
-      (snap) => {
-        if (snap.exists()) {
-          setOptionalPHs(snap.data().list || []);
-        } else {
-          const initial = [
-            { id: 'ph-cny', name: 'Chinese New Year', date: 'Feb 17' },
-            {
-              id: 'ph-hari-raya',
-              name: 'Hari Raya Aidilfitri',
-              date: 'Mar 20',
-            },
-            { id: 'ph-wesak', name: 'Wesak Day', date: 'May 1' },
-            { id: 'ph-awal-muharram', name: 'Awal Muharram', date: 'Jun 17' },
-            { id: 'ph-deepavali', name: 'Deepavali', date: 'Nov 8' },
-            { id: 'ph-christmas', name: 'Christmas Day', date: 'Dec 25' },
-          ];
-          setDoc(
-            doc(
-              db,
-              'artifacts',
-              appId,
-              'public',
-              'data',
-              'settings',
-              'optionalPHs'
-            ),
-            { list: initial }
-          );
-          setOptionalPHs(initial);
-        }
+    const unsubPHs = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), (snap) => {
+      if (snap.exists()) {
+        setOptionalPHs(snap.data().list || []);
+      } else {
+        const initial = [
+          { id: 'ph-cny', name: 'Chinese New Year', date: 'Feb 17' },
+          { id: 'ph-hari-raya', name: 'Hari Raya Aidilfitri', date: 'Mar 20' },
+          { id: 'ph-wesak', name: 'Wesak Day', date: 'May 1' },
+          { id: 'ph-awal-muharram', name: 'Awal Muharram', date: 'Jun 17' },
+          { id: 'ph-deepavali', name: 'Deepavali', date: 'Nov 8' },
+          { id: 'ph-christmas', name: 'Christmas Day', date: 'Dec 25' },
+        ];
+        setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: initial });
+        setOptionalPHs(initial);
       }
-    );
+    });
 
     // Company Info Sync
     const companyRef = doc(
@@ -566,7 +658,7 @@ const App = () => {
       doc(db, 'artifacts', appId, 'public', 'data', 'leaveApps', id),
       { ...app, id, appliedAt: Date.now() }
     );
-    alert('Application Submitted / 已提交申请');
+    alert(t('Application Submitted / 已提交申请'));
   };
 
   const updateLeaveApp = async (id, data) => {
@@ -590,7 +682,7 @@ const App = () => {
   const handleDraftTogglePH = (phId, isChecked) => {
     if (isChecked) {
       if (draftPHs.length >= 6)
-        return alert('Maximum 6 optional Public Holidays can be selected.');
+        return alert(t('Maximum 6 optional Public Holidays can be selected.'));
       setDraftPHs([...draftPHs, phId]);
     } else {
       setDraftPHs(draftPHs.filter((id) => id !== phId));
@@ -618,13 +710,13 @@ const App = () => {
         !activeStaff.selectedPHs?.includes(id) &&
         !activeStaff.convertedPHs?.includes(id)
     );
-    if (newToConvert.length === 0) return alert('Select new holidays first.');
+    if (newToConvert.length === 0) return alert(t('Select new holidays first.'));
     setConvertPromptData(newToConvert);
     setConvertTargetDate('');
   };
 
   const confirmBatchConvert = async () => {
-    if (!convertTargetDate) return alert('Please specify the target date.');
+    if (!convertTargetDate) return alert(t('Please specify the target date.'));
     await addLeaveApp({
       staffId: activeStaff.id,
       username: activeStaff.username,
@@ -661,7 +753,7 @@ const App = () => {
       }
       await updateStaffData(editForm.id, finalEditForm);
       setIsEditProfileModalOpen(false);
-      alert('Record Updated Successfully.');
+      alert(t('Record Updated Successfully.'));
     } else {
       await addLeaveApp({
         staffId: activeStaff.id,
@@ -676,7 +768,7 @@ const App = () => {
         actionAt: null,
       });
       setIsEditProfileModalOpen(false);
-      alert('Update Submitted for Admin Approval.');
+      alert(t('Update Submitted for Admin Approval.'));
     }
   };
 
@@ -705,7 +797,7 @@ const App = () => {
     }
     setIsEditProfileModalOpen(false);
     setWaivePromptData(null);
-    alert('Record Updated Successfully.');
+    alert(t('Record Updated Successfully.'));
   };
 
   const processLeave = async (id, status, reason = '') => {
@@ -784,12 +876,12 @@ const App = () => {
     setCommStaffId(newId);
     setNewStaffForm({ username: '', password: '' });
     setIsAddStaffModalOpen(false);
-    alert(`Staff account created.`);
+    alert(t(`Staff account created.`));
   };
 
   const generatePayslip = async () => {
     const target = staffList.find((s) => s.id === commStaffId);
-    if (!target) return alert('Select staff member.');
+    if (!target) return alert(t('Select staff member.'));
     const basic = Number(target.salary),
       comm = parseFloat(commInput) || 0,
       bonus = parseFloat(bonusInput) || 0;
@@ -831,7 +923,7 @@ const App = () => {
     await deleteDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'payslips', id)
     );
-    alert('Record Deleted.');
+    alert(t('Record Deleted.'));
   };
 
   const handleDownloadPayslip = async (payslip, staff) => {
@@ -955,7 +1047,7 @@ const App = () => {
       'main'
     );
     await setDoc(companyRef, data, { merge: true });
-    alert('Company Info Updated.');
+    alert(t('Company Info Updated.'));
   };
 
   const addDesignation = async () => {
@@ -987,25 +1079,14 @@ const App = () => {
 
   const addOptionalPH = async () => {
     if (!newPHForm.name || !newPHForm.date) return;
-    const newList = [
-      ...optionalPHs,
-      { id: `ph-${Date.now()}`, name: newPHForm.name, date: newPHForm.date },
-    ];
-    await setDoc(
-      doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'),
-      { list: newList },
-      { merge: true }
-    );
+    const newList = [...optionalPHs, { id: `ph-${Date.now()}`, name: newPHForm.name, date: newPHForm.date }];
+    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
     setNewPHForm({ name: '', date: '' });
   };
 
   const deleteOptionalPH = async (id) => {
-    const newList = optionalPHs.filter((ph) => ph.id !== id);
-    await setDoc(
-      doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'),
-      { list: newList },
-      { merge: true }
-    );
+    const newList = optionalPHs.filter(ph => ph.id !== id);
+    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
   };
 
   const handleLogout = () => {
@@ -1042,12 +1123,8 @@ const App = () => {
   const EmptyStaffState = () => (
     <div className="flex flex-col items-center justify-center py-32 bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm mt-6">
       <UserCircle size={64} className="text-slate-200 mb-4" />
-      <p className="text-slate-500 font-bold uppercase text-sm">
-        No Staff Record Found
-      </p>
-      <p className="text-slate-400 text-xs mt-2">
-        Please click "CREATE STAFF" to initialize the database.
-      </p>
+      <p className="text-slate-500 font-bold uppercase text-sm">{t('No Staff Record Found')}</p>
+      <p className="text-slate-400 text-xs mt-2">{t('Please click "CREATE STAFF" to initialize the database.')}</p>
     </div>
   );
 
@@ -1069,7 +1146,7 @@ const App = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="text"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
               placeholder={t('Username')}
               value={loginForm.user}
               onChange={(e) =>
@@ -1080,7 +1157,7 @@ const App = () => {
             <input
               type="password"
               name="password"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
               placeholder={t('Password')}
               value={loginForm.pass}
               onChange={(e) =>
@@ -1106,15 +1183,11 @@ const App = () => {
   }
 
   return (
-    <div
-      className={`min-h-screen ${
-        isDark ? 'dark-theme' : ''
-      } bg-slate-50 font-sans text-slate-800 pb-20 leading-normal transition-colors duration-200`}
-    >
+    <div className={`min-h-screen ${isDark ? 'dark-theme' : ''} bg-slate-50 font-sans text-slate-800 pb-20 leading-normal transition-colors duration-200`}>
       <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50 shadow-sm transition-colors duration-200">
         <div className="flex items-center gap-3">
           <Building className="text-indigo-600" size={20} />
-          <h1 className="text-lg font-bold uppercase leading-none tracking-tight">
+          <h1 className="text-lg font-bold uppercase leading-none tracking-tight text-slate-900">
             {currentUser.company}
           </h1>
           <span className="bg-indigo-50 text-indigo-600 text-[8px] px-2 py-0.5 rounded font-bold uppercase">
@@ -1122,22 +1195,14 @@ const App = () => {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-            className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition"
-            title="Toggle Language"
-          >
+          <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Language">
             <Globe size={16} />
           </button>
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition"
-            title="Toggle Dark Mode"
-          >
+          <button onClick={() => setIsDark(!isDark)} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Dark Mode">
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <div className="w-px h-5 bg-slate-300 mx-2" />
-          <p className="text-sm font-bold">{currentUser.user}</p>
+          <p className="text-sm font-bold text-slate-900">{currentUser.user}</p>
           <button
             onClick={handleLogout}
             className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition shadow-sm"
@@ -1147,7 +1212,7 @@ const App = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto p-8 space-y-6">
+      <div className="w-full px-4 md:px-8 py-6 space-y-6">
         <div className="flex gap-1 border-b">
           {[
             'PROFILE',
@@ -1173,8 +1238,8 @@ const App = () => {
           <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center justify-between transition-colors duration-200">
             <div className="flex items-center gap-4">
               <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase text-slate-400 block ml-1">
-                  Staff Access Selection
+                <label className="text-[9px] font-bold uppercase text-slate-400 block ml-1 text-left">
+                  {t('Staff Access Selection')}
                 </label>
                 <select
                   className="block w-64 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold outline-none cursor-pointer focus:border-indigo-400 transition-colors duration-200"
@@ -1190,906 +1255,876 @@ const App = () => {
               </div>
               <div className="h-8 w-px bg-slate-200" />
               <div className="text-[10px] font-bold text-slate-500 uppercase">
-                Headcount: {staffList.length} Active
+                {t('Headcount:')} {staffList.length} {t('Active')}
               </div>
             </div>
             <button
               onClick={() => setIsAddStaffModalOpen(true)}
               className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-md flex items-center gap-2"
             >
-              <Plus size={14} /> CREATE
+              <Plus size={14} /> {t('CREATE')}
             </button>
           </div>
         )}
 
         <div className="min-h-[500px]">
-          {hrSubTab === 'PROFILE' &&
-            (activeStaff.id ? (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row transition-colors duration-200">
-                  <div className="md:w-48 bg-indigo-600 p-8 flex flex-col items-center justify-center text-white relative">
-                    <div className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center text-3xl font-bold mb-3 shadow-inner relative overflow-hidden">
-                      {activeStaff.profilePic ? (
-                        <img
-                          src={activeStaff.profilePic}
-                          className="w-full h-full object-cover rounded-xl profile-pic-preserve"
-                          alt="Profile"
-                        />
-                      ) : activeStaff.name ? (
-                        activeStaff.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                      ) : (
-                        '?'
-                      )}
-                      <label className="absolute -bottom-3 -right-3 bg-indigo-400 hover:bg-indigo-300 p-2 rounded-full cursor-pointer shadow-lg transition z-10 border-2 border-indigo-600">
-                        <Plus size={16} className="text-white" />
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={handleProfilePicUpload}
-                        />
-                      </label>
+          {hrSubTab === 'PROFILE' && (
+            activeStaff.id ? (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row transition-colors duration-200">
+                <div className="md:w-48 bg-indigo-600 p-8 flex flex-col items-start md:items-center justify-center text-white relative">
+                  <div className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center text-3xl font-bold mb-3 shadow-inner relative overflow-hidden">
+                    {activeStaff.profilePic ? (
+                      <img
+                        src={activeStaff.profilePic}
+                        className="w-full h-full object-cover rounded-xl profile-pic-preserve"
+                        alt="Profile"
+                      />
+                    ) : activeStaff.name ? (
+                      activeStaff.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                    ) : (
+                      '?'
+                    )}
+                    <label className="absolute -bottom-3 -right-3 bg-indigo-400 hover:bg-indigo-300 p-2 rounded-full cursor-pointer shadow-lg transition z-10 border-2 border-indigo-600">
+                      <Plus size={16} className="text-white" />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleProfilePicUpload}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[8px] font-bold uppercase tracking-wider text-indigo-200">
+                    {t('Ref:')} {activeStaff.id}
+                  </p>
+                </div>
+                <div className="flex-1 p-8 space-y-6 text-left">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 gap-4 transition-colors duration-200">
+                    <div className="text-left">
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-bold text-slate-900">
+                          {activeStaff.name || 'Unnamed Staff'}
+                        </h2>
+                        <button
+                          onClick={openEditModal}
+                          className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition shadow-sm"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                      </div>
+                      <p className="text-slate-500 text-xs font-medium uppercase mt-1 text-left">
+                        {activeStaff.probationEndDate &&
+                        new Date(activeStaff.probationEndDate) < TODAY
+                          ? t('Status: Confirmed Employment')
+                          : t('Status: Probation Period')}
+                      </p>
                     </div>
-                    <p className="text-[8px] font-bold uppercase tracking-wider text-indigo-200">
-                      Ref: {activeStaff.id}
+                    <div className="text-left md:text-right">
+                      <label className="text-[9px] font-bold uppercase text-slate-400 block mb-2">
+                        {t('Designation')}
+                      </label>
+                      <div className="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg font-bold text-[10px] uppercase border transition-colors duration-200 inline-block">
+                        {t(activeStaff.role)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8 text-left">
+                    {[
+                      { label: t('Contact'), value: activeStaff.phone },
+                      { label: t('IC Identity'), value: activeStaff.ic },
+                      { label: t('Gender'), value: t(activeStaff.gender) },
+                      {
+                        label: t('Join Date'),
+                        value: activeStaff.joinDate || 'Not Set',
+                      },
+                      {
+                        label: t('Prob. End Date'),
+                        value: activeStaff.probationEndDate || 'Not Set',
+                      },
+                      { label: t('SOCSO ID'), value: activeStaff.socsoNo },
+                    ].map((item) => (
+                      <div key={item.label} className="space-y-1 text-left">
+                        <p className="text-[10px] font-semibold text-slate-500 uppercase text-left">
+                          {item.label}
+                        </p>
+                        <p className="font-bold text-slate-800 text-sm text-left">
+                          {String(item.value || 'N/A')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-6 border-t border-slate-100 flex items-center gap-8 transition-colors duration-200 text-left">
+                    <div className="text-left">
+                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
+                        {t('Monthly Basic')}
+                      </p>
+                      <p className="font-bold text-indigo-600 text-2xl text-left">
+                        RM{' '}
+                        {hasSalary
+                          ? Number(activeStaff.salary).toFixed(2)
+                          : '0.00'}
+                      </p>
+                    </div>
+                    <div className="h-10 w-px bg-slate-200" />
+                    <div className="text-left">
+                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
+                        {t('Daily Rate')}
+                      </p>
+                      <p className="font-bold text-slate-800 text-lg text-left">
+                        RM {DAILY_RATE}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold text-indigo-500 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    {t('Employee Portion (Deduct)')}
+                  </h3>
+                  <div className="space-y-3 font-bold text-[11px] text-slate-600">
+                    <div className="flex justify-between">
+                      <span>{t('EPF (11%)')}</span>
+                      <span>RM {hasSalary ? '242.00' : '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('SOCSO')}</span>
+                      <span>RM {hasSalary ? '10.75' : '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('EIS')}</span>
+                      <span>RM {hasSalary ? '4.30' : '0.00'}</span>
+                    </div>
+                    <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-lg uppercase transition-colors duration-200">
+                      <span>{t('Total Deduct')}</span>
+                      <span>RM {hasSalary ? '257.05' : '0.00'}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold text-emerald-600 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    {t('Employer Portion (Company)')}
+                  </h3>
+                  <div className="space-y-3 font-bold text-[11px] text-slate-600">
+                    <div className="flex justify-between">
+                      <span>{t('EPF (13%)')}</span>
+                      <span>RM {hasSalary ? '286.00' : '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('SOCSO')}</span>
+                      <span>RM {hasSalary ? '37.65' : '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t('EIS')}</span>
+                      <span>RM {hasSalary ? '4.30' : '0.00'}</span>
+                    </div>
+                    <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-lg uppercase transition-colors duration-200">
+                      <span>{t('Total Contrib')}</span>
+                      <span>RM {hasSalary ? '327.95' : '0.00'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-slate-900 career-tracker-box rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group text-left">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 text-left">
+                  <div className="md:w-1/4 border-r border-white/10 pr-6 text-left">
+                    <h3 className="text-lg font-bold text-indigo-400 uppercase mb-2 flex items-center gap-2 justify-start">
+                      <History size={16} /> {t('Career Tracker')}
+                    </h3>
+                    <p className="text-[9px] text-slate-400 uppercase font-medium leading-relaxed text-left">
+                      {t('Aggregated since day 1.')}
                     </p>
                   </div>
-                  <div className="flex-1 p-8 space-y-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 gap-4 transition-colors duration-200">
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <h2 className="text-xl font-bold text-slate-900">
-                            {activeStaff.name || 'Unnamed Staff'}
-                          </h2>
-                          <button
-                            onClick={openEditModal}
-                            className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition shadow-sm"
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                        </div>
-                        <p className="text-slate-500 text-xs font-medium uppercase mt-1">
-                          {activeStaff.probationEndDate &&
-                          new Date(activeStaff.probationEndDate) < TODAY
-                            ? 'Regular Employment'
-                            : 'Probation Period'}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <label className="text-[9px] font-bold uppercase text-slate-400 block mb-2">
-                          Designation
-                        </label>
-                        <div className="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg font-bold text-[10px] uppercase border transition-colors duration-200">
-                          {activeStaff.role}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8">
-                      {[
-                        { label: 'Contact', value: activeStaff.phone },
-                        { label: 'IC Identity', value: activeStaff.ic },
-                        { label: 'Gender', value: activeStaff.gender },
-                        {
-                          label: 'Join Date',
-                          value: activeStaff.joinDate || 'Not Set',
-                        },
-                        {
-                          label: 'Prob. End Date',
-                          value: activeStaff.probationEndDate || 'Not Set',
-                        },
-                        { label: 'SOCSO ID', value: activeStaff.socsoNo },
-                      ].map((item) => (
-                        <div key={item.label} className="space-y-1">
-                          <p className="text-[10px] font-semibold text-slate-500 uppercase">
-                            {item.label}
-                          </p>
-                          <p className="font-bold text-slate-800 text-sm">
-                            {String(item.value || 'N/A')}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-6 border-t border-slate-100 flex items-center gap-8 transition-colors duration-200">
-                      <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase mb-1">
-                          Monthly Basic
-                        </p>
-                        <p className="font-bold text-indigo-600 text-2xl">
-                          RM{' '}
-                          {hasSalary
-                            ? Number(activeStaff.salary).toFixed(2)
-                            : '0.00'}
-                        </p>
-                      </div>
-                      <div className="h-10 w-px bg-slate-200" />
-                      <div>
-                        <p className="text-xs font-semibold text-slate-500 uppercase mb-1">
-                          Daily Rate
-                        </p>
-                        <p className="font-bold text-slate-800 text-lg">
-                          RM {DAILY_RATE}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200">
-                    <h3 className="text-lg font-bold text-indigo-500 uppercase border-b border-slate-200 pb-4 transition-colors duration-200">
-                      Employee Portion (Deduct)
-                    </h3>
-                    <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                      <div className="flex justify-between">
-                        <span>EPF (11%)</span>
-                        <span>RM {hasSalary ? '242.00' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>SOCSO</span>
-                        <span>RM {hasSalary ? '10.75' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>EIS</span>
-                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                      </div>
-                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-lg uppercase transition-colors duration-200">
-                        <span>Total Deduct</span>
-                        <span>RM {hasSalary ? '257.05' : '0.00'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200">
-                    <h3 className="text-lg font-bold text-emerald-600 uppercase border-b border-slate-200 pb-4 transition-colors duration-200">
-                      Employer Portion (Company)
-                    </h3>
-                    <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                      <div className="flex justify-between">
-                        <span>EPF (13%)</span>
-                        <span>RM {hasSalary ? '286.00' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>SOCSO</span>
-                        <span>RM {hasSalary ? '37.65' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>EIS</span>
-                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                      </div>
-                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-lg uppercase transition-colors duration-200">
-                        <span>Total Contrib</span>
-                        <span>RM {hasSalary ? '327.95' : '0.00'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-slate-900 career-tracker-box rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group">
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                    <div className="md:w-1/4 border-r border-white/10 pr-6">
-                      <h3 className="text-lg font-bold text-indigo-400 uppercase mb-2 flex items-center gap-2">
-                        <History size={16} /> Career Tracker
-                      </h3>
-                      <p className="text-[9px] text-slate-400 uppercase font-medium leading-relaxed">
-                        Aggregated since day 1.
+                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                        {t('Total Basic')}
+                      </p>
+                      <p className="text-xl font-bold text-white tracking-preserve text-left">
+                        RM{' '}
+                        {careerTotals.basic.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </p>
                     </div>
-                    <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1">
-                          Total Basic
-                        </p>
-                        <p className="text-xl font-bold text-white tracking-preserve">
-                          RM{' '}
-                          {careerTotals.basic.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1">
-                          Total Comm
-                        </p>
-                        <p className="text-xl font-bold text-emerald-400 tracking-preserve">
-                          RM{' '}
-                          {careerTotals.comm.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1">
-                          Total EPF
-                        </p>
-                        <p className="text-xl font-bold text-indigo-300 tracking-preserve">
-                          RM{' '}
-                          {careerTotals.epf.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1">
-                          Tenure
-                        </p>
-                        <p className="text-xl font-bold text-white tracking-preserve">
-                          {currentTenureMonths} Months
-                        </p>
-                      </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                        {t('Total Comm')}
+                      </p>
+                      <p className="text-xl font-bold text-emerald-400 tracking-preserve text-left">
+                        RM{' '}
+                        {careerTotals.comm.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                        {t('Total EPF')}
+                      </p>
+                      <p className="text-xl font-bold text-indigo-300 tracking-preserve text-left">
+                        RM{' '}
+                        {careerTotals.epf.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                        {t('Tenure')}
+                      </p>
+                      <p className="text-xl font-bold text-white tracking-preserve text-left">
+                        {currentTenureMonths} {t('Months')}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
-            ) : (
-              <EmptyStaffState />
-            ))}
+            </div>
+            ) : <EmptyStaffState />
+          )}
 
           {/* LEAVE TAB */}
-          {hrSubTab === 'LEAVE_APPLICATION' &&
-            (activeStaff.id ? (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                {currentUser.type === 'ADMIN' ? (
-                  <>
-                    {/* ADMIN TOP: 50/50 Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 min-h-[400px] transition-colors duration-200">
-                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200">
-                          {t('Approvals')}{' '}
-                          <AlertCircle className="text-amber-500" size={16} />
-                        </h2>
-                        <div className="space-y-3">
-                          {leaveApps.filter((a) => a.status === 'PENDING')
-                            .length === 0 ? (
-                            <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
-                              {t('No pending requests.')}
-                            </div>
-                          ) : (
-                            leaveApps
-                              .filter((a) => a.status === 'PENDING')
-                              .map((app) => (
-                                <div
-                                  key={app.id}
-                                  className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col gap-3 transition-colors duration-200"
-                                >
-                                  <div className="space-y-1">
-                                    <p className="font-bold text-slate-800 uppercase text-[9px]">
-                                      {app.staffName} ·{' '}
-                                      {t(getTypeFullName(app.type))}
-                                    </p>
-                                    <p className="text-xs font-bold text-indigo-600">
-                                      {app.type === 'PROFILE_UPDATE'
-                                        ? 'Requested Changes to Staff Data'
-                                        : app.type === 'PH_UPDATE'
-                                        ? `PH Selection (${app.days} items)`
-                                        : app.type === 'PH_CONVERT_BATCH'
-                                        ? `Convert ${app.days} Holidays to RL`
-                                        : `${app.startDate} to ${app.endDate} (${app.days}d)`}
-                                    </p>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() =>
-                                        processLeave(app.id, 'APPROVED')
-                                      }
-                                      className="flex-1 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center"
-                                    >
-                                      <Check size={16} />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setRejectPromptId(app.id);
-                                        setRejectReason('');
-                                      }}
-                                      className="flex-1 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center"
-                                    >
-                                      <X size={16} />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))
-                          )}
-                        </div>
-                      </div>
-                      {/* Admin Status Balances Card (Grid) */}
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 min-h-[400px] transition-colors duration-200">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200">
-                          {t('Status Balances')}{' '}
-                          <Info size={14} className="text-slate-300" />
-                        </h2>
-                        <div className="flex flex-col gap-6">
-                          <BalanceMetric
-                            label={t('Annual Leave')}
-                            current={earnedAL - activeStaff.alUsed}
-                            total={earnedAL}
-                            color="indigo"
-                            onInfoClick={() => setViewLeaveHistory('AL')}
-                          />
-                          <BalanceMetric
-                            label={t('Medical Leave')}
-                            current={14 - activeStaff.mcUsed}
-                            total={14}
-                            color="emerald"
-                            onInfoClick={() => setViewLeaveHistory('MC')}
-                          />
-                          <BalanceMetric
-                            label={t('Public Holiday')}
-                            current={6 - (activeStaff.phUsed || 0)}
-                            total={6}
-                            color="amber"
-                            onInfoClick={() => setViewLeaveHistory('PH')}
-                          />
-                          <BalanceMetric
-                            label={t('Unpaid Leave')}
-                            current={activeStaff.uplUsed}
-                            total={null}
-                            color="rose"
-                            onInfoClick={() => setViewLeaveHistory('UPL')}
-                          />
-                          <BalanceMetric
-                            label={t('Replacement')}
-                            current={activeStaff.rlUsed || 0}
-                            total={activeStaff.rlEarned || 0}
-                            color="teal"
-                            onInfoClick={() => setViewLeaveHistory('RL')}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* STAFF TOP: Full Width Horizontal Bar */}
-                    <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
-                      <div className="flex items-center gap-3 shrink-0">
-                        <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
-                          {t('Leave Application')}
-                        </h2>
-                        <ArrowRight className="text-indigo-400" size={18} />
-                      </div>
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400">
-                            {t('Category')}
-                          </label>
-                          <select
-                            id="lType"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg"
-                          >
-                            <option value="AL" className="text-slate-900">
-                              {t('Annual Leave')}
-                            </option>
-                            <option value="MC" className="text-slate-900">
-                              {t('Medical Leave')}
-                            </option>
-                            <option value="RL" className="text-slate-900">
-                              {t('Replacement')}
-                            </option>
-                            <option value="UPL" className="text-slate-900">
-                              {t('Unpaid Leave')}
-                            </option>
-                          </select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400">
-                            {t('Start Date')}
-                          </label>
-                          <input
-                            id="lStart"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white"
-                            style={{ colorScheme: 'dark' }}
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400">
-                            {t('End Date')}
-                          </label>
-                          <input
-                            id="lEnd"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white"
-                            style={{ colorScheme: 'dark' }}
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const start = document.getElementById('lStart').value,
-                            end = document.getElementById('lEnd').value,
-                            type = document.getElementById('lType').value;
-                          if (!start || !end)
-                            return alert('Dates are required.');
-                          const days =
-                            Math.ceil(
-                              Math.abs(new Date(end) - new Date(start)) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1;
-                          addLeaveApp({
-                            staffId: currentUser.id,
-                            username: currentUser.username,
-                            staffName: currentUser.name,
-                            type,
-                            startDate: start,
-                            endDate: end,
-                            days,
-                            status: 'PENDING',
-                            timestamp: new Date().toLocaleString(),
-                            actionAt: null,
-                          });
-                        }}
-                        className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
-                      >
-                        {t('Submit Request')}
-                      </button>
-                    </div>
-
-                    {/* STAFF MIDDLE: 50/50 Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200">
-                          {t('Optional Public Holidays (Max 6)')}
-                        </h2>
-                        <div className="space-y-2 mb-6 flex-1">
-                          {optionalPHs.map((ph) => (
-                            <div
-                              key={ph.id}
-                              className="flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 hover:bg-slate-100 transition transition-colors duration-200"
-                            >
-                              <label className="flex items-center gap-3 flex-1 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={draftPHs.includes(ph.id)}
-                                  disabled={activeStaff.convertedPHs?.includes(
-                                    ph.id
-                                  )}
-                                  onChange={(e) =>
-                                    handleDraftTogglePH(ph.id, e.target.checked)
-                                  }
-                                  className="w-4 h-4 text-indigo-600 rounded"
-                                />
-                                <div>
-                                  <p className="text-[11px] font-bold text-slate-800">
-                                    {t(ph.name)}{' '}
-                                    <span className="font-normal text-slate-500 ml-1">
-                                      ({ph.date})
-                                    </span>
+          {hrSubTab === 'LEAVE_APPLICATION' && (
+            activeStaff.id ? (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {currentUser.type === 'ADMIN' ? (
+                <>
+                  {/* ADMIN TOP: 50/50 Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200 text-slate-900">
+                        {t('Approvals')}{' '}
+                        <AlertCircle className="text-amber-500" size={16} />
+                      </h2>
+                      <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+                        {leaveApps.filter((a) => a.status === 'PENDING')
+                          .length === 0 ? (
+                          <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
+                            {t('No pending requests.')}
+                          </div>
+                        ) : (
+                          leaveApps
+                            .filter((a) => a.status === 'PENDING')
+                            .map((app) => (
+                              <div
+                                key={app.id}
+                                className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col gap-3 transition-colors duration-200 text-left"
+                              >
+                                <div className="space-y-1">
+                                  <p className="font-bold text-slate-800 uppercase text-[9px]">
+                                    {app.staffName} ·{' '}
+                                    {t(getTypeFullName(app.type))}
+                                  </p>
+                                  <p className="text-xs font-bold text-indigo-600">
+                                    {app.type === 'PROFILE_UPDATE'
+                                      ? t('Requested Changes to Staff Data')
+                                      : app.type === 'PH_UPDATE'
+                                      ? `${t('PH Selection')} (${app.days} items)`
+                                      : app.type === 'PH_CONVERT_BATCH'
+                                      ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
+                                      : `${app.startDate} to ${app.endDate} (${app.days}d)`}
                                   </p>
                                 </div>
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-4">
-                          <button
-                            onClick={submitPHSelection}
-                            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
-                          >
-                            {t('Apply')}
-                          </button>
-                          <button
-                            onClick={triggerBatchConvert}
-                            className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
-                          >
-                            {t('Convert')}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200">
-                          {t('Status Balances')}{' '}
-                          <Info size={14} className="text-slate-300" />
-                        </h2>
-                        <div className="flex flex-col gap-8">
-                          <BalanceMetric
-                            label={t('Annual Leave')}
-                            current={earnedAL - activeStaff.alUsed}
-                            total={earnedAL}
-                            color="indigo"
-                            onInfoClick={() => setViewLeaveHistory('AL')}
-                          />
-                          <BalanceMetric
-                            label={t('Medical Leave')}
-                            current={14 - activeStaff.mcUsed}
-                            total={14}
-                            color="emerald"
-                            onInfoClick={() => setViewLeaveHistory('MC')}
-                          />
-                          <BalanceMetric
-                            label={t('Public Holiday')}
-                            current={6 - (activeStaff.phUsed || 0)}
-                            total={6}
-                            color="amber"
-                            onInfoClick={() => setViewLeaveHistory('PH')}
-                          />
-                          <BalanceMetric
-                            label={t('Unpaid Leave')}
-                            current={activeStaff.uplUsed}
-                            total={null}
-                            color="rose"
-                            onInfoClick={() => setViewLeaveHistory('UPL')}
-                          />
-                          <BalanceMetric
-                            label={t('Replacement')}
-                            current={activeStaff.rlUsed || 0}
-                            total={activeStaff.rlEarned || 0}
-                            color="teal"
-                            onInfoClick={() => setViewLeaveHistory('RL')}
-                          />
-                        </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() =>
+                                      processLeave(app.id, 'APPROVED')
+                                    }
+                                    className="flex-1 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center"
+                                  >
+                                    <Check size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejectPromptId(app.id);
+                                      setRejectReason('');
+                                    }}
+                                    className="flex-1 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                        )}
                       </div>
                     </div>
-                  </>
-                )}
+                    {/* Admin Status Balances Card (Vertical list) */}
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                        {t('Status Balances')}{' '}
+                        <Info size={14} className="text-slate-300" />
+                      </h2>
+                      <div className="flex flex-col gap-6 flex-1 justify-center text-left">
+                        <BalanceMetric
+                          label={t("Annual Leave")}
+                          current={earnedAL - activeStaff.alUsed}
+                          total={earnedAL}
+                          color="indigo"
+                          onInfoClick={() => setViewLeaveHistory('AL')}
+                        />
+                        <BalanceMetric
+                          label={t("Medical Leave")}
+                          current={14 - activeStaff.mcUsed}
+                          total={14}
+                          color="emerald"
+                          onInfoClick={() => setViewLeaveHistory('MC')}
+                        />
+                        <BalanceMetric
+                          label={t("Public Holiday")}
+                          current={6 - (activeStaff.phUsed || 0)}
+                          total={6}
+                          color="amber"
+                          onInfoClick={() => setViewLeaveHistory('PH')}
+                        />
+                        <BalanceMetric
+                          label={t("Unpaid Leave")}
+                          current={activeStaff.uplUsed}
+                          total={null}
+                          color="rose"
+                          onInfoClick={() => setViewLeaveHistory('UPL')}
+                        />
+                        <BalanceMetric
+                          label={t("Replacement")}
+                          current={activeStaff.rlUsed || 0}
+                          total={activeStaff.rlEarned || 0}
+                          color="teal"
+                          onInfoClick={() => setViewLeaveHistory('RL')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* STAFF TOP: Full Width Horizontal Bar */}
+                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
+                    <div className="flex items-center gap-3 shrink-0">
+                      <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
+                        {t('Leave Application')}
+                      </h2>
+                      <ArrowRight className="text-indigo-400" size={18} />
+                    </div>
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('Category')}
+                        </label>
+                        <select
+                          id="lType"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
+                        >
+                          <option value="AL" className="text-slate-900">
+                            {t('Annual Leave')}
+                          </option>
+                          <option value="MC" className="text-slate-900">
+                            {t('Medical Leave')}
+                          </option>
+                          <option value="RL" className="text-slate-900">
+                            {t('Replacement')}
+                          </option>
+                          <option value="UPL" className="text-slate-900">
+                            {t('Unpaid Leave')}
+                          </option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('Start Date')}
+                        </label>
+                        <input
+                          id="lStart"
+                          type="date"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                          style={{colorScheme: 'dark'}}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('End Date')}
+                        </label>
+                        <input
+                          id="lEnd"
+                          type="date"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                          style={{colorScheme: 'dark'}}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const start = document.getElementById('lStart').value,
+                          end = document.getElementById('lEnd').value,
+                          type = document.getElementById('lType').value;
+                        if (!start || !end) return alert('Dates are required.');
+                        const days =
+                          Math.ceil(
+                            Math.abs(new Date(end) - new Date(start)) /
+                              (1000 * 60 * 60 * 24)
+                          ) + 1;
+                        addLeaveApp({
+                          staffId: currentUser.id,
+                          username: currentUser.username,
+                          staffName: currentUser.name,
+                          type,
+                          startDate: start,
+                          endDate: end,
+                          days,
+                          status: 'PENDING',
+                          timestamp: new Date().toLocaleString(),
+                          actionAt: null,
+                        });
+                      }}
+                      className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
+                    >
+                      {t('Submit Request')}
+                    </button>
+                  </div>
 
-                {/* Action History (Bottom Full Width) */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200">
-                  <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200">
-                    {t('Action History')}{' '}
-                    <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
-                      {
-                        leaveApps.filter((a) => a.staffId === activeStaff.id)
-                          .length
-                      }{' '}
-                      {t('Records')}
-                    </span>
-                  </h3>
-                  <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4">
-                    {Object.keys(groupedActionLogs).length === 0 ? (
-                      <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
-                        {t('No records found.')}
-                      </p>
-                    ) : (
-                      Object.keys(groupedActionLogs)
-                        .sort((a, b) => new Date(b) - new Date(a))
-                        .map((dateGroup) => (
-                          <div key={dateGroup} className="mb-6">
-                            <div className="flex items-center gap-4 mb-4">
-                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                              <span className="text-sm font-bold text-slate-400 uppercase">
-                                -{dateGroup}-
-                              </span>
-                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                            </div>
-                            <div className="space-y-4">
-                              {groupedActionLogs[dateGroup].map((log) => (
-                                <div
-                                  key={log.id}
-                                  onClick={() =>
-                                    currentUser.type === 'STAFF' &&
-                                    log.status === 'PENDING' &&
-                                    log.type !== 'SYSTEM_AL_PROBATION' &&
-                                    setCancelPromptApp(log)
-                                  }
-                                  className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col transition relative group transition-colors duration-200 hover:border-slate-300 cursor-pointer"
-                                >
-                                  <div className="flex items-start justify-between mb-2">
-                                    <div className="flex gap-3 items-center">
-                                      <div
-                                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                          [
-                                            'AL',
-                                            'SYSTEM_AL_PROBATION',
-                                            'PROFILE_UPDATE',
-                                          ].includes(log.type)
-                                            ? 'bg-indigo-400'
-                                            : log.type === 'MC'
-                                            ? 'bg-emerald-400'
-                                            : log.type === 'RL'
-                                            ? 'bg-teal-400'
-                                            : 'bg-amber-400'
-                                        }`}
-                                      />
-                                      <p
-                                        className={`font-bold text-xs uppercase ${
-                                          log.status === 'CANCELLED'
-                                            ? 'text-slate-400 line-through'
-                                            : 'text-slate-800'
-                                        }`}
-                                      >
-                                        {t(getTypeFullName(log.type))} Request
-                                      </p>
-                                    </div>
-                                    <span className="shrink-0 px-2 py-1 rounded text-[8px] font-bold border transition-colors duration-200">
-                                      {log.status}
-                                    </span>
+                  {/* STAFF MIDDLE: 50/50 Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200 text-left">
+                        {t('Optional Public Holidays (Max 6)')}
+                      </h2>
+                      <div className="space-y-2 mb-6 flex-1 text-left">
+                        {optionalPHs.map((ph) => (
+                          <div
+                            key={ph.id}
+                            className="flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 hover:bg-slate-100 transition transition-colors duration-200 text-left"
+                          >
+                            <label className="flex items-center gap-3 flex-1 cursor-pointer text-left">
+                              <input
+                                type="checkbox"
+                                checked={draftPHs.includes(ph.id)}
+                                disabled={activeStaff.convertedPHs?.includes(
+                                  ph.id
+                                )}
+                                onChange={(e) =>
+                                  handleDraftTogglePH(ph.id, e.target.checked)
+                                }
+                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                                style={{ backgroundColor: '#ffffff' }}
+                              />
+                              <div className="text-left">
+                                <p className="text-[11px] font-bold text-slate-800 text-left">
+                                  {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
+                                </p>
+                              </div>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-4 text-left">
+                        <button
+                          onClick={submitPHSelection}
+                          className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                        >
+                          {t('Apply')}
+                        </button>
+                        <button
+                          onClick={triggerBatchConvert}
+                          className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                        >
+                          {t('Convert')}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                        {t('Status Balances')}{' '}
+                        <Info size={14} className="text-slate-300" />
+                      </h2>
+                      <div className="flex flex-col gap-8 text-left">
+                        <BalanceMetric
+                          label={t("Annual Leave")}
+                          current={earnedAL - activeStaff.alUsed}
+                          total={earnedAL}
+                          color="indigo"
+                          onInfoClick={() => setViewLeaveHistory('AL')}
+                        />
+                        <BalanceMetric
+                          label={t("Medical Leave")}
+                          current={14 - activeStaff.mcUsed}
+                          total={14}
+                          color="emerald"
+                          onInfoClick={() => setViewLeaveHistory('MC')}
+                        />
+                        <BalanceMetric
+                          label={t("Public Holiday")}
+                          current={6 - (activeStaff.phUsed || 0)}
+                          total={6}
+                          color="amber"
+                          onInfoClick={() => setViewLeaveHistory('PH')}
+                        />
+                        <BalanceMetric
+                          label={t("Unpaid Leave")}
+                          current={activeStaff.uplUsed}
+                          total={null}
+                          color="rose"
+                          onInfoClick={() => setViewLeaveHistory('UPL')}
+                        />
+                        <BalanceMetric
+                          label={t("Replacement")}
+                          current={activeStaff.rlUsed || 0}
+                          total={activeStaff.rlEarned || 0}
+                          color="teal"
+                          onInfoClick={() => setViewLeaveHistory('RL')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Action History (Bottom Full Width) */}
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                  {t('Action History')}{' '}
+                  <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
+                    {leaveApps.filter((a) => a.staffId === activeStaff.id).length} {t('Records')}
+                  </span>
+                </h3>
+                <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4 text-left">
+                  {Object.keys(groupedActionLogs).length === 0 ? (
+                    <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
+                      {t('No records found.')}
+                    </p>
+                  ) : (
+                    Object.keys(groupedActionLogs)
+                      .sort((a, b) => new Date(b) - new Date(a))
+                      .map((dateGroup) => (
+                        <div key={dateGroup} className="mb-6 text-left">
+                          <div className="flex items-center gap-4 mb-4 text-left">
+                            <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                            <span className="text-sm font-bold text-slate-400 uppercase text-left">
+                              -{dateGroup}-
+                            </span>
+                            <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                          </div>
+                          <div className="space-y-4 text-left">
+                            {groupedActionLogs[dateGroup].map((log) => (
+                              <div
+                                key={log.id}
+                                onClick={() =>
+                                  currentUser.type === 'STAFF' &&
+                                  log.status === 'PENDING' &&
+                                  log.type !== 'SYSTEM_AL_PROBATION' &&
+                                  setCancelPromptApp(log)
+                                }
+                                className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col transition relative group transition-colors duration-200 hover:border-slate-300 cursor-pointer text-left"
+                              >
+                                <div className="flex items-start justify-between mb-2 text-left">
+                                  <div className="flex gap-3 items-center text-left">
+                                    <div
+                                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                        [
+                                          'AL',
+                                          'SYSTEM_AL_PROBATION',
+                                          'PROFILE_UPDATE',
+                                        ].includes(log.type)
+                                          ? 'bg-indigo-400'
+                                          : log.type === 'MC'
+                                          ? 'bg-emerald-400'
+                                          : log.type === 'RL'
+                                          ? 'bg-teal-400'
+                                          : 'bg-amber-400'
+                                      }`}
+                                    />
+                                    <p
+                                      className={`font-bold text-xs uppercase text-left ${
+                                        log.status === 'CANCELLED'
+                                          ? 'text-slate-400 line-through'
+                                          : 'text-slate-800'
+                                      }`}
+                                    >
+                                      {t(getTypeFullName(log.type))} {t('Request')}
+                                    </p>
                                   </div>
-                                  <div className="flex flex-col sm:flex-row items-start sm:items-center mt-3 pt-3 border-t border-slate-200/60 gap-2 justify-between transition-colors duration-200">
-                                    <div className="text-[10px] font-bold text-indigo-600">
-                                      {log.startDate
-                                        ? `${log.startDate} to ${log.endDate}`
-                                        : ''}
-                                    </div>
-                                    <div className="text-[9px] text-slate-400 font-bold uppercase ml-auto">
-                                      Applied Date :{' '}
-                                      {new Date(
-                                        log.appliedAt || log.id
-                                      ).toLocaleDateString('en-GB')}
-                                      ,{' '}
-                                      {new Date(
-                                        log.appliedAt || log.id
-                                      ).toLocaleTimeString('en-US', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                      })}
-                                    </div>
+                                  <span className="shrink-0 px-2 py-1 rounded text-[8px] font-bold border transition-colors duration-200 text-left">
+                                    {t(log.status)}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center mt-3 pt-3 border-t border-slate-200/60 gap-2 justify-between transition-colors duration-200 text-left">
+                                  <div className="text-[10px] font-bold text-indigo-600 text-left">
+                                    {log.startDate
+                                      ? `${log.startDate} to ${log.endDate}`
+                                      : ''}
+                                  </div>
+                                  <div className="text-[9px] text-slate-400 font-bold uppercase ml-auto text-left">
+                                    {t('Applied Date :')}{' '}
+                                    {new Date(
+                                      log.appliedAt || log.id
+                                    ).toLocaleDateString('en-GB')}
+                                    ,{' '}
+                                    {new Date(
+                                      log.appliedAt || log.id
+                                    ).toLocaleTimeString('en-US', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })}
                                   </div>
                                 </div>
-                              ))}
-                            </div>
+                              </div>
+                            ))}
                           </div>
-                        ))
-                    )}
-                  </div>
+                        </div>
+                      ))
+                  )}
                 </div>
               </div>
-            ) : (
-              <EmptyStaffState />
-            ))}
+            </div>
+            ) : <EmptyStaffState />
+          )}
 
           {/* PAYROLL TAB */}
-          {hrSubTab === 'PAYROLL' &&
-            (activeStaff.id ? (
-              <div className="space-y-6 animate-in fade-in duration-500">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                  <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200">
-                    <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4 transition-colors duration-200">
-                      <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3">
-                        <Wallet className="text-indigo-600" />{' '}
-                        {t('Payroll Engine')}
-                      </h2>
+          {hrSubTab === 'PAYROLL' && (
+            activeStaff.id ? (
+            <div className="space-y-6 animate-in fade-in duration-500 text-left">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
+                {/* REQ 2: Payroll Engine Black Card */}
+                <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
+                  <div className="flex items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left">
+                    <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
+                      <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
+                    </h2>
+                    <select
+                      className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                    >
+                      {MONTHS.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {currentUser.type === 'ADMIN' && (
+                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-6 space-y-4 transition-colors duration-200 text-left">
                       <select
-                        className="bg-slate-50 border rounded-lg px-3 py-1.5 text-xs font-bold transition-colors duration-200"
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 font-bold text-sm text-white outline-none transition-colors duration-200 text-left"
+                        value={commStaffId}
+                        onChange={(e) => setCommStaffId(e.target.value)}
                       >
-                        {MONTHS.map((m) => (
-                          <option key={m} value={m}>
-                            {m}
+                        {staffList.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} - {t(s.role)}
                           </option>
                         ))}
                       </select>
-                    </div>
-                    {currentUser.type === 'ADMIN' && (
-                      <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-6 space-y-4 transition-colors duration-200">
-                        <select
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2.5 font-bold text-sm transition-colors duration-200"
-                          value={commStaffId}
-                          onChange={(e) => setCommStaffId(e.target.value)}
-                        >
-                          {staffList.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name} - {s.role}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="grid grid-cols-3 gap-4">
-                          <input
-                            type="number"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2.5 text-sm transition-colors duration-200"
-                            placeholder="Comm"
-                            value={commInput}
-                            onChange={(e) => setCommInput(e.target.value)}
-                          />
-                          <input
-                            type="number"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2.5 text-sm transition-colors duration-200"
-                            placeholder="Bonus"
-                            value={bonusInput}
-                            onChange={(e) => setBonusInput(e.target.value)}
-                          />
-                          <input
-                            type="number"
-                            readOnly
-                            className="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2.5 text-sm transition-colors duration-200"
-                            value={calculatedUPL}
-                          />
-                        </div>
-                        <button
-                          onClick={generatePayslip}
-                          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold text-sm uppercase"
-                        >
-                          {t('Generate Payslip')}
-                        </button>
+                      <div className="grid grid-cols-3 gap-4 text-left">
+                        <input
+                          type="number"
+                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
+                          placeholder={t("Comm")}
+                          value={commInput}
+                          onChange={(e) => setCommInput(e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
+                          placeholder={t("Bonus")}
+                          value={bonusInput}
+                          onChange={(e) => setBonusInput(e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          readOnly
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-400 outline-none transition-colors duration-200 text-left"
+                          value={calculatedUPL}
+                        />
                       </div>
-                    )}
-                    <div className="flex justify-between items-center bg-indigo-50 p-5 rounded-xl border border-indigo-100 transition-colors duration-200">
-                      <span className="text-xs font-bold text-slate-600 uppercase">
-                        Estimated Net Basic
-                      </span>
-                      <span className="text-2xl font-bold text-indigo-600">
-                        RM{' '}
-                        {hasSalary
-                          ? (activeStaff.salary - 257.05).toFixed(2)
-                          : '0.00'}
-                      </span>
+                      <button
+                        onClick={generatePayslip}
+                        className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center"
+                      >
+                        {t('Generate Payslip')}
+                      </button>
                     </div>
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200">
-                    <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200">
-                      Johor Public Holidays 2026
-                    </h2>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                      {[
-                        { name: 'Sultan Johor Birthday', date: '2026-03-23' },
-                        { name: 'Labour Day', date: '2026-05-01' },
-                        { name: 'Agong Birthday', date: '2026-06-01' },
-                        { name: 'National Day', date: '2026-08-31' },
-                        { name: 'Malaysia Day', date: '2026-09-16' },
-                      ].map((ph, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                new Date(ph.date) < TODAY
-                                  ? 'bg-slate-300'
-                                  : 'bg-amber-400'
-                              }`}
-                            />
-                            <span
-                              className={`text-xs font-bold text-slate-800 ${
-                                new Date(ph.date) < TODAY
-                                  ? 'line-through opacity-50'
-                                  : ''
-                              }`}
-                            >
-                              {t(ph.name)}
-                            </span>
-                          </div>
-                          <span
-                            className={`text-[10px] font-bold text-slate-500 uppercase ${
-                              new Date(ph.date) < TODAY
-                                ? 'line-through opacity-50'
-                                : ''
-                            }`}
-                          >
-                            {new Date(ph.date).toLocaleDateString('en-GB', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                  )}
+                  <div className="flex justify-between items-center bg-indigo-500/20 p-5 rounded-xl border border-indigo-500/30 transition-colors duration-200 text-left">
+                    <span className="text-xs font-bold text-indigo-200 uppercase text-left">
+                      {t('Estimated Net Basic')}
+                    </span>
+                    <span className="text-2xl font-bold text-white text-left">
+                      RM{' '}
+                      {hasSalary
+                        ? (activeStaff.salary - 257.05).toFixed(2)
+                        : '0.00'}
+                    </span>
                   </div>
                 </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200">
-                  <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200">
-                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase">
-                      <FileText className="text-indigo-600" size={20} /> Payslip
-                      Record
-                    </h2>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200">
-                        <tr>
-                          <th className="p-4">Period</th>
-                          <th className="p-4">Basic RM</th>
-                          <th className="p-4">Commission</th>
-                          <th className="p-4">Net Total</th>
-                          <th className="p-4 text-center">View</th>
-                          <th className="p-4 text-center">Export</th>
-                          <th className="p-4 text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 transition-colors duration-200">
-                        {payslips.filter((p) => p.staffId === activeStaff.id)
-                          .length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="7"
-                              className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
-                            >
-                              No records generated.
-                            </td>
-                          </tr>
-                        ) : (
-                          payslips
-                            .filter((p) => p.staffId === activeStaff.id)
-                            .map((p) => (
-                              <tr
-                                key={p.id}
-                                className="hover:bg-slate-50 transition transition-colors duration-200"
-                              >
-                                <td className="p-4 font-bold text-slate-800 uppercase text-xs">
-                                  {p.month} {p.year}
-                                </td>
-                                <td className="p-4 font-semibold text-slate-600 text-xs">
-                                  RM {p.basic.toFixed(2)}
-                                </td>
-                                <td className="p-4 font-bold text-indigo-600 text-xs">
-                                  RM {p.comm.toFixed(2)}
-                                </td>
-                                <td className="p-4 font-bold text-emerald-600 text-md">
-                                  RM {p.netTotal.toFixed(2)}
-                                </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() => setViewPayslipData(p)}
-                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
-                                  >
-                                    <Eye size={14} /> View
-                                  </button>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() =>
-                                      handleDownloadPayslip(p, activeStaff)
-                                    }
-                                    disabled={isGeneratingPdf}
-                                    className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
-                                  >
-                                    <Download size={14} /> PDF
-                                  </button>
-                                </td>
-                                <td className="p-4 text-center">
-                                  {currentUser.type === 'ADMIN' && (
-                                    <button
-                                      onClick={() => deletePayslipRecord(p.id)}
-                                      className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))
-                        )}
-                      </tbody>
-                    </table>
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
+                  <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left">
+                    {t('Johor Public Holidays 2026')}
+                  </h2>
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
+                    {[
+                      { name: 'Sultan Johor Birthday', date: '2026-03-23' },
+                      { name: 'Labour Day', date: '2026-05-01' },
+                      { name: 'Agong Birthday', date: '2026-06-01' },
+                      { name: 'National Day', date: '2026-08-31' },
+                      { name: 'Malaysia Day', date: '2026-09-16' },
+                    ].map((ph, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
+                      >
+                        <div className="flex items-center gap-3 text-left">
+                          <div className={`w-2 h-2 rounded-full ${new Date(ph.date) < TODAY ? 'bg-slate-300' : 'bg-amber-400'}`} />
+                          <span className={`text-xs font-bold text-slate-800 ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
+                            {t(ph.name)}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
+                          {new Date(ph.date).toLocaleDateString('en-GB', {
+                            day: 'numeric',
+                            month: 'short',
+                          })}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            ) : (
-              <EmptyStaffState />
-            ))}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200 text-left">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
+                  <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
+                    <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
+                  </h2>
+                </div>
+                <div className="overflow-x-auto text-left">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200 text-left">
+                      <tr>
+                        <th className="p-4 text-left">{t('Period')}</th>
+                        <th className="p-4 text-left">{t('Basic RM')}</th>
+                        <th className="p-4 text-left">{t('Commission')}</th>
+                        <th className="p-4 text-left">{t('Net Total')}</th>
+                        <th className="p-4 text-center">{t('View')}</th>
+                        <th className="p-4 text-center">{t('Export')}</th>
+                        <th className="p-4 text-center">{t('Action')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 transition-colors duration-200 text-left">
+                      {payslips.filter((p) => p.staffId === activeStaff.id)
+                        .length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan="7"
+                            className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
+                          >
+                            {t('No records generated.')}
+                          </td>
+                        </tr>
+                      ) : (
+                        payslips
+                          .filter((p) => p.staffId === activeStaff.id)
+                          .map((p) => (
+                            <tr
+                              key={p.id}
+                              className="hover:bg-slate-50 transition transition-colors duration-200 text-left"
+                            >
+                              <td className="p-4 font-bold text-slate-800 uppercase text-xs text-left">
+                                {t(p.month)} {p.year}
+                              </td>
+                              <td className="p-4 font-semibold text-slate-600 text-xs text-left">
+                                RM {p.basic.toFixed(2)}
+                              </td>
+                              <td className="p-4 font-bold text-indigo-600 text-xs text-left">
+                                RM {p.comm.toFixed(2)}
+                              </td>
+                              <td className="p-4 font-bold text-emerald-600 text-md text-left">
+                                RM {p.netTotal.toFixed(2)}
+                              </td>
+                              <td className="p-4 text-center">
+                                <button
+                                  onClick={() => setViewPayslipData(p)}
+                                  className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
+                                >
+                                  <Eye size={14} /> {t('View')}
+                                </button>
+                              </td>
+                              <td className="p-4 text-center">
+                                <button
+                                  onClick={() =>
+                                    handleDownloadPayslip(p, activeStaff)
+                                  }
+                                  disabled={isGeneratingPdf}
+                                  className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
+                                >
+                                  <Download size={14} /> {t('PDF')}
+                                </button>
+                              </td>
+                              <td className="p-4 text-center">
+                                {currentUser.type === 'ADMIN' && (
+                                  <button
+                                    onClick={() => deletePayslipRecord(p.id)}
+                                    className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            ) : <EmptyStaffState />
+          )}
 
           {/* ADMIN PANEL TAB */}
           {hrSubTab === 'ADMIN_PANEL' && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200">
-                  <Settings className="text-indigo-600" size={20} />{' '}
-                  {t('Company Profile Settings')}
+            <div className="space-y-6 animate-in fade-in duration-500 text-left">
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                  <Settings className="text-indigo-600" size={20} /> {t('Company Profile Settings')}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">
-                      Company Name
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                  <div className="space-y-1 text-left">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                      {t('Company Name')}
                     </label>
                     <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
                       value={companyInfo.name}
                       onChange={(e) =>
                         setCompanyInfo({ ...companyInfo, name: e.target.value })
                       }
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">
-                      SSM No.
+                  <div className="space-y-1 text-left">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                      {t('SSM No.')}
                     </label>
                     <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
                       value={companyInfo.ssm}
                       onChange={(e) =>
                         setCompanyInfo({ ...companyInfo, ssm: e.target.value })
                       }
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">
-                      Tax No.
+                  <div className="space-y-1 text-left">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                      {t('Tax No.')}
                     </label>
                     <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
                       value={companyInfo.tax}
                       onChange={(e) =>
                         setCompanyInfo({ ...companyInfo, tax: e.target.value })
@@ -2097,24 +2132,23 @@ const App = () => {
                     />
                   </div>
                 </div>
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-end text-left">
                   <button
                     onClick={() => updateCompanyInfo(companyInfo)}
                     className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase shadow-lg hover:bg-indigo-700 transition"
                   >
-                    Update Settings
+                    {t('Update Settings')}
                   </button>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200">
-                  <UserCircle className="text-indigo-600" size={20} />{' '}
-                  {t('Staff Designation Registry')}
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                  <UserCircle className="text-indigo-600" size={20} /> {t('Staff Designation Registry')}
                 </h3>
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4 mb-6 text-left">
                   <input
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
-                    placeholder="Enter new designation..."
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                    placeholder={t('Enter new designation...')}
                     value={newDesigInput}
                     onChange={(e) => setNewDesigInput(e.target.value)}
                   />
@@ -2122,17 +2156,17 @@ const App = () => {
                     onClick={addDesignation}
                     className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
                   >
-                    <Plus size={16} /> Add
+                    <Plus size={16} /> {t('Add')}
                   </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                   {designations.map((d) => (
                     <div
                       key={d.id}
-                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200"
+                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
                     >
-                      <span className="text-xs font-bold text-slate-700">
-                        {d.name}
+                      <span className="text-xs font-bold text-slate-700 text-left">
+                        {t(d.name)}
                       </span>
                       <button
                         onClick={() => deleteDesignation(d.id)}
@@ -2146,48 +2180,41 @@ const App = () => {
               </div>
 
               {/* Optional Public Holidays Registry (Admin Panel) */}
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200">
-                  <Calendar className="text-indigo-600" size={20} />{' '}
-                  {t('Optional Public Holidays Registry')}
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                  <Calendar className="text-indigo-600" size={20} /> {t('Optional Public Holidays Registry')}
                 </h3>
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-4 mb-6 text-left">
                   <input
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
-                    placeholder="Holiday Name (e.g. Thaipusam)..."
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                    placeholder={t('Holiday Name (e.g. Thaipusam)...')}
                     value={newPHForm.name}
-                    onChange={(e) =>
-                      setNewPHForm({ ...newPHForm, name: e.target.value })
-                    }
+                    onChange={(e) => setNewPHForm({ ...newPHForm, name: e.target.value })}
                   />
                   <input
-                    className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200"
-                    placeholder="Date (e.g. Jan 25)"
+                    className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                    placeholder={t('Date (e.g. Jan 25)')}
                     value={newPHForm.date}
-                    onChange={(e) =>
-                      setNewPHForm({ ...newPHForm, date: e.target.value })
-                    }
+                    onChange={(e) => setNewPHForm({ ...newPHForm, date: e.target.value })}
                   />
                   <button
                     onClick={addOptionalPH}
                     className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
                   >
-                    <Plus size={16} /> Add
+                    <Plus size={16} /> {t('Add')}
                   </button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                   {optionalPHs.map((ph) => (
                     <div
                       key={ph.id}
-                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200"
+                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
                     >
-                      <div>
-                        <span className="text-xs font-bold text-slate-700 block">
+                      <div className="flex items-baseline gap-2 text-left">
+                        <span className="text-xs font-bold text-slate-700 text-left">
                           {t(ph.name)}
                         </span>
-                        <span className="text-[10px] text-slate-500">
-                          {ph.date}
-                        </span>
+                        <span className="text-[10px] text-slate-500 text-left">({ph.date})</span>
                       </div>
                       <button
                         onClick={() => deleteOptionalPH(ph.id)}
@@ -2200,7 +2227,7 @@ const App = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
                 {[
                   {
                     title: 'Employment Offer Letter',
@@ -2225,19 +2252,19 @@ const App = () => {
                 ].map((doc, idx) => (
                   <div
                     key={idx}
-                    className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md transition transition-colors duration-200"
+                    className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md transition transition-colors duration-200 text-left"
                   >
                     <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-50 transition border border-slate-100 transition-colors duration-200">
                       <doc.Icon size={24} className={doc.color} />
                     </div>
-                    <h3 className="font-bold text-slate-800 mb-2 uppercase text-xs">
-                      {doc.title}
+                    <h3 className="font-bold text-slate-800 mb-2 uppercase text-xs text-left">
+                      {t(doc.title)}
                     </h3>
-                    <p className="text-[10px] text-slate-400 mb-6 font-medium uppercase">
-                      Generate for {activeStaff.name}
+                    <p className="text-[10px] text-slate-400 mb-6 font-medium uppercase text-left">
+                      {t('Generate for')} {activeStaff.name}
                     </p>
                     <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase border-b-2 border-indigo-50 pb-1">
-                      EXPORT PDF <Download size={14} />
+                      {t('EXPORT PDF')} <Download size={14} />
                     </button>
                   </div>
                 ))}
@@ -2255,50 +2282,50 @@ const App = () => {
               <div className="flex items-center gap-3">
                 <FileText size={20} className="text-indigo-400" />
                 <h2 className="text-lg font-bold uppercase">
-                  Payslip Preview - {viewPayslipData.month}
+                  {t('Payslip Preview -')} {t(viewPayslipData.month)}
                 </h2>
               </div>
               <button onClick={() => setViewPayslipData(null)}>
                 <X size={20} />
               </button>
             </div>
-            <div className="p-8 overflow-y-auto bg-slate-50 space-y-6 flex-1">
-              <div className="bg-white p-8 rounded-xl shadow-sm border space-y-6">
-                <div className="flex justify-between border-b pb-4">
-                  <h3 className="font-black text-indigo-600 text-xl uppercase tracking-tighter">
+            <div className="p-8 overflow-y-auto bg-slate-50 space-y-6 flex-1 text-left">
+              <div className="bg-white p-8 rounded-xl shadow-sm border space-y-6 text-left">
+                <div className="flex justify-between border-b pb-4 text-left">
+                  <h3 className="font-black text-indigo-600 text-xl uppercase tracking-tighter text-left">
                     {currentUser.company}
                   </h3>
                   <div className="text-right text-[10px] text-slate-500 font-bold uppercase">
-                    Official Document
+                    {t('Official Document')}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 text-xs font-bold uppercase gap-6">
-                  <div>
-                    <span className="text-slate-400 block mb-1">Employee:</span>{' '}
+                <div className="grid grid-cols-2 text-xs font-bold uppercase gap-6 text-left">
+                  <div className="text-left">
+                    <span className="text-slate-400 block mb-1 text-left">{t('Employee:')}</span>{' '}
                     {activeStaff.name || activeStaff.username}
                   </div>
-                  <div>
-                    <span className="text-slate-400 block mb-1">Period:</span>{' '}
-                    {viewPayslipData.month} {viewPayslipData.year}
+                  <div className="text-left">
+                    <span className="text-slate-400 block mb-1 text-left">{t('Period:')}</span>{' '}
+                    {t(viewPayslipData.month)} {viewPayslipData.year}
                   </div>
-                  <div>
-                    <span className="text-slate-400 block mb-1">
-                      Basic Salary:
+                  <div className="text-left">
+                    <span className="text-slate-400 block mb-1 text-left">
+                      {t('Basic Salary:')}
                     </span>{' '}
                     RM {viewPayslipData.basic.toFixed(2)}
                   </div>
-                  <div>
-                    <span className="text-slate-400 block mb-1">
-                      Total Deductions:
+                  <div className="text-left">
+                    <span className="text-slate-400 block mb-1 text-left">
+                      {t('Total Deductions:')}
                     </span>{' '}
                     RM {viewPayslipData.totalDeductions.toFixed(2)}
                   </div>
                 </div>
-                <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex justify-between items-center">
-                  <span className="font-bold text-slate-600 uppercase text-xs tracking-wider">
-                    Nett Income
+                <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex justify-between items-center text-left">
+                  <span className="font-bold text-slate-600 uppercase text-xs tracking-wider text-left">
+                    {t('Nett Income')}
                   </span>
-                  <span className="text-3xl font-black text-indigo-600">
+                  <span className="text-3xl font-black text-indigo-600 text-left">
                     RM {viewPayslipData.netTotal.toFixed(2)}
                   </span>
                 </div>
@@ -2308,13 +2335,13 @@ const App = () => {
                   handleDownloadPayslip(viewPayslipData, activeStaff)
                 }
                 disabled={isGeneratingPdf}
-                className="w-full bg-indigo-600 py-4 rounded-xl text-white font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 tracking-widest disabled:opacity-50"
+                className="w-full bg-indigo-600 py-4 rounded-xl text-white font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 tracking-widest disabled:opacity-50 text-left"
               >
                 {isGeneratingPdf ? (
-                  'GENERATING PDF...'
+                  t('GENERATING PDF...')
                 ) : (
                   <>
-                    <Download size={18} /> DOWNLOAD PDF COPY
+                    <Download size={18} /> {t('DOWNLOAD PDF COPY')}
                   </>
                 )}
               </button>
@@ -2328,17 +2355,17 @@ const App = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
               <h2 className="text-lg font-bold uppercase">
-                Initialize New Staff
+                {t('Initialize New Staff')}
               </h2>
               <button onClick={() => setIsAddStaffModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleConfirmAddStaff} className="p-8 space-y-6">
+            <form onSubmit={handleConfirmAddStaff} className="p-8 space-y-6 text-left">
               <input
                 type="text"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm"
-                placeholder="Set Username"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
+                placeholder={t("Set Username")}
                 value={newStaffForm.username}
                 onChange={(e) =>
                   setNewStaffForm({ ...newStaffForm, username: e.target.value })
@@ -2348,8 +2375,8 @@ const App = () => {
               <input
                 type="password"
                 name="password"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm"
-                placeholder="Set Password"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
+                placeholder={t("Set Password")}
                 value={newStaffForm.password}
                 onChange={(e) =>
                   setNewStaffForm({ ...newStaffForm, password: e.target.value })
@@ -2360,7 +2387,7 @@ const App = () => {
                 type="submit"
                 className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-xl hover:bg-indigo-700 transition text-xs uppercase"
               >
-                Create Account
+                {t('Create Account')}
               </button>
             </form>
           </div>
@@ -2375,7 +2402,7 @@ const App = () => {
                 <div className="p-2 bg-indigo-600 rounded-lg">
                   <Edit3 size={18} />
                 </div>
-                <h2 className="text-lg font-bold uppercase">Update Details</h2>
+                <h2 className="text-lg font-bold uppercase">{t('Update Details')}</h2>
               </div>
               <button onClick={() => setIsEditProfileModalOpen(false)}>
                 <X size={24} />
@@ -2383,66 +2410,66 @@ const App = () => {
             </div>
             <form
               onSubmit={handleSaveProfile}
-              className="p-8 space-y-6 bg-white overflow-y-auto max-h-[75vh]"
+              className="p-8 space-y-6 bg-white overflow-y-auto max-h-[75vh] text-left"
             >
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Legal Name
+              <div className="grid grid-cols-2 gap-6 text-left">
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Legal Name')}
                   </label>
                   <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
                     value={editForm.name || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, name: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Contact No.
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Contact No.')}
                   </label>
                   <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
                     value={editForm.phone || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, phone: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    IC Number
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('IC Number')}
                   </label>
                   <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
                     value={editForm.ic || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, ic: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Gender
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Gender')}
                   </label>
                   <select
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.gender || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, gender: e.target.value })
                     }
                   >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
+                    <option value="Male">{t('Male')}</option>
+                    <option value="Female">{t('Female')}</option>
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Designation
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Designation')}
                   </label>
                   <select
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.role || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, role: e.target.value })
@@ -2450,31 +2477,31 @@ const App = () => {
                   >
                     {designations.map((d) => (
                       <option key={d.id} value={d.name}>
-                        {d.name}
+                        {t(d.name)}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Join Date
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Join Date')}
                   </label>
                   <input
                     type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.joinDate || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, joinDate: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Probation End Date
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Probation End Date')}
                   </label>
                   <input
                     type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.probationEndDate || ''}
                     onChange={(e) =>
                       setEditForm({
@@ -2484,37 +2511,37 @@ const App = () => {
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    EPF ID
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('EPF ID')}
                   </label>
                   <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.epfNo || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, epfNo: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    SOCSO ID
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('SOCSO ID')}
                   </label>
                   <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.socsoNo || ''}
                     onChange={(e) =>
                       setEditForm({ ...editForm, socsoNo: e.target.value })
                     }
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500 uppercase">
-                    Monthly Basic (RM)
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                    {t('Monthly Basic (RM)')}
                   </label>
                   <input
                     type="number"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
                     value={editForm.salary || 0}
                     onChange={(e) =>
                       setEditForm({
@@ -2525,19 +2552,19 @@ const App = () => {
                   />
                 </div>
               </div>
-              <div className="flex gap-4 pt-6 border-t border-slate-100">
+              <div className="flex gap-4 pt-6 border-t border-slate-100 text-left">
                 <button
                   type="button"
                   onClick={() => setIsEditProfileModalOpen(false)}
                   className="flex-1 py-3 rounded-lg font-bold text-slate-500 uppercase text-sm hover:bg-slate-50 border border-slate-200"
                 >
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 bg-indigo-600 text-white rounded-lg font-bold uppercase text-sm shadow-lg hover:bg-indigo-700 transition"
                 >
-                  Save Changes
+                  {t('Save Changes')}
                 </button>
               </div>
             </form>
@@ -2550,25 +2577,25 @@ const App = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
             <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
               <h2 className="text-lg font-bold uppercase">
-                Reject Application
+                {t('Reject Application')}
               </h2>
               <button onClick={() => setRejectPromptId(null)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-8 space-y-6">
+            <div className="p-8 space-y-6 text-left">
               <textarea
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-rose-500 font-medium text-sm h-24 resize-none"
-                placeholder="Reason (Optional)"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-rose-500 font-medium text-sm h-24 resize-none text-slate-900 text-left"
+                placeholder={t("Reason (Optional)")}
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
               />
-              <div className="flex gap-3">
+              <div className="flex gap-3 text-left">
                 <button
                   onClick={() => setRejectPromptId(null)}
                   className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
                 >
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -2577,7 +2604,7 @@ const App = () => {
                   }}
                   className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
                 >
-                  Confirm Reject
+                  {t('Confirm Reject')}
                 </button>
               </div>
             </div>
@@ -2590,33 +2617,33 @@ const App = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
               <h2 className="text-lg font-bold uppercase">
-                Cancel Application
+                {t('Cancel Application')}
               </h2>
               <button onClick={() => setCancelPromptApp(null)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-8 space-y-6">
-              <p className="text-sm font-semibold text-slate-700 leading-relaxed text-center">
-                Are you sure you want to cancel this request?
+            <div className="p-8 space-y-6 text-left">
+              <p className="text-sm font-semibold text-slate-700 leading-relaxed text-center text-left">
+                {t('Are you sure you want to cancel this request?')}
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-3 text-left">
                 <button
                   onClick={() => setCancelPromptApp(null)}
                   className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
                 >
-                  Back
+                  {t('Back')}
                 </button>
                 <button
                   onClick={async () => {
                     const app = cancelPromptApp;
                     await updateLeaveApp(app.id, { status: 'CANCELLED' });
                     setCancelPromptApp(null);
-                    alert('Cancelled.');
+                    alert(t('Cancelled.'));
                   }}
                   className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
                 >
-                  Confirm
+                  {t('Confirm')}
                 </button>
               </div>
             </div>
@@ -2629,31 +2656,31 @@ const App = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 bg-teal-500 text-white flex justify-between items-center">
               <h2 className="text-lg font-bold uppercase">
-                Select Target Date
+                {t('Select Target Date')}
               </h2>
               <button onClick={() => setConvertPromptData(null)}>
                 <X size={18} />
               </button>
             </div>
-            <div className="p-8 space-y-6">
+            <div className="p-8 space-y-6 text-left">
               <input
                 type="date"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-teal-500 text-sm"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-teal-500 text-sm text-slate-900 text-left"
                 value={convertTargetDate}
                 onChange={(e) => setConvertTargetDate(e.target.value)}
               />
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-2 text-left">
                 <button
                   onClick={() => setConvertPromptData(null)}
                   className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
                 >
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button
                   onClick={confirmBatchConvert}
                   className="flex-1 bg-teal-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-teal-600 transition text-xs uppercase"
                 >
-                  Submit
+                  {t('Submit')}
                 </button>
               </div>
             </div>
@@ -2666,21 +2693,21 @@ const App = () => {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
               <h2 className="text-lg font-bold uppercase">
-                {viewLeaveHistory.replace('_', ' ')} Status
+                {t(viewLeaveHistory.replace('_', ' '))} {t('Status')}
               </h2>
               <button onClick={() => setViewLeaveHistory(null)}>
                 <X size={20} />
               </button>
             </div>
-            <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left">
               {leaveApps.filter(
                 (a) =>
                   a.staffId === activeStaff.id &&
                   a.type === viewLeaveHistory &&
                   a.status === 'APPROVED'
               ).length === 0 ? (
-                <div className="text-center text-xs font-bold text-slate-400 py-12 uppercase">
-                  No data.
+                <div className="text-center text-xs font-bold text-slate-400 py-12 uppercase text-left">
+                  {t('No data.')}
                 </div>
               ) : (
                 leaveApps
@@ -2693,17 +2720,17 @@ const App = () => {
                   .map((log) => (
                     <div
                       key={log.id}
-                      className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3"
+                      className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3 text-left"
                     >
-                      <div>
-                        <p className="font-bold text-sm">
+                      <div className="text-left">
+                        <p className="font-bold text-sm text-left">
                           {log.startDate} - {log.endDate}
                         </p>
-                        <p className="text-[10px] text-slate-500">
+                        <p className="text-[10px] text-slate-500 text-left">
                           {log.actionAt}
                         </p>
                       </div>
-                      <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs">
+                      <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs text-left">
                         {log.days}d
                       </span>
                     </div>
@@ -2718,24 +2745,24 @@ const App = () => {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 bg-amber-500 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">Probation Policy</h2>
+              <h2 className="text-lg font-bold uppercase">{t('Probation Policy')}</h2>
             </div>
-            <div className="p-8 space-y-6">
-              <p className="text-sm font-semibold text-slate-700 leading-relaxed">
-                Handle Annual Leave count?
+            <div className="p-8 space-y-6 text-left">
+              <p className="text-sm font-semibold text-slate-700 leading-relaxed text-left">
+                {t('Handle Annual Leave count?')}
               </p>
-              <div className="space-y-3">
+              <div className="space-y-3 text-left">
                 <button
                   onClick={() => confirmWaive(false)}
-                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-xs uppercase"
+                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
                 >
-                  Proceed Counting AL
+                  {t('Proceed Counting AL')}
                 </button>
                 <button
                   onClick={() => confirmWaive(true)}
-                  className="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase"
+                  className="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
                 >
-                  Waive (Ignore) AL
+                  {t('Waive (Ignore) AL')}
                 </button>
               </div>
             </div>
@@ -2767,7 +2794,8 @@ const App = () => {
         .dark-theme .bg-slate-100 {
           background-color: #334155 !important;
         }
-        .dark-theme .text-slate-900, .dark-theme .text-slate-800 {
+        /* Specific forced colors for daylight that invert in dark mode */
+        .dark-theme .text-slate-900, .dark-theme .text-slate-800, .dark-theme .text-black {
           color: #f8fafc !important;
         }
         .dark-theme .text-slate-700, .dark-theme .text-slate-600 {
@@ -2806,15 +2834,13 @@ const BalanceMetric = ({ label, current, total, color, onInfoClick }) => {
     ? Math.max(0, Math.min(100, (current / total) * 100))
     : 0;
   return (
-    <div className="group flex flex-col">
-      <div className="flex justify-between items-end mb-2">
-        <div className="flex items-baseline gap-2">
-          <span
-            className={`text-2xl font-bold text-${color}-600 uppercase leading-none`}
-          >
+    <div className="group flex flex-col text-left">
+      <div className="flex justify-between items-end mb-2 text-left">
+        <div className="flex items-baseline gap-2 text-left">
+          <span className={`text-2xl font-bold text-${color}-600 uppercase leading-none text-left`}>
             {current}
           </span>
-          <span className="text-xs font-bold text-slate-400 uppercase leading-none">
+          <span className="text-xs font-bold text-slate-400 uppercase leading-none text-left">
             {total !== null ? `/ ${total} Days` : 'Days Taken'}
           </span>
         </div>
@@ -2832,7 +2858,7 @@ const BalanceMetric = ({ label, current, total, color, onInfoClick }) => {
         </span>
       </div>
       {total !== null && (
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 text-left">
           <div
             className={`h-full bg-${color}-500 transition-all duration-1000 ease-out`}
             style={{ width: `${percentage}%` }}
