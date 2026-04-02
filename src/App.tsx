@@ -6,7 +6,7 @@ import {
   Info,
   Clock,
   Stethoscope,
-  ShieldCheck,
+  ShieldCheck, 
   ChevronRight,
   Phone,
   UserCircle,
