@@ -1711,8 +1711,7 @@ const App = () => {
                                 onChange={(e) =>
                                   handleDraftTogglePH(ph.id, e.target.checked)
                                 }
-                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                                style={{ backgroundColor: '#ffffff' }}
+                                className="custom-checkbox rounded focus:ring-indigo-500"
                               />
                               <div className="text-left">
                                 <p className="text-[11px] font-bold text-slate-800 text-left">
@@ -1965,7 +1964,7 @@ const App = () => {
                   </div>
                 </div>
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                  <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left">
+                  <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left text-slate-900">
                     {t('Johor Public Holidays 2026')}
                   </h2>
                   <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
@@ -2770,16 +2769,39 @@ const App = () => {
         </div>
       )}
 
-      {/* INJECTED GLOBAL STYLES FOR DARK MODE OVERRIDE */}
+      {/* INJECTED GLOBAL STYLES FOR OVERRIDING VITE DEFAULTS & DARK MODE */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        /* 1. OVERRIDE VITE DEFAULTS FOR FULL SCREEN */
+        html, body, #root {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          display: block !important;
+          background-color: #f8fafc; /* Matches Tailwind bg-slate-50 */
+        }
+
         * { font-family: 'Inter', system-ui, sans-serif !important; }
+        
+        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        /* Dark Theme Variables / Overrides */
-        .dark-theme {
+        /* 2. FORCE CHECKBOX TO BE WHITE IN LIGHT MODE */
+        input[type="checkbox"].custom-checkbox {
+          appearance: auto !important;
+          background-color: #ffffff !important;
+          accent-color: #4f46e5 !important;
+          border: 1px solid #cbd5e1 !important;
+          width: 16px !important;
+          height: 16px !important;
+        }
+
+        /* 3. Dark Theme Variables / Overrides */
+        .dark-theme, .dark-theme body, .dark-theme #root {
           background-color: #0f172a !important; /* bg-slate-900 */
           color: #f8fafc !important; /* text-slate-50 */
         }
@@ -2812,6 +2834,12 @@ const App = () => {
           color: #f8fafc !important;
           border-color: #475569 !important;
         }
+        /* Dark Mode Checkbox Fix */
+        .dark-theme input[type="checkbox"].custom-checkbox {
+          background-color: #1e293b !important;
+          border-color: #475569 !important;
+        }
+
         /* Preserve specific dark blocks */
         .dark-theme .dark-theme-ignore, .dark-theme .career-tracker-box {
           background-color: #020617 !important;
