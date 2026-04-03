@@ -110,6 +110,8 @@ const MONTHS = [
   'December',
 ];
 
+const YEARS = ['2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+
 // --- DICTIONARY FOR TRANSLATION ---
 const dict = {
   'PROFILE': '个人资料',
@@ -261,32 +263,45 @@ const dict = {
   'EPF (11%)': '公积金 (11%)',
   'SOCSO': '社险 (SOCSO)',
   'EIS': '就业保险 (EIS)',
-  'EPF (13%)': '公积金 (13%)'
+  'EPF (13%)': '公积金 (13%)',
+  'System Notification': '系统通知',
+  'OK': '确定',
+  'Dates are required.': '请选择日期。',
+  'Record Updated Successfully.': '记录更新成功。',
+  'Application Submitted / 已提交申请': '申请已提交。',
+  'Maximum 6 optional Public Holidays can be selected.': '最多只能选择 6 个可选公共假期。',
+  'Select new holidays first.': '请先选择需要转换的假期。',
+  'Please specify the target date.': '请指定目标日期。',
+  'Update Submitted for Admin Approval.': '资料更新已提交，等待管理员审批。',
+  'Staff account created.': '员工账号创建成功。',
+  'Select staff member.': '请选择要操作的员工。',
+  'Record Deleted.': '记录已删除。',
+  'Company Info Updated.': '公司信息已成功更新。',
+  'Cancelled.': '已成功取消。',
+  'January': '一月', 'February': '二月', 'March': '三月', 'April': '四月', 
+  'May': '五月', 'June': '六月', 'July': '七月', 'August': '八月', 
+  'September': '九月', 'October': '十月', 'November': '十一月', 'December': '十二月'
 };
 
 // --- GLOBAL CSS INJECTION ---
-// We define it here so it applies to BOTH Login and Main App views
 const globalCss = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
   
-  /* 1. OVERRIDE VITE DEFAULTS FOR FULL SCREEN */
   html, body, #root {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    max-width: none !important; /* Forces Vite to ignore its 1280px limit */
+    max-width: none !important;
     display: block !important;
-    background-color: #f8fafc; /* Matches Tailwind bg-slate-50 */
+    background-color: #f8fafc;
   }
 
   * { font-family: 'Inter', system-ui, sans-serif !important; }
   
-  /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   
-  /* 2. FORCE CHECKBOX TO BE WHITE (Bypass OS Dark Mode entirely) */
   input[type="checkbox"].custom-checkbox {
     -webkit-appearance: none !important;
     appearance: none !important;
@@ -313,23 +328,21 @@ const globalCss = `
     transform: scale(1);
   }
 
-  /* 3. Dark Theme Variables / Overrides */
   .dark-theme, .dark-theme body, .dark-theme #root {
-    background-color: #0f172a !important; /* bg-slate-900 */
-    color: #f8fafc !important; /* text-slate-50 */
+    background-color: #0f172a !important; 
+    color: #f8fafc !important; 
   }
   .dark-theme header {
     background-color: #1e293b !important;
     border-color: #334155 !important;
   }
   .dark-theme .bg-white, .dark-theme .bg-slate-50 {
-    background-color: #1e293b !important; /* bg-slate-800 */
-    border-color: #334155 !important; /* border-slate-700 */
+    background-color: #1e293b !important; 
+    border-color: #334155 !important; 
   }
   .dark-theme .bg-slate-100 {
     background-color: #334155 !important;
   }
-  /* Specific forced colors for daylight that invert in dark mode */
   .dark-theme .text-slate-900, .dark-theme .text-slate-800, .dark-theme .text-black {
     color: #f8fafc !important;
   }
@@ -347,13 +360,11 @@ const globalCss = `
     color: #f8fafc !important;
     border-color: #475569 !important;
   }
-  /* Dark Mode Checkbox Fix */
   .dark-theme input[type="checkbox"].custom-checkbox {
     background-color: #1e293b !important;
     border-color: #475569 !important;
   }
 
-  /* Preserve specific dark blocks */
   .dark-theme .dark-theme-ignore, .dark-theme .career-tracker-box {
     background-color: #020617 !important;
   }
@@ -368,8 +379,8 @@ const globalCss = `
 `;
 
 // --- HELPERS ---
-const formatPHDateStr = (dateStr) => {
-  const d = new Date(`${dateStr}, 2026`);
+const formatPHDateStr = (dateStr, year) => {
+  const d = new Date(`${dateStr}, ${year}`);
   return d
     .toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -397,6 +408,14 @@ const App = () => {
   const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
   const [loginError, setLoginError] = useState('');
 
+  // --- CUSTOM ALERT STATE (Replaces browser alert) ---
+  const [appAlert, setAppAlert] = useState({ show: false, message: '', title: '' });
+  
+  const triggerAlert = (message, title = 'System Notification') => {
+    setAppAlert({ show: true, message, title });
+  };
+  const closeAlert = () => setAppAlert({ show: false, message: '', title: '' });
+
   // --- THEME & LANG STATE ---
   const [isDark, setIsDark] = useState(false);
   const [lang, setLang] = useState('en');
@@ -419,6 +438,7 @@ const App = () => {
 
   // UI States
   const [selectedMonth, setSelectedMonth] = useState('March');
+  const [selectedYear, setSelectedYear] = useState('2026'); // Added Year state for payslip
   const [selectedStaffId, setSelectedStaffId] = useState('shan-01');
   const [commStaffId, setCommStaffId] = useState('shan-01');
   const [commInput, setCommInput] = useState('');
@@ -428,7 +448,6 @@ const App = () => {
   // Modal States
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
-  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [viewPayslipData, setViewPayslipData] = useState(null);
   const [viewLeaveHistory, setViewLeaveHistory] = useState(null);
   const [waivePromptData, setWaivePromptData] = useState(null);
@@ -440,7 +459,6 @@ const App = () => {
 
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [draftPHs, setDraftPHs] = useState([]);
-  const [verifyPass, setVerifyPass] = useState('');
   const [newStaffForm, setNewStaffForm] = useState({
     username: '',
     password: '',
@@ -761,7 +779,7 @@ const App = () => {
       doc(db, 'artifacts', appId, 'public', 'data', 'leaveApps', id),
       { ...app, id, appliedAt: Date.now() }
     );
-    alert(t('Application Submitted / 已提交申请'));
+    triggerAlert(t('Application Submitted / 已提交申请'));
   };
 
   const updateLeaveApp = async (id, data) => {
@@ -785,7 +803,7 @@ const App = () => {
   const handleDraftTogglePH = (phId, isChecked) => {
     if (isChecked) {
       if (draftPHs.length >= 6)
-        return alert(t('Maximum 6 optional Public Holidays can be selected.'));
+        return triggerAlert(t('Maximum 6 optional Public Holidays can be selected.'));
       setDraftPHs([...draftPHs, phId]);
     } else {
       setDraftPHs(draftPHs.filter((id) => id !== phId));
@@ -813,13 +831,13 @@ const App = () => {
         !activeStaff.selectedPHs?.includes(id) &&
         !activeStaff.convertedPHs?.includes(id)
     );
-    if (newToConvert.length === 0) return alert(t('Select new holidays first.'));
+    if (newToConvert.length === 0) return triggerAlert(t('Select new holidays first.'));
     setConvertPromptData(newToConvert);
     setConvertTargetDate('');
   };
 
   const confirmBatchConvert = async () => {
-    if (!convertTargetDate) return alert(t('Please specify the target date.'));
+    if (!convertTargetDate) return triggerAlert(t('Please specify the target date.'));
     await addLeaveApp({
       staffId: activeStaff.id,
       username: activeStaff.username,
@@ -848,15 +866,19 @@ const App = () => {
     if (currentUser.type === 'ADMIN') {
       const oldStaff = staffList.find((s) => s.id === editForm.id);
       let finalEditForm = { ...editForm };
+      
+      // Check if we need to prompt for probation rules
       if (
         (!oldStaff.probationEndDate || oldStaff.probationEndDate === '') &&
         editForm.probationEndDate
       ) {
+        setIsEditProfileModalOpen(false); // Close edit modal immediately
         return setWaivePromptData({ editForm });
       }
+      
       await updateStaffData(editForm.id, finalEditForm);
-      setIsEditProfileModalOpen(false);
-      alert(t('Record Updated Successfully.'));
+      setIsEditProfileModalOpen(false); // Close edit modal immediately
+      triggerAlert(t('Record Updated Successfully.')); // Trigger smooth alert
     } else {
       await addLeaveApp({
         staffId: activeStaff.id,
@@ -870,8 +892,8 @@ const App = () => {
         timestamp: new Date().toLocaleString(),
         actionAt: null,
       });
-      setIsEditProfileModalOpen(false);
-      alert(t('Update Submitted for Admin Approval.'));
+      setIsEditProfileModalOpen(false); // Close edit modal immediately
+      triggerAlert(t('Update Submitted for Admin Approval.')); // Trigger smooth alert
     }
   };
 
@@ -898,9 +920,8 @@ const App = () => {
         actionAt: new Date().toLocaleString(),
       });
     }
-    setIsEditProfileModalOpen(false);
     setWaivePromptData(null);
-    alert(t('Record Updated Successfully.'));
+    triggerAlert(t('Record Updated Successfully.'));
   };
 
   const processLeave = async (id, status, reason = '') => {
@@ -979,12 +1000,12 @@ const App = () => {
     setCommStaffId(newId);
     setNewStaffForm({ username: '', password: '' });
     setIsAddStaffModalOpen(false);
-    alert(t(`Staff account created.`));
+    triggerAlert(t('Staff account created.'));
   };
 
   const generatePayslip = async () => {
     const target = staffList.find((s) => s.id === commStaffId);
-    if (!target) return alert(t('Select staff member.'));
+    if (!target) return triggerAlert(t('Select staff member.'));
     const basic = Number(target.salary),
       comm = parseFloat(commInput) || 0,
       bonus = parseFloat(bonusInput) || 0;
@@ -998,7 +1019,7 @@ const App = () => {
         id,
         staffId: target.id,
         month: selectedMonth,
-        year: 2026,
+        year: Number(selectedYear), // Using dynamic selected Year
         basic,
         comm,
         bonus,
@@ -1026,7 +1047,7 @@ const App = () => {
     await deleteDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'payslips', id)
     );
-    alert(t('Record Deleted.'));
+    triggerAlert(t('Record Deleted.'));
   };
 
   const handleDownloadPayslip = async (payslip, staff) => {
@@ -1053,14 +1074,14 @@ const App = () => {
               companyInfo.ssm
             })</p>
             <p style="margin: 8px 0 0; font-weight: 800; color: #1e293b; font-size: 15px;">OFFICIAL PAYSLIP - ${
-              payslip.month
+              t(payslip.month)
             } ${payslip.year}</p>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; line-height: 1.6;">
             <div><p><strong>Employee:</strong> ${
               staff.name || staff.username
             }</p><p><strong>Position:</strong> ${
-      staff.role
+      t(staff.role)
     }</p><p><strong>ID:</strong> ${staff.username}</p></div>
             <div style="text-align: right;"><p><strong>IC No:</strong> ${
               staff.ic || '-'
@@ -1150,7 +1171,7 @@ const App = () => {
       'main'
     );
     await setDoc(companyRef, data, { merge: true });
-    alert(t('Company Info Updated.'));
+    triggerAlert(t('Company Info Updated.'));
   };
 
   const addDesignation = async () => {
@@ -1772,7 +1793,7 @@ const App = () => {
                           const start = document.getElementById('lStart').value,
                             end = document.getElementById('lEnd').value,
                             type = document.getElementById('lType').value;
-                          if (!start || !end) return alert('Dates are required.');
+                          if (!start || !end) return triggerAlert(t('Dates are required.'));
                           const days =
                             Math.ceil(
                               Math.abs(new Date(end) - new Date(start)) /
@@ -2000,21 +2021,34 @@ const App = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
                   {/* REQ 2: Payroll Engine Black Card */}
                   <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
-                    <div className="flex items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left gap-4">
                       <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
                         <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
                       </h2>
-                      <select
-                        className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
-                      >
-                        {MONTHS.map((m) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
+                          value={selectedYear}
+                          onChange={(e) => setSelectedYear(e.target.value)}
+                        >
+                          {YEARS.map((y) => (
+                            <option key={y} value={y}>
+                              {y}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
+                          value={selectedMonth}
+                          onChange={(e) => setSelectedMonth(e.target.value)}
+                        >
+                          {MONTHS.map((m) => (
+                            <option key={m} value={m}>
+                              {t(m)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     {currentUser.type === 'ADMIN' && (
                       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-6 space-y-4 transition-colors duration-200 text-left">
@@ -2053,7 +2087,7 @@ const App = () => {
                         </div>
                         <button
                           onClick={generatePayslip}
-                          className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center"
+                          className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center shadow-md hover:bg-indigo-600 transition"
                         >
                           {t('Generate Payslip')}
                         </button>
@@ -2380,6 +2414,31 @@ const App = () => {
             )}
           </div>
         </div>
+
+        {/* --- CUSTOM APP ALERTS (Replaces Native Browser Alert) --- */}
+        {appAlert.show && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[600] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-200 text-left">
+              <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                <h2 className="text-sm font-bold uppercase">{t(appAlert.title)}</h2>
+                <button onClick={closeAlert} className="hover:bg-indigo-500 p-1 rounded-lg transition">
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-8 text-center space-y-6">
+                <p className="text-slate-700 font-semibold text-sm leading-relaxed">
+                  {appAlert.message}
+                </p>
+                <button
+                  onClick={closeAlert}
+                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-indigo-700 transition text-xs uppercase"
+                >
+                  {t('OK')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ALL MODALS PRESERVED AS PER BASE */}
         {viewPayslipData && (
@@ -2746,7 +2805,7 @@ const App = () => {
                       const app = cancelPromptApp;
                       await updateLeaveApp(app.id, { status: 'CANCELLED' });
                       setCancelPromptApp(null);
-                      alert(t('Cancelled.'));
+                      triggerAlert(t('Cancelled.'));
                     }}
                     className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
                   >
