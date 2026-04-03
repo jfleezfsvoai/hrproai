@@ -264,6 +264,109 @@ const dict = {
   'EPF (13%)': '公积金 (13%)'
 };
 
+// --- GLOBAL CSS INJECTION ---
+// We define it here so it applies to BOTH Login and Main App views
+const globalCss = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  
+  /* 1. OVERRIDE VITE DEFAULTS FOR FULL SCREEN */
+  html, body, #root {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important; /* Forces Vite to ignore its 1280px limit */
+    display: block !important;
+    background-color: #f8fafc; /* Matches Tailwind bg-slate-50 */
+  }
+
+  * { font-family: 'Inter', system-ui, sans-serif !important; }
+  
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  
+  /* 2. FORCE CHECKBOX TO BE WHITE (Bypass OS Dark Mode entirely) */
+  input[type="checkbox"].custom-checkbox {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    background-color: #ffffff !important;
+    width: 18px !important;
+    height: 18px !important;
+    border: 2px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    display: inline-grid !important;
+    place-content: center !important;
+    cursor: pointer;
+    margin: 0 !important;
+  }
+  input[type="checkbox"].custom-checkbox::before {
+    content: "";
+    width: 10px !important;
+    height: 10px !important;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    background-color: #4f46e5 !important;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  input[type="checkbox"].custom-checkbox:checked::before {
+    transform: scale(1);
+  }
+
+  /* 3. Dark Theme Variables / Overrides */
+  .dark-theme, .dark-theme body, .dark-theme #root {
+    background-color: #0f172a !important; /* bg-slate-900 */
+    color: #f8fafc !important; /* text-slate-50 */
+  }
+  .dark-theme header {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+  }
+  .dark-theme .bg-white, .dark-theme .bg-slate-50 {
+    background-color: #1e293b !important; /* bg-slate-800 */
+    border-color: #334155 !important; /* border-slate-700 */
+  }
+  .dark-theme .bg-slate-100 {
+    background-color: #334155 !important;
+  }
+  /* Specific forced colors for daylight that invert in dark mode */
+  .dark-theme .text-slate-900, .dark-theme .text-slate-800, .dark-theme .text-black {
+    color: #f8fafc !important;
+  }
+  .dark-theme .text-slate-700, .dark-theme .text-slate-600 {
+    color: #cbd5e1 !important;
+  }
+  .dark-theme .text-slate-500, .dark-theme .text-slate-400 {
+    color: #94a3b8 !important;
+  }
+  .dark-theme .border, .dark-theme .border-b, .dark-theme .border-t, .dark-theme .border-slate-200, .dark-theme .border-slate-100 {
+    border-color: #334155 !important;
+  }
+  .dark-theme input, .dark-theme select, .dark-theme textarea {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+  }
+  /* Dark Mode Checkbox Fix */
+  .dark-theme input[type="checkbox"].custom-checkbox {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+  }
+
+  /* Preserve specific dark blocks */
+  .dark-theme .dark-theme-ignore, .dark-theme .career-tracker-box {
+    background-color: #020617 !important;
+  }
+  .dark-theme select option {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+  }
+  .dark-theme .select-dark-bg option {
+     background-color: #020617 !important;
+     color: #f8fafc !important;
+  }
+`;
+
 // --- HELPERS ---
 const formatPHDateStr = (dateStr) => {
   const d = new Date(`${dateStr}, 2026`);
@@ -1130,1730 +1233,1651 @@ const App = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans p-6">
-        <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-10 border border-slate-200">
-          <div className="flex flex-col items-center mb-8 text-center">
-            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-100">
-              <ShieldCheck size={28} />
-            </div>
-            <h1 className="text-xl font-bold text-slate-900 leading-none tracking-tight">
-              {t('HR Pro')}
-            </h1>
-            <p className="text-slate-400 text-[10px] font-semibold uppercase mt-2 border-b border-indigo-100 pb-1">
-              {t('Management Portal')}
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="text"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
-              placeholder={t('Username')}
-              value={loginForm.user}
-              onChange={(e) =>
-                setLoginForm({ ...loginForm, user: e.target.value })
-              }
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
-              placeholder={t('Password')}
-              value={loginForm.pass}
-              onChange={(e) =>
-                setLoginForm({ ...loginForm, pass: e.target.value })
-              }
-              required
-            />
-            {loginError && (
-              <p className="text-red-500 text-[10px] font-bold text-center uppercase bg-red-50 py-2 rounded-lg">
-                {loginError}
+      <>
+        <style>{globalCss}</style>
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans p-6 w-full">
+          <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-10 border border-slate-200">
+            <div className="flex flex-col items-center mb-8 text-center">
+              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-100">
+                <ShieldCheck size={28} />
+              </div>
+              <h1 className="text-xl font-bold text-slate-900 leading-none tracking-tight">
+                {t('HR Pro')}
+              </h1>
+              <p className="text-slate-400 text-[10px] font-semibold uppercase mt-2 border-b border-indigo-100 pb-1">
+                {t('Management Portal')}
               </p>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-lg hover:bg-indigo-700 transition active:scale-95 text-xs uppercase"
-            >
-              {t('Sign In')}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`min-h-screen ${isDark ? 'dark-theme' : ''} bg-slate-50 font-sans text-slate-800 pb-20 leading-normal transition-colors duration-200`}>
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50 shadow-sm transition-colors duration-200">
-        <div className="flex items-center gap-3">
-          <Building className="text-indigo-600" size={20} />
-          <h1 className="text-lg font-bold uppercase leading-none tracking-tight text-slate-900">
-            {currentUser.company}
-          </h1>
-          <span className="bg-indigo-50 text-indigo-600 text-[8px] px-2 py-0.5 rounded font-bold uppercase">
-            {currentUser.type}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Language">
-            <Globe size={16} />
-          </button>
-          <button onClick={() => setIsDark(!isDark)} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Dark Mode">
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-          <div className="w-px h-5 bg-slate-300 mx-2" />
-          <p className="text-sm font-bold text-slate-900">{currentUser.user}</p>
-          <button
-            onClick={handleLogout}
-            className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition shadow-sm"
-          >
-            <LogOut size={16} />
-          </button>
-        </div>
-      </header>
-
-      <div className="w-full px-4 md:px-8 py-6 space-y-6">
-        <div className="flex gap-1 border-b">
-          {[
-            'PROFILE',
-            'LEAVE_APPLICATION',
-            'PAYROLL',
-            ...(currentUser.type === 'ADMIN' ? ['ADMIN_PANEL'] : []),
-          ].map((id) => (
-            <button
-              key={id}
-              onClick={() => setHrSubTab(id)}
-              className={`px-6 py-3 text-xs font-bold transition-all border-b-2 ${
-                hrSubTab === id
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              {t(id.replace('_', ' '))}
-            </button>
-          ))}
-        </div>
-
-        {currentUser.type === 'ADMIN' && (
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center justify-between transition-colors duration-200">
-            <div className="flex items-center gap-4">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold uppercase text-slate-400 block ml-1 text-left">
-                  {t('Staff Access Selection')}
-                </label>
-                <select
-                  className="block w-64 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold outline-none cursor-pointer focus:border-indigo-400 transition-colors duration-200"
-                  value={selectedStaffId}
-                  onChange={(e) => setSelectedStaffId(e.target.value)}
-                >
-                  {staffList.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name || s.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="h-8 w-px bg-slate-200" />
-              <div className="text-[10px] font-bold text-slate-500 uppercase">
-                {t('Headcount:')} {staffList.length} {t('Active')}
-              </div>
             </div>
-            <button
-              onClick={() => setIsAddStaffModalOpen(true)}
-              className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-md flex items-center gap-2"
-            >
-              <Plus size={14} /> {t('CREATE')}
-            </button>
-          </div>
-        )}
-
-        <div className="min-h-[500px]">
-          {hrSubTab === 'PROFILE' && (
-            activeStaff.id ? (
-            <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row transition-colors duration-200">
-                <div className="md:w-48 bg-indigo-600 p-8 flex flex-col items-start md:items-center justify-center text-white relative">
-                  <div className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center text-3xl font-bold mb-3 shadow-inner relative overflow-hidden">
-                    {activeStaff.profilePic ? (
-                      <img
-                        src={activeStaff.profilePic}
-                        className="w-full h-full object-cover rounded-xl profile-pic-preserve"
-                        alt="Profile"
-                      />
-                    ) : activeStaff.name ? (
-                      activeStaff.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                    ) : (
-                      '?'
-                    )}
-                    <label className="absolute -bottom-3 -right-3 bg-indigo-400 hover:bg-indigo-300 p-2 rounded-full cursor-pointer shadow-lg transition z-10 border-2 border-indigo-600">
-                      <Plus size={16} className="text-white" />
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleProfilePicUpload}
-                      />
-                    </label>
-                  </div>
-                  <p className="text-[8px] font-bold uppercase tracking-wider text-indigo-200">
-                    {t('Ref:')} {activeStaff.id}
-                  </p>
-                </div>
-                <div className="flex-1 p-8 space-y-6 text-left">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 gap-4 transition-colors duration-200">
-                    <div className="text-left">
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-xl font-bold text-slate-900">
-                          {activeStaff.name || 'Unnamed Staff'}
-                        </h2>
-                        <button
-                          onClick={openEditModal}
-                          className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition shadow-sm"
-                        >
-                          <Edit3 size={16} />
-                        </button>
-                      </div>
-                      <p className="text-slate-500 text-xs font-medium uppercase mt-1 text-left">
-                        {activeStaff.probationEndDate &&
-                        new Date(activeStaff.probationEndDate) < TODAY
-                          ? t('Status: Confirmed Employment')
-                          : t('Status: Probation Period')}
-                      </p>
-                    </div>
-                    <div className="text-left md:text-right">
-                      <label className="text-[9px] font-bold uppercase text-slate-400 block mb-2">
-                        {t('Designation')}
-                      </label>
-                      <div className="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg font-bold text-[10px] uppercase border transition-colors duration-200 inline-block">
-                        {t(activeStaff.role)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8 text-left">
-                    {[
-                      { label: t('Contact'), value: activeStaff.phone },
-                      { label: t('IC Identity'), value: activeStaff.ic },
-                      { label: t('Gender'), value: t(activeStaff.gender) },
-                      {
-                        label: t('Join Date'),
-                        value: activeStaff.joinDate || 'Not Set',
-                      },
-                      {
-                        label: t('Prob. End Date'),
-                        value: activeStaff.probationEndDate || 'Not Set',
-                      },
-                      { label: t('SOCSO ID'), value: activeStaff.socsoNo },
-                    ].map((item) => (
-                      <div key={item.label} className="space-y-1 text-left">
-                        <p className="text-[10px] font-semibold text-slate-500 uppercase text-left">
-                          {item.label}
-                        </p>
-                        <p className="font-bold text-slate-800 text-sm text-left">
-                          {String(item.value || 'N/A')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="pt-6 border-t border-slate-100 flex items-center gap-8 transition-colors duration-200 text-left">
-                    <div className="text-left">
-                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
-                        {t('Monthly Basic')}
-                      </p>
-                      <p className="font-bold text-indigo-600 text-2xl text-left">
-                        RM{' '}
-                        {hasSalary
-                          ? Number(activeStaff.salary).toFixed(2)
-                          : '0.00'}
-                      </p>
-                    </div>
-                    <div className="h-10 w-px bg-slate-200" />
-                    <div className="text-left">
-                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
-                        {t('Daily Rate')}
-                      </p>
-                      <p className="font-bold text-slate-800 text-lg text-left">
-                        RM {DAILY_RATE}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200 text-left">
-                  <h3 className="text-lg font-bold text-indigo-500 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                    {t('Employee Portion (Deduct)')}
-                  </h3>
-                  <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                    <div className="flex justify-between">
-                      <span>{t('EPF (11%)')}</span>
-                      <span>RM {hasSalary ? '242.00' : '0.00'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{t('SOCSO')}</span>
-                      <span>RM {hasSalary ? '10.75' : '0.00'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{t('EIS')}</span>
-                      <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                    </div>
-                    <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-lg uppercase transition-colors duration-200">
-                      <span>{t('Total Deduct')}</span>
-                      <span>RM {hasSalary ? '257.05' : '0.00'}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200 text-left">
-                  <h3 className="text-lg font-bold text-emerald-600 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                    {t('Employer Portion (Company)')}
-                  </h3>
-                  <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                    <div className="flex justify-between">
-                      <span>{t('EPF (13%)')}</span>
-                      <span>RM {hasSalary ? '286.00' : '0.00'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{t('SOCSO')}</span>
-                      <span>RM {hasSalary ? '37.65' : '0.00'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{t('EIS')}</span>
-                      <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                    </div>
-                    <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-lg uppercase transition-colors duration-200">
-                      <span>{t('Total Contrib')}</span>
-                      <span>RM {hasSalary ? '327.95' : '0.00'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-slate-900 career-tracker-box rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group text-left">
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 text-left">
-                  <div className="md:w-1/4 border-r border-white/10 pr-6 text-left">
-                    <h3 className="text-lg font-bold text-indigo-400 uppercase mb-2 flex items-center gap-2 justify-start">
-                      <History size={16} /> {t('Career Tracker')}
-                    </h3>
-                    <p className="text-[9px] text-slate-400 uppercase font-medium leading-relaxed text-left">
-                      {t('Aggregated since day 1.')}
-                    </p>
-                  </div>
-                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
-                    <div className="text-left">
-                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                        {t('Total Basic')}
-                      </p>
-                      <p className="text-xl font-bold text-white tracking-preserve text-left">
-                        RM{' '}
-                        {careerTotals.basic.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                        {t('Total Comm')}
-                      </p>
-                      <p className="text-xl font-bold text-emerald-400 tracking-preserve text-left">
-                        RM{' '}
-                        {careerTotals.comm.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                        {t('Total EPF')}
-                      </p>
-                      <p className="text-xl font-bold text-indigo-300 tracking-preserve text-left">
-                        RM{' '}
-                        {careerTotals.epf.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                        {t('Tenure')}
-                      </p>
-                      <p className="text-xl font-bold text-white tracking-preserve text-left">
-                        {currentTenureMonths} {t('Months')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            ) : <EmptyStaffState />
-          )}
-
-          {/* LEAVE TAB */}
-          {hrSubTab === 'LEAVE_APPLICATION' && (
-            activeStaff.id ? (
-            <div className="space-y-6 animate-in fade-in duration-300">
-              {currentUser.type === 'ADMIN' ? (
-                <>
-                  {/* ADMIN TOP: 50/50 Grid */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
-                      <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200 text-slate-900">
-                        {t('Approvals')}{' '}
-                        <AlertCircle className="text-amber-500" size={16} />
-                      </h2>
-                      <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
-                        {leaveApps.filter((a) => a.status === 'PENDING')
-                          .length === 0 ? (
-                          <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
-                            {t('No pending requests.')}
-                          </div>
-                        ) : (
-                          leaveApps
-                            .filter((a) => a.status === 'PENDING')
-                            .map((app) => (
-                              <div
-                                key={app.id}
-                                className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col gap-3 transition-colors duration-200 text-left"
-                              >
-                                <div className="space-y-1">
-                                  <p className="font-bold text-slate-800 uppercase text-[9px]">
-                                    {app.staffName} ·{' '}
-                                    {t(getTypeFullName(app.type))}
-                                  </p>
-                                  <p className="text-xs font-bold text-indigo-600">
-                                    {app.type === 'PROFILE_UPDATE'
-                                      ? t('Requested Changes to Staff Data')
-                                      : app.type === 'PH_UPDATE'
-                                      ? `${t('PH Selection')} (${app.days} items)`
-                                      : app.type === 'PH_CONVERT_BATCH'
-                                      ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
-                                      : `${app.startDate} to ${app.endDate} (${app.days}d)`}
-                                  </p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() =>
-                                      processLeave(app.id, 'APPROVED')
-                                    }
-                                    className="flex-1 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center"
-                                  >
-                                    <Check size={16} />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setRejectPromptId(app.id);
-                                      setRejectReason('');
-                                    }}
-                                    className="flex-1 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center"
-                                  >
-                                    <X size={16} />
-                                  </button>
-                                </div>
-                              </div>
-                            ))
-                        )}
-                      </div>
-                    </div>
-                    {/* Admin Status Balances Card (Vertical list) */}
-                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
-                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                        {t('Status Balances')}{' '}
-                        <Info size={14} className="text-slate-300" />
-                      </h2>
-                      <div className="flex flex-col gap-6 flex-1 justify-center text-left">
-                        <BalanceMetric
-                          label={t("Annual Leave")}
-                          current={earnedAL - activeStaff.alUsed}
-                          total={earnedAL}
-                          color="indigo"
-                          onInfoClick={() => setViewLeaveHistory('AL')}
-                        />
-                        <BalanceMetric
-                          label={t("Medical Leave")}
-                          current={14 - activeStaff.mcUsed}
-                          total={14}
-                          color="emerald"
-                          onInfoClick={() => setViewLeaveHistory('MC')}
-                        />
-                        <BalanceMetric
-                          label={t("Public Holiday")}
-                          current={6 - (activeStaff.phUsed || 0)}
-                          total={6}
-                          color="amber"
-                          onInfoClick={() => setViewLeaveHistory('PH')}
-                        />
-                        <BalanceMetric
-                          label={t("Unpaid Leave")}
-                          current={activeStaff.uplUsed}
-                          total={null}
-                          color="rose"
-                          onInfoClick={() => setViewLeaveHistory('UPL')}
-                        />
-                        <BalanceMetric
-                          label={t("Replacement")}
-                          current={activeStaff.rlUsed || 0}
-                          total={activeStaff.rlEarned || 0}
-                          color="teal"
-                          onInfoClick={() => setViewLeaveHistory('RL')}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* STAFF TOP: Full Width Horizontal Bar */}
-                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
-                    <div className="flex items-center gap-3 shrink-0">
-                      <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
-                        {t('Leave Application')}
-                      </h2>
-                      <ArrowRight className="text-indigo-400" size={18} />
-                    </div>
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                          {t('Category')}
-                        </label>
-                        <select
-                          id="lType"
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
-                        >
-                          <option value="AL" className="text-slate-900">
-                            {t('Annual Leave')}
-                          </option>
-                          <option value="MC" className="text-slate-900">
-                            {t('Medical Leave')}
-                          </option>
-                          <option value="RL" className="text-slate-900">
-                            {t('Replacement')}
-                          </option>
-                          <option value="UPL" className="text-slate-900">
-                            {t('Unpaid Leave')}
-                          </option>
-                        </select>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                          {t('Start Date')}
-                        </label>
-                        <input
-                          id="lStart"
-                          type="date"
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                          style={{colorScheme: 'dark'}}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                          {t('End Date')}
-                        </label>
-                        <input
-                          id="lEnd"
-                          type="date"
-                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                          style={{colorScheme: 'dark'}}
-                        />
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        const start = document.getElementById('lStart').value,
-                          end = document.getElementById('lEnd').value,
-                          type = document.getElementById('lType').value;
-                        if (!start || !end) return alert('Dates are required.');
-                        const days =
-                          Math.ceil(
-                            Math.abs(new Date(end) - new Date(start)) /
-                              (1000 * 60 * 60 * 24)
-                          ) + 1;
-                        addLeaveApp({
-                          staffId: currentUser.id,
-                          username: currentUser.username,
-                          staffName: currentUser.name,
-                          type,
-                          startDate: start,
-                          endDate: end,
-                          days,
-                          status: 'PENDING',
-                          timestamp: new Date().toLocaleString(),
-                          actionAt: null,
-                        });
-                      }}
-                      className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
-                    >
-                      {t('Submit Request')}
-                    </button>
-                  </div>
-
-                  {/* STAFF MIDDLE: 50/50 Grid */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
-                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200 text-left">
-                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200 text-left">
-                        {t('Optional Public Holidays (Max 6)')}
-                      </h2>
-                      <div className="space-y-2 mb-6 flex-1 text-left">
-                        {optionalPHs.map((ph) => (
-                          <div
-                            key={ph.id}
-                            className="flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 hover:bg-slate-100 transition transition-colors duration-200 text-left"
-                          >
-                            <label className="flex items-center gap-3 flex-1 cursor-pointer text-left">
-                              <input
-                                type="checkbox"
-                                checked={draftPHs.includes(ph.id)}
-                                disabled={activeStaff.convertedPHs?.includes(
-                                  ph.id
-                                )}
-                                onChange={(e) =>
-                                  handleDraftTogglePH(ph.id, e.target.checked)
-                                }
-                                className="custom-checkbox rounded focus:ring-indigo-500"
-                              />
-                              <div className="text-left">
-                                <p className="text-[11px] font-bold text-slate-800 text-left">
-                                  {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
-                                </p>
-                              </div>
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex gap-4 text-left">
-                        <button
-                          onClick={submitPHSelection}
-                          className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
-                        >
-                          {t('Apply')}
-                        </button>
-                        <button
-                          onClick={triggerBatchConvert}
-                          className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
-                        >
-                          {t('Convert')}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                        {t('Status Balances')}{' '}
-                        <Info size={14} className="text-slate-300" />
-                      </h2>
-                      <div className="flex flex-col gap-8 text-left">
-                        <BalanceMetric
-                          label={t("Annual Leave")}
-                          current={earnedAL - activeStaff.alUsed}
-                          total={earnedAL}
-                          color="indigo"
-                          onInfoClick={() => setViewLeaveHistory('AL')}
-                        />
-                        <BalanceMetric
-                          label={t("Medical Leave")}
-                          current={14 - activeStaff.mcUsed}
-                          total={14}
-                          color="emerald"
-                          onInfoClick={() => setViewLeaveHistory('MC')}
-                        />
-                        <BalanceMetric
-                          label={t("Public Holiday")}
-                          current={6 - (activeStaff.phUsed || 0)}
-                          total={6}
-                          color="amber"
-                          onInfoClick={() => setViewLeaveHistory('PH')}
-                        />
-                        <BalanceMetric
-                          label={t("Unpaid Leave")}
-                          current={activeStaff.uplUsed}
-                          total={null}
-                          color="rose"
-                          onInfoClick={() => setViewLeaveHistory('UPL')}
-                        />
-                        <BalanceMetric
-                          label={t("Replacement")}
-                          current={activeStaff.rlUsed || 0}
-                          total={activeStaff.rlEarned || 0}
-                          color="teal"
-                          onInfoClick={() => setViewLeaveHistory('RL')}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Action History (Bottom Full Width) */}
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                  {t('Action History')}{' '}
-                  <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
-                    {leaveApps.filter((a) => a.staffId === activeStaff.id).length} {t('Records')}
-                  </span>
-                </h3>
-                <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4 text-left">
-                  {Object.keys(groupedActionLogs).length === 0 ? (
-                    <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
-                      {t('No records found.')}
-                    </p>
-                  ) : (
-                    Object.keys(groupedActionLogs)
-                      .sort((a, b) => new Date(b) - new Date(a))
-                      .map((dateGroup) => (
-                        <div key={dateGroup} className="mb-6 text-left">
-                          <div className="flex items-center gap-4 mb-4 text-left">
-                            <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                            <span className="text-sm font-bold text-slate-400 uppercase text-left">
-                              -{dateGroup}-
-                            </span>
-                            <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                          </div>
-                          <div className="space-y-4 text-left">
-                            {groupedActionLogs[dateGroup].map((log) => (
-                              <div
-                                key={log.id}
-                                onClick={() =>
-                                  currentUser.type === 'STAFF' &&
-                                  log.status === 'PENDING' &&
-                                  log.type !== 'SYSTEM_AL_PROBATION' &&
-                                  setCancelPromptApp(log)
-                                }
-                                className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col transition relative group transition-colors duration-200 hover:border-slate-300 cursor-pointer text-left"
-                              >
-                                <div className="flex items-start justify-between mb-2 text-left">
-                                  <div className="flex gap-3 items-center text-left">
-                                    <div
-                                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                        [
-                                          'AL',
-                                          'SYSTEM_AL_PROBATION',
-                                          'PROFILE_UPDATE',
-                                        ].includes(log.type)
-                                          ? 'bg-indigo-400'
-                                          : log.type === 'MC'
-                                          ? 'bg-emerald-400'
-                                          : log.type === 'RL'
-                                          ? 'bg-teal-400'
-                                          : 'bg-amber-400'
-                                      }`}
-                                    />
-                                    <p
-                                      className={`font-bold text-xs uppercase text-left ${
-                                        log.status === 'CANCELLED'
-                                          ? 'text-slate-400 line-through'
-                                          : 'text-slate-800'
-                                      }`}
-                                    >
-                                      {t(getTypeFullName(log.type))} {t('Request')}
-                                    </p>
-                                  </div>
-                                  <span className="shrink-0 px-2 py-1 rounded text-[8px] font-bold border transition-colors duration-200 text-left">
-                                    {t(log.status)}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center mt-3 pt-3 border-t border-slate-200/60 gap-2 justify-between transition-colors duration-200 text-left">
-                                  <div className="text-[10px] font-bold text-indigo-600 text-left">
-                                    {log.startDate
-                                      ? `${log.startDate} to ${log.endDate}`
-                                      : ''}
-                                  </div>
-                                  <div className="text-[9px] text-slate-400 font-bold uppercase ml-auto text-left">
-                                    {t('Applied Date :')}{' '}
-                                    {new Date(
-                                      log.appliedAt || log.id
-                                    ).toLocaleDateString('en-GB')}
-                                    ,{' '}
-                                    {new Date(
-                                      log.appliedAt || log.id
-                                    ).toLocaleTimeString('en-US', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))
-                  )}
-                </div>
-              </div>
-            </div>
-            ) : <EmptyStaffState />
-          )}
-
-          {/* PAYROLL TAB */}
-          {hrSubTab === 'PAYROLL' && (
-            activeStaff.id ? (
-            <div className="space-y-6 animate-in fade-in duration-500 text-left">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
-                {/* REQ 2: Payroll Engine Black Card */}
-                <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
-                  <div className="flex items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
-                      <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
-                    </h2>
-                    <select
-                      className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(e.target.value)}
-                    >
-                      {MONTHS.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {currentUser.type === 'ADMIN' && (
-                    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-6 space-y-4 transition-colors duration-200 text-left">
-                      <select
-                        className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 font-bold text-sm text-white outline-none transition-colors duration-200 text-left"
-                        value={commStaffId}
-                        onChange={(e) => setCommStaffId(e.target.value)}
-                      >
-                        {staffList.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} - {t(s.role)}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="grid grid-cols-3 gap-4 text-left">
-                        <input
-                          type="number"
-                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
-                          placeholder={t("Comm")}
-                          value={commInput}
-                          onChange={(e) => setCommInput(e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
-                          placeholder={t("Bonus")}
-                          value={bonusInput}
-                          onChange={(e) => setBonusInput(e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          readOnly
-                          className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-400 outline-none transition-colors duration-200 text-left"
-                          value={calculatedUPL}
-                        />
-                      </div>
-                      <button
-                        onClick={generatePayslip}
-                        className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center"
-                      >
-                        {t('Generate Payslip')}
-                      </button>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center bg-indigo-500/20 p-5 rounded-xl border border-indigo-500/30 transition-colors duration-200 text-left">
-                    <span className="text-xs font-bold text-indigo-200 uppercase text-left">
-                      {t('Estimated Net Basic')}
-                    </span>
-                    <span className="text-2xl font-bold text-white text-left">
-                      RM{' '}
-                      {hasSalary
-                        ? (activeStaff.salary - 257.05).toFixed(2)
-                        : '0.00'}
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                  <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left text-slate-900">
-                    {t('Johor Public Holidays 2026')}
-                  </h2>
-                  <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
-                    {[
-                      { name: 'Sultan Johor Birthday', date: '2026-03-23' },
-                      { name: 'Labour Day', date: '2026-05-01' },
-                      { name: 'Agong Birthday', date: '2026-06-01' },
-                      { name: 'National Day', date: '2026-08-31' },
-                      { name: 'Malaysia Day', date: '2026-09-16' },
-                    ].map((ph, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
-                      >
-                        <div className="flex items-center gap-3 text-left">
-                          <div className={`w-2 h-2 rounded-full ${new Date(ph.date) < TODAY ? 'bg-slate-300' : 'bg-amber-400'}`} />
-                          <span className={`text-xs font-bold text-slate-800 ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                            {t(ph.name)}
-                          </span>
-                        </div>
-                        <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                          {new Date(ph.date).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'short',
-                          })}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200 text-left">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
-                  <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
-                    <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
-                  </h2>
-                </div>
-                <div className="overflow-x-auto text-left">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200 text-left">
-                      <tr>
-                        <th className="p-4 text-left">{t('Period')}</th>
-                        <th className="p-4 text-left">{t('Basic RM')}</th>
-                        <th className="p-4 text-left">{t('Commission')}</th>
-                        <th className="p-4 text-left">{t('Net Total')}</th>
-                        <th className="p-4 text-center">{t('View')}</th>
-                        <th className="p-4 text-center">{t('Export')}</th>
-                        <th className="p-4 text-center">{t('Action')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 transition-colors duration-200 text-left">
-                      {payslips.filter((p) => p.staffId === activeStaff.id)
-                        .length === 0 ? (
-                        <tr>
-                          <td
-                            colSpan="7"
-                            className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
-                          >
-                            {t('No records generated.')}
-                          </td>
-                        </tr>
-                      ) : (
-                        payslips
-                          .filter((p) => p.staffId === activeStaff.id)
-                          .map((p) => (
-                            <tr
-                              key={p.id}
-                              className="hover:bg-slate-50 transition transition-colors duration-200 text-left"
-                            >
-                              <td className="p-4 font-bold text-slate-800 uppercase text-xs text-left">
-                                {t(p.month)} {p.year}
-                              </td>
-                              <td className="p-4 font-semibold text-slate-600 text-xs text-left">
-                                RM {p.basic.toFixed(2)}
-                              </td>
-                              <td className="p-4 font-bold text-indigo-600 text-xs text-left">
-                                RM {p.comm.toFixed(2)}
-                              </td>
-                              <td className="p-4 font-bold text-emerald-600 text-md text-left">
-                                RM {p.netTotal.toFixed(2)}
-                              </td>
-                              <td className="p-4 text-center">
-                                <button
-                                  onClick={() => setViewPayslipData(p)}
-                                  className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
-                                >
-                                  <Eye size={14} /> {t('View')}
-                                </button>
-                              </td>
-                              <td className="p-4 text-center">
-                                <button
-                                  onClick={() =>
-                                    handleDownloadPayslip(p, activeStaff)
-                                  }
-                                  disabled={isGeneratingPdf}
-                                  className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
-                                >
-                                  <Download size={14} /> {t('PDF')}
-                                </button>
-                              </td>
-                              <td className="p-4 text-center">
-                                {currentUser.type === 'ADMIN' && (
-                                  <button
-                                    onClick={() => deletePayslipRecord(p.id)}
-                                    className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            ) : <EmptyStaffState />
-          )}
-
-          {/* ADMIN PANEL TAB */}
-          {hrSubTab === 'ADMIN_PANEL' && (
-            <div className="space-y-6 animate-in fade-in duration-500 text-left">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                  <Settings className="text-indigo-600" size={20} /> {t('Company Profile Settings')}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
-                      {t('Company Name')}
-                    </label>
-                    <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      value={companyInfo.name}
-                      onChange={(e) =>
-                        setCompanyInfo({ ...companyInfo, name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
-                      {t('SSM No.')}
-                    </label>
-                    <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      value={companyInfo.ssm}
-                      onChange={(e) =>
-                        setCompanyInfo({ ...companyInfo, ssm: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
-                      {t('Tax No.')}
-                    </label>
-                    <input
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      value={companyInfo.tax}
-                      onChange={(e) =>
-                        setCompanyInfo({ ...companyInfo, tax: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="mt-6 flex justify-end text-left">
-                  <button
-                    onClick={() => updateCompanyInfo(companyInfo)}
-                    className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase shadow-lg hover:bg-indigo-700 transition"
-                  >
-                    {t('Update Settings')}
-                  </button>
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                  <UserCircle className="text-indigo-600" size={20} /> {t('Staff Designation Registry')}
-                </h3>
-                <div className="flex gap-4 mb-6 text-left">
-                  <input
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                    placeholder={t('Enter new designation...')}
-                    value={newDesigInput}
-                    onChange={(e) => setNewDesigInput(e.target.value)}
-                  />
-                  <button
-                    onClick={addDesignation}
-                    className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
-                  >
-                    <Plus size={16} /> {t('Add')}
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-                  {designations.map((d) => (
-                    <div
-                      key={d.id}
-                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
-                    >
-                      <span className="text-xs font-bold text-slate-700 text-left">
-                        {t(d.name)}
-                      </span>
-                      <button
-                        onClick={() => deleteDesignation(d.id)}
-                        className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Optional Public Holidays Registry (Admin Panel) */}
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                  <Calendar className="text-indigo-600" size={20} /> {t('Optional Public Holidays Registry')}
-                </h3>
-                <div className="flex gap-4 mb-6 text-left">
-                  <input
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                    placeholder={t('Holiday Name (e.g. Thaipusam)...')}
-                    value={newPHForm.name}
-                    onChange={(e) => setNewPHForm({ ...newPHForm, name: e.target.value })}
-                  />
-                  <input
-                    className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                    placeholder={t('Date (e.g. Jan 25)')}
-                    value={newPHForm.date}
-                    onChange={(e) => setNewPHForm({ ...newPHForm, date: e.target.value })}
-                  />
-                  <button
-                    onClick={addOptionalPH}
-                    className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
-                  >
-                    <Plus size={16} /> {t('Add')}
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-                  {optionalPHs.map((ph) => (
-                    <div
-                      key={ph.id}
-                      className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
-                    >
-                      <div className="flex items-baseline gap-2 text-left">
-                        <span className="text-xs font-bold text-slate-700 text-left">
-                          {t(ph.name)}
-                        </span>
-                        <span className="text-[10px] text-slate-500 text-left">({ph.date})</span>
-                      </div>
-                      <button
-                        onClick={() => deleteOptionalPH(ph.id)}
-                        className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                {[
-                  {
-                    title: 'Employment Offer Letter',
-                    Icon: FileText,
-                    color: 'text-indigo-500',
-                  },
-                  {
-                    title: 'Confirmation Letter',
-                    Icon: CheckCircle2,
-                    color: 'text-emerald-500',
-                  },
-                  {
-                    title: 'Increment Letter',
-                    Icon: TrendingUp,
-                    color: 'text-blue-500',
-                  },
-                  {
-                    title: 'Warning Letter',
-                    Icon: AlertCircle,
-                    color: 'text-rose-500',
-                  },
-                ].map((doc, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md transition transition-colors duration-200 text-left"
-                  >
-                    <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-50 transition border border-slate-100 transition-colors duration-200">
-                      <doc.Icon size={24} className={doc.color} />
-                    </div>
-                    <h3 className="font-bold text-slate-800 mb-2 uppercase text-xs text-left">
-                      {t(doc.title)}
-                    </h3>
-                    <p className="text-[10px] text-slate-400 mb-6 font-medium uppercase text-left">
-                      {t('Generate for')} {activeStaff.name}
-                    </p>
-                    <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase border-b-2 border-indigo-50 pb-1">
-                      {t('EXPORT PDF')} <Download size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ALL MODALS PRESERVED AS PER BASE */}
-      {viewPayslipData && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-3">
-                <FileText size={20} className="text-indigo-400" />
-                <h2 className="text-lg font-bold uppercase">
-                  {t('Payslip Preview -')} {t(viewPayslipData.month)}
-                </h2>
-              </div>
-              <button onClick={() => setViewPayslipData(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-8 overflow-y-auto bg-slate-50 space-y-6 flex-1 text-left">
-              <div className="bg-white p-8 rounded-xl shadow-sm border space-y-6 text-left">
-                <div className="flex justify-between border-b pb-4 text-left">
-                  <h3 className="font-black text-indigo-600 text-xl uppercase tracking-tighter text-left">
-                    {currentUser.company}
-                  </h3>
-                  <div className="text-right text-[10px] text-slate-500 font-bold uppercase">
-                    {t('Official Document')}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 text-xs font-bold uppercase gap-6 text-left">
-                  <div className="text-left">
-                    <span className="text-slate-400 block mb-1 text-left">{t('Employee:')}</span>{' '}
-                    {activeStaff.name || activeStaff.username}
-                  </div>
-                  <div className="text-left">
-                    <span className="text-slate-400 block mb-1 text-left">{t('Period:')}</span>{' '}
-                    {t(viewPayslipData.month)} {viewPayslipData.year}
-                  </div>
-                  <div className="text-left">
-                    <span className="text-slate-400 block mb-1 text-left">
-                      {t('Basic Salary:')}
-                    </span>{' '}
-                    RM {viewPayslipData.basic.toFixed(2)}
-                  </div>
-                  <div className="text-left">
-                    <span className="text-slate-400 block mb-1 text-left">
-                      {t('Total Deductions:')}
-                    </span>{' '}
-                    RM {viewPayslipData.totalDeductions.toFixed(2)}
-                  </div>
-                </div>
-                <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex justify-between items-center text-left">
-                  <span className="font-bold text-slate-600 uppercase text-xs tracking-wider text-left">
-                    {t('Nett Income')}
-                  </span>
-                  <span className="text-3xl font-black text-indigo-600 text-left">
-                    RM {viewPayslipData.netTotal.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() =>
-                  handleDownloadPayslip(viewPayslipData, activeStaff)
-                }
-                disabled={isGeneratingPdf}
-                className="w-full bg-indigo-600 py-4 rounded-xl text-white font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 tracking-widest disabled:opacity-50 text-left"
-              >
-                {isGeneratingPdf ? (
-                  t('GENERATING PDF...')
-                ) : (
-                  <>
-                    <Download size={18} /> {t('DOWNLOAD PDF COPY')}
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isAddStaffModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">
-                {t('Initialize New Staff')}
-              </h2>
-              <button onClick={() => setIsAddStaffModalOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleConfirmAddStaff} className="p-8 space-y-6 text-left">
+            <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="text"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
-                placeholder={t("Set Username")}
-                value={newStaffForm.username}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
+                placeholder={t('Username')}
+                value={loginForm.user}
                 onChange={(e) =>
-                  setNewStaffForm({ ...newStaffForm, username: e.target.value })
+                  setLoginForm({ ...loginForm, user: e.target.value })
                 }
                 required
               />
               <input
                 type="password"
                 name="password"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
-                placeholder={t("Set Password")}
-                value={newStaffForm.password}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 font-medium text-sm text-slate-900 transition-all"
+                placeholder={t('Password')}
+                value={loginForm.pass}
                 onChange={(e) =>
-                  setNewStaffForm({ ...newStaffForm, password: e.target.value })
+                  setLoginForm({ ...loginForm, pass: e.target.value })
                 }
                 required
               />
+              {loginError && (
+                <p className="text-red-500 text-[10px] font-bold text-center uppercase bg-red-50 py-2 rounded-lg">
+                  {loginError}
+                </p>
+              )}
               <button
                 type="submit"
-                className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-xl hover:bg-indigo-700 transition text-xs uppercase"
+                className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-lg hover:bg-indigo-700 transition active:scale-95 text-xs uppercase"
               >
-                {t('Create Account')}
+                {t('Sign In')}
               </button>
             </form>
           </div>
         </div>
-      )}
+      </>
+    );
+  }
 
-      {isEditProfileModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden">
-            <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-indigo-600 rounded-lg">
-                  <Edit3 size={18} />
-                </div>
-                <h2 className="text-lg font-bold uppercase">{t('Update Details')}</h2>
-              </div>
-              <button onClick={() => setIsEditProfileModalOpen(false)}>
-                <X size={24} />
-              </button>
-            </div>
-            <form
-              onSubmit={handleSaveProfile}
-              className="p-8 space-y-6 bg-white overflow-y-auto max-h-[75vh] text-left"
+  return (
+    <>
+      <style>{globalCss}</style>
+      <div className={`min-h-screen w-full ${isDark ? 'dark-theme' : ''} bg-slate-50 font-sans text-slate-800 pb-20 leading-normal transition-colors duration-200`}>
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-50 shadow-sm transition-colors duration-200">
+          <div className="flex items-center gap-3">
+            <Building className="text-indigo-600" size={20} />
+            <h1 className="text-lg font-bold uppercase leading-none tracking-tight text-slate-900">
+              {currentUser.company}
+            </h1>
+            <span className="bg-indigo-50 text-indigo-600 text-[8px] px-2 py-0.5 rounded font-bold uppercase">
+              {currentUser.type}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Language">
+              <Globe size={16} />
+            </button>
+            <button onClick={() => setIsDark(!isDark)} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Dark Mode">
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <div className="w-px h-5 bg-slate-300 mx-2" />
+            <p className="text-sm font-bold text-slate-900">{currentUser.user}</p>
+            <button
+              onClick={handleLogout}
+              className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition shadow-sm"
             >
-              <div className="grid grid-cols-2 gap-6 text-left">
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Legal Name')}
-                  </label>
-                  <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
-                    value={editForm.name || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Contact No.')}
-                  </label>
-                  <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
-                    value={editForm.phone || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, phone: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('IC Number')}
-                  </label>
-                  <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
-                    value={editForm.ic || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, ic: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Gender')}
+              <LogOut size={16} />
+            </button>
+          </div>
+        </header>
+
+        <div className="w-full px-4 md:px-8 py-6 space-y-6">
+          <div className="flex gap-1 border-b">
+            {[
+              'PROFILE',
+              'LEAVE_APPLICATION',
+              'PAYROLL',
+              ...(currentUser.type === 'ADMIN' ? ['ADMIN_PANEL'] : []),
+            ].map((id) => (
+              <button
+                key={id}
+                onClick={() => setHrSubTab(id)}
+                className={`px-6 py-3 text-xs font-bold transition-all border-b-2 ${
+                  hrSubTab === id
+                    ? 'border-indigo-600 text-indigo-600'
+                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                {t(id.replace('_', ' '))}
+              </button>
+            ))}
+          </div>
+
+          {currentUser.type === 'ADMIN' && (
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex items-center justify-between transition-colors duration-200">
+              <div className="flex items-center gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase text-slate-400 block ml-1 text-left">
+                    {t('Staff Access Selection')}
                   </label>
                   <select
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.gender || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, gender: e.target.value })
-                    }
+                    className="block w-64 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold outline-none cursor-pointer focus:border-indigo-400 transition-colors duration-200"
+                    value={selectedStaffId}
+                    onChange={(e) => setSelectedStaffId(e.target.value)}
                   >
-                    <option value="Male">{t('Male')}</option>
-                    <option value="Female">{t('Female')}</option>
-                  </select>
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Designation')}
-                  </label>
-                  <select
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.role || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, role: e.target.value })
-                    }
-                  >
-                    {designations.map((d) => (
-                      <option key={d.id} value={d.name}>
-                        {t(d.name)}
+                    {staffList.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name || s.username}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Join Date')}
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.joinDate || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, joinDate: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Probation End Date')}
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.probationEndDate || ''}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        probationEndDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('EPF ID')}
-                  </label>
-                  <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.epfNo || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, epfNo: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('SOCSO ID')}
-                  </label>
-                  <input
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.socsoNo || ''}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, socsoNo: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1 text-left">
-                  <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
-                    {t('Monthly Basic (RM)')}
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
-                    value={editForm.salary || 0}
-                    onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        salary: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                  />
+                <div className="h-8 w-px bg-slate-200" />
+                <div className="text-[10px] font-bold text-slate-500 uppercase">
+                  {t('Headcount:')} {staffList.length} {t('Active')}
                 </div>
               </div>
-              <div className="flex gap-4 pt-6 border-t border-slate-100 text-left">
-                <button
-                  type="button"
-                  onClick={() => setIsEditProfileModalOpen(false)}
-                  className="flex-1 py-3 rounded-lg font-bold text-slate-500 uppercase text-sm hover:bg-slate-50 border border-slate-200"
-                >
-                  {t('Cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-indigo-600 text-white rounded-lg font-bold uppercase text-sm shadow-lg hover:bg-indigo-700 transition"
-                >
-                  {t('Save Changes')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {rejectPromptId && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-            <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">
-                {t('Reject Application')}
-              </h2>
-              <button onClick={() => setRejectPromptId(null)}>
-                <X size={18} />
+              <button
+                onClick={() => setIsAddStaffModalOpen(true)}
+                className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-md flex items-center gap-2"
+              >
+                <Plus size={14} /> {t('CREATE')}
               </button>
             </div>
-            <div className="p-8 space-y-6 text-left">
-              <textarea
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-rose-500 font-medium text-sm h-24 resize-none text-slate-900 text-left"
-                placeholder={t("Reason (Optional)")}
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-              />
-              <div className="flex gap-3 text-left">
-                <button
-                  onClick={() => setRejectPromptId(null)}
-                  className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
-                >
-                  {t('Cancel')}
-                </button>
-                <button
-                  onClick={() => {
-                    processLeave(rejectPromptId, 'REJECTED', rejectReason);
-                    setRejectPromptId(null);
-                  }}
-                  className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
-                >
-                  {t('Confirm Reject')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {cancelPromptApp && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">
-                {t('Cancel Application')}
-              </h2>
-              <button onClick={() => setCancelPromptApp(null)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-8 space-y-6 text-left">
-              <p className="text-sm font-semibold text-slate-700 leading-relaxed text-center text-left">
-                {t('Are you sure you want to cancel this request?')}
-              </p>
-              <div className="flex gap-3 text-left">
-                <button
-                  onClick={() => setCancelPromptApp(null)}
-                  className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
-                >
-                  {t('Back')}
-                </button>
-                <button
-                  onClick={async () => {
-                    const app = cancelPromptApp;
-                    await updateLeaveApp(app.id, { status: 'CANCELLED' });
-                    setCancelPromptApp(null);
-                    alert(t('Cancelled.'));
-                  }}
-                  className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
-                >
-                  {t('Confirm')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {convertPromptData && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 bg-teal-500 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">
-                {t('Select Target Date')}
-              </h2>
-              <button onClick={() => setConvertPromptData(null)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-8 space-y-6 text-left">
-              <input
-                type="date"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-teal-500 text-sm text-slate-900 text-left"
-                value={convertTargetDate}
-                onChange={(e) => setConvertTargetDate(e.target.value)}
-              />
-              <div className="flex gap-3 pt-2 text-left">
-                <button
-                  onClick={() => setConvertPromptData(null)}
-                  className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
-                >
-                  {t('Cancel')}
-                </button>
-                <button
-                  onClick={confirmBatchConvert}
-                  className="flex-1 bg-teal-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-teal-600 transition text-xs uppercase"
-                >
-                  {t('Submit')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {viewLeaveHistory && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">
-                {t(viewLeaveHistory.replace('_', ' '))} {t('Status')}
-              </h2>
-              <button onClick={() => setViewLeaveHistory(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left">
-              {leaveApps.filter(
-                (a) =>
-                  a.staffId === activeStaff.id &&
-                  a.type === viewLeaveHistory &&
-                  a.status === 'APPROVED'
-              ).length === 0 ? (
-                <div className="text-center text-xs font-bold text-slate-400 py-12 uppercase text-left">
-                  {t('No data.')}
-                </div>
-              ) : (
-                leaveApps
-                  .filter(
-                    (a) =>
-                      a.staffId === activeStaff.id &&
-                      a.type === viewLeaveHistory &&
-                      a.status === 'APPROVED'
-                  )
-                  .map((log) => (
-                    <div
-                      key={log.id}
-                      className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3 text-left"
-                    >
+          <div className="min-h-[500px]">
+            {hrSubTab === 'PROFILE' && (
+              activeStaff.id ? (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row transition-colors duration-200">
+                  <div className="md:w-48 bg-indigo-600 p-8 flex flex-col items-start md:items-center justify-center text-white relative">
+                    <div className="w-24 h-24 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center text-3xl font-bold mb-3 shadow-inner relative overflow-hidden">
+                      {activeStaff.profilePic ? (
+                        <img
+                          src={activeStaff.profilePic}
+                          className="w-full h-full object-cover rounded-xl profile-pic-preserve"
+                          alt="Profile"
+                        />
+                      ) : activeStaff.name ? (
+                        activeStaff.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                      ) : (
+                        '?'
+                      )}
+                      <label className="absolute -bottom-3 -right-3 bg-indigo-400 hover:bg-indigo-300 p-2 rounded-full cursor-pointer shadow-lg transition z-10 border-2 border-indigo-600">
+                        <Plus size={16} className="text-white" />
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleProfilePicUpload}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-[8px] font-bold uppercase tracking-wider text-indigo-200">
+                      {t('Ref:')} {activeStaff.id}
+                    </p>
+                  </div>
+                  <div className="flex-1 p-8 space-y-6 text-left">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 gap-4 transition-colors duration-200">
                       <div className="text-left">
-                        <p className="font-bold text-sm text-left">
-                          {log.startDate} - {log.endDate}
-                        </p>
-                        <p className="text-[10px] text-slate-500 text-left">
-                          {log.actionAt}
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-xl font-bold text-slate-900">
+                            {activeStaff.name || 'Unnamed Staff'}
+                          </h2>
+                          <button
+                            onClick={openEditModal}
+                            className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition shadow-sm"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                        </div>
+                        <p className="text-slate-500 text-xs font-medium uppercase mt-1 text-left">
+                          {activeStaff.probationEndDate &&
+                          new Date(activeStaff.probationEndDate) < TODAY
+                            ? t('Status: Confirmed Employment')
+                            : t('Status: Probation Period')}
                         </p>
                       </div>
-                      <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs text-left">
-                        {log.days}d
+                      <div className="text-left md:text-right">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 block mb-2">
+                          {t('Designation')}
+                        </label>
+                        <div className="px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg font-bold text-[10px] uppercase border transition-colors duration-200 inline-block">
+                          {t(activeStaff.role)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-y-6 gap-x-8 text-left">
+                      {[
+                        { label: t('Contact'), value: activeStaff.phone },
+                        { label: t('IC Identity'), value: activeStaff.ic },
+                        { label: t('Gender'), value: t(activeStaff.gender) },
+                        {
+                          label: t('Join Date'),
+                          value: activeStaff.joinDate || 'Not Set',
+                        },
+                        {
+                          label: t('Prob. End Date'),
+                          value: activeStaff.probationEndDate || 'Not Set',
+                        },
+                        { label: t('SOCSO ID'), value: activeStaff.socsoNo },
+                      ].map((item) => (
+                        <div key={item.label} className="space-y-1 text-left">
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase text-left">
+                            {item.label}
+                          </p>
+                          <p className="font-bold text-slate-800 text-sm text-left">
+                            {String(item.value || 'N/A')}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-6 border-t border-slate-100 flex items-center gap-8 transition-colors duration-200 text-left">
+                      <div className="text-left">
+                        <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
+                          {t('Monthly Basic')}
+                        </p>
+                        <p className="font-bold text-indigo-600 text-2xl text-left">
+                          RM{' '}
+                          {hasSalary
+                            ? Number(activeStaff.salary).toFixed(2)
+                            : '0.00'}
+                        </p>
+                      </div>
+                      <div className="h-10 w-px bg-slate-200" />
+                      <div className="text-left">
+                        <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
+                          {t('Daily Rate')}
+                        </p>
+                        <p className="font-bold text-slate-800 text-lg text-left">
+                          RM {DAILY_RATE}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200 text-left">
+                    <h3 className="text-lg font-bold text-indigo-500 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                      {t('Employee Portion (Deduct)')}
+                    </h3>
+                    <div className="space-y-3 font-bold text-[11px] text-slate-600">
+                      <div className="flex justify-between">
+                        <span>{t('EPF (11%)')}</span>
+                        <span>RM {hasSalary ? '242.00' : '0.00'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t('SOCSO')}</span>
+                        <span>RM {hasSalary ? '10.75' : '0.00'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t('EIS')}</span>
+                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
+                      </div>
+                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-lg uppercase transition-colors duration-200">
+                        <span>{t('Total Deduct')}</span>
+                        <span>RM {hasSalary ? '257.05' : '0.00'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200 text-left">
+                    <h3 className="text-lg font-bold text-emerald-600 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                      {t('Employer Portion (Company)')}
+                    </h3>
+                    <div className="space-y-3 font-bold text-[11px] text-slate-600">
+                      <div className="flex justify-between">
+                        <span>{t('EPF (13%)')}</span>
+                        <span>RM {hasSalary ? '286.00' : '0.00'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t('SOCSO')}</span>
+                        <span>RM {hasSalary ? '37.65' : '0.00'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t('EIS')}</span>
+                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
+                      </div>
+                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-lg uppercase transition-colors duration-200">
+                        <span>{t('Total Contrib')}</span>
+                        <span>RM {hasSalary ? '327.95' : '0.00'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-slate-900 career-tracker-box rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group text-left">
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 text-left">
+                    <div className="md:w-1/4 border-r border-white/10 pr-6 text-left">
+                      <h3 className="text-lg font-bold text-indigo-400 uppercase mb-2 flex items-center gap-2 justify-start">
+                        <History size={16} /> {t('Career Tracker')}
+                      </h3>
+                      <p className="text-[9px] text-slate-400 uppercase font-medium leading-relaxed text-left">
+                        {t('Aggregated since day 1.')}
+                      </p>
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+                      <div className="text-left">
+                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                          {t('Total Basic')}
+                        </p>
+                        <p className="text-xl font-bold text-white tracking-preserve text-left">
+                          RM{' '}
+                          {careerTotals.basic.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                          {t('Total Comm')}
+                        </p>
+                        <p className="text-xl font-bold text-emerald-400 tracking-preserve text-left">
+                          RM{' '}
+                          {careerTotals.comm.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                          {t('Total EPF')}
+                        </p>
+                        <p className="text-xl font-bold text-indigo-300 tracking-preserve text-left">
+                          RM{' '}
+                          {careerTotals.epf.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
+                          {t('Tenure')}
+                        </p>
+                        <p className="text-xl font-bold text-white tracking-preserve text-left">
+                          {currentTenureMonths} {t('Months')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              ) : <EmptyStaffState />
+            )}
+
+            {/* LEAVE TAB */}
+            {hrSubTab === 'LEAVE_APPLICATION' && (
+              activeStaff.id ? (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                {currentUser.type === 'ADMIN' ? (
+                  <>
+                    {/* ADMIN TOP: 50/50 Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200 text-slate-900">
+                          {t('Approvals')}{' '}
+                          <AlertCircle className="text-amber-500" size={16} />
+                        </h2>
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+                          {leaveApps.filter((a) => a.status === 'PENDING')
+                            .length === 0 ? (
+                            <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
+                              {t('No pending requests.')}
+                            </div>
+                          ) : (
+                            leaveApps
+                              .filter((a) => a.status === 'PENDING')
+                              .map((app) => (
+                                <div
+                                  key={app.id}
+                                  className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col gap-3 transition-colors duration-200 text-left"
+                                >
+                                  <div className="space-y-1">
+                                    <p className="font-bold text-slate-800 uppercase text-[9px]">
+                                      {app.staffName} ·{' '}
+                                      {t(getTypeFullName(app.type))}
+                                    </p>
+                                    <p className="text-xs font-bold text-indigo-600">
+                                      {app.type === 'PROFILE_UPDATE'
+                                        ? t('Requested Changes to Staff Data')
+                                        : app.type === 'PH_UPDATE'
+                                        ? `${t('PH Selection')} (${app.days} items)`
+                                        : app.type === 'PH_CONVERT_BATCH'
+                                        ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
+                                        : `${app.startDate} to ${app.endDate} (${app.days}d)`}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        processLeave(app.id, 'APPROVED')
+                                      }
+                                      className="flex-1 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center"
+                                    >
+                                      <Check size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setRejectPromptId(app.id);
+                                        setRejectReason('');
+                                      }}
+                                      className="flex-1 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                          )}
+                        </div>
+                      </div>
+                      {/* Admin Status Balances Card (Vertical list) */}
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                          {t('Status Balances')}{' '}
+                          <Info size={14} className="text-slate-300" />
+                        </h2>
+                        <div className="flex flex-col gap-6 flex-1 justify-center text-left">
+                          <BalanceMetric
+                            label={t("Annual Leave")}
+                            current={earnedAL - activeStaff.alUsed}
+                            total={earnedAL}
+                            color="indigo"
+                            onInfoClick={() => setViewLeaveHistory('AL')}
+                          />
+                          <BalanceMetric
+                            label={t("Medical Leave")}
+                            current={14 - activeStaff.mcUsed}
+                            total={14}
+                            color="emerald"
+                            onInfoClick={() => setViewLeaveHistory('MC')}
+                          />
+                          <BalanceMetric
+                            label={t("Public Holiday")}
+                            current={6 - (activeStaff.phUsed || 0)}
+                            total={6}
+                            color="amber"
+                            onInfoClick={() => setViewLeaveHistory('PH')}
+                          />
+                          <BalanceMetric
+                            label={t("Unpaid Leave")}
+                            current={activeStaff.uplUsed}
+                            total={null}
+                            color="rose"
+                            onInfoClick={() => setViewLeaveHistory('UPL')}
+                          />
+                          <BalanceMetric
+                            label={t("Replacement")}
+                            current={activeStaff.rlUsed || 0}
+                            total={activeStaff.rlEarned || 0}
+                            color="teal"
+                            onInfoClick={() => setViewLeaveHistory('RL')}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* STAFF TOP: Full Width Horizontal Bar */}
+                    <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
+                      <div className="flex items-center gap-3 shrink-0">
+                        <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
+                          {t('Leave Application')}
+                        </h2>
+                        <ArrowRight className="text-indigo-400" size={18} />
+                      </div>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                            {t('Category')}
+                          </label>
+                          <select
+                            id="lType"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
+                          >
+                            <option value="AL" className="text-slate-900">
+                              {t('Annual Leave')}
+                            </option>
+                            <option value="MC" className="text-slate-900">
+                              {t('Medical Leave')}
+                            </option>
+                            <option value="RL" className="text-slate-900">
+                              {t('Replacement')}
+                            </option>
+                            <option value="UPL" className="text-slate-900">
+                              {t('Unpaid Leave')}
+                            </option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                            {t('Start Date')}
+                          </label>
+                          <input
+                            id="lStart"
+                            type="date"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                            style={{colorScheme: 'dark'}}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                            {t('End Date')}
+                          </label>
+                          <input
+                            id="lEnd"
+                            type="date"
+                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                            style={{colorScheme: 'dark'}}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const start = document.getElementById('lStart').value,
+                            end = document.getElementById('lEnd').value,
+                            type = document.getElementById('lType').value;
+                          if (!start || !end) return alert('Dates are required.');
+                          const days =
+                            Math.ceil(
+                              Math.abs(new Date(end) - new Date(start)) /
+                                (1000 * 60 * 60 * 24)
+                            ) + 1;
+                          addLeaveApp({
+                            staffId: currentUser.id,
+                            username: currentUser.username,
+                            staffName: currentUser.name,
+                            type,
+                            startDate: start,
+                            endDate: end,
+                            days,
+                            status: 'PENDING',
+                            timestamp: new Date().toLocaleString(),
+                            actionAt: null,
+                          });
+                        }}
+                        className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
+                      >
+                        {t('Submit Request')}
+                      </button>
+                    </div>
+
+                    {/* STAFF MIDDLE: 50/50 Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200 text-left">
+                          {t('Optional Public Holidays (Max 6)')}
+                        </h2>
+                        <div className="space-y-2 mb-6 flex-1 text-left">
+                          {optionalPHs.map((ph) => (
+                            <div
+                              key={ph.id}
+                              className="flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 hover:bg-slate-100 transition transition-colors duration-200 text-left"
+                            >
+                              <label className="flex items-center gap-3 flex-1 cursor-pointer text-left">
+                                <input
+                                  type="checkbox"
+                                  checked={draftPHs.includes(ph.id)}
+                                  disabled={activeStaff.convertedPHs?.includes(
+                                    ph.id
+                                  )}
+                                  onChange={(e) =>
+                                    handleDraftTogglePH(ph.id, e.target.checked)
+                                  }
+                                  className="custom-checkbox"
+                                />
+                                <div className="text-left">
+                                  <p className="text-[11px] font-bold text-slate-800 text-left">
+                                    {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
+                                  </p>
+                                </div>
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-4 text-left">
+                          <button
+                            onClick={submitPHSelection}
+                            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                          >
+                            {t('Apply')}
+                          </button>
+                          <button
+                            onClick={triggerBatchConvert}
+                            className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                          >
+                            {t('Convert')}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                          {t('Status Balances')}{' '}
+                          <Info size={14} className="text-slate-300" />
+                        </h2>
+                        <div className="flex flex-col gap-8 text-left">
+                          <BalanceMetric
+                            label={t("Annual Leave")}
+                            current={earnedAL - activeStaff.alUsed}
+                            total={earnedAL}
+                            color="indigo"
+                            onInfoClick={() => setViewLeaveHistory('AL')}
+                          />
+                          <BalanceMetric
+                            label={t("Medical Leave")}
+                            current={14 - activeStaff.mcUsed}
+                            total={14}
+                            color="emerald"
+                            onInfoClick={() => setViewLeaveHistory('MC')}
+                          />
+                          <BalanceMetric
+                            label={t("Public Holiday")}
+                            current={6 - (activeStaff.phUsed || 0)}
+                            total={6}
+                            color="amber"
+                            onInfoClick={() => setViewLeaveHistory('PH')}
+                          />
+                          <BalanceMetric
+                            label={t("Unpaid Leave")}
+                            current={activeStaff.uplUsed}
+                            total={null}
+                            color="rose"
+                            onInfoClick={() => setViewLeaveHistory('UPL')}
+                          />
+                          <BalanceMetric
+                            label={t("Replacement")}
+                            current={activeStaff.rlUsed || 0}
+                            total={activeStaff.rlEarned || 0}
+                            color="teal"
+                            onInfoClick={() => setViewLeaveHistory('RL')}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Action History (Bottom Full Width) */}
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                    {t('Action History')}{' '}
+                    <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
+                      {leaveApps.filter((a) => a.staffId === activeStaff.id).length} {t('Records')}
+                    </span>
+                  </h3>
+                  <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4 text-left">
+                    {Object.keys(groupedActionLogs).length === 0 ? (
+                      <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
+                        {t('No records found.')}
+                      </p>
+                    ) : (
+                      Object.keys(groupedActionLogs)
+                        .sort((a, b) => new Date(b) - new Date(a))
+                        .map((dateGroup) => (
+                          <div key={dateGroup} className="mb-6 text-left">
+                            <div className="flex items-center gap-4 mb-4 text-left">
+                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                              <span className="text-sm font-bold text-slate-400 uppercase text-left">
+                                -{dateGroup}-
+                              </span>
+                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                            </div>
+                            <div className="space-y-4 text-left">
+                              {groupedActionLogs[dateGroup].map((log) => (
+                                <div
+                                  key={log.id}
+                                  onClick={() =>
+                                    currentUser.type === 'STAFF' &&
+                                    log.status === 'PENDING' &&
+                                    log.type !== 'SYSTEM_AL_PROBATION' &&
+                                    setCancelPromptApp(log)
+                                  }
+                                  className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col transition relative group transition-colors duration-200 hover:border-slate-300 cursor-pointer text-left"
+                                >
+                                  <div className="flex items-start justify-between mb-2 text-left">
+                                    <div className="flex gap-3 items-center text-left">
+                                      <div
+                                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                          [
+                                            'AL',
+                                            'SYSTEM_AL_PROBATION',
+                                            'PROFILE_UPDATE',
+                                          ].includes(log.type)
+                                            ? 'bg-indigo-400'
+                                            : log.type === 'MC'
+                                            ? 'bg-emerald-400'
+                                            : log.type === 'RL'
+                                            ? 'bg-teal-400'
+                                            : 'bg-amber-400'
+                                        }`}
+                                      />
+                                      <p
+                                        className={`font-bold text-xs uppercase text-left ${
+                                          log.status === 'CANCELLED'
+                                            ? 'text-slate-400 line-through'
+                                            : 'text-slate-800'
+                                        }`}
+                                      >
+                                        {t(getTypeFullName(log.type))} {t('Request')}
+                                      </p>
+                                    </div>
+                                    <span className="shrink-0 px-2 py-1 rounded text-[8px] font-bold border transition-colors duration-200 text-left">
+                                      {t(log.status)}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center mt-3 pt-3 border-t border-slate-200/60 gap-2 justify-between transition-colors duration-200 text-left">
+                                    <div className="text-[10px] font-bold text-indigo-600 text-left">
+                                      {log.startDate
+                                        ? `${log.startDate} to ${log.endDate}`
+                                        : ''}
+                                    </div>
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase ml-auto text-left">
+                                      {t('Applied Date :')}{' '}
+                                      {new Date(
+                                        log.appliedAt || log.id
+                                      ).toLocaleDateString('en-GB')}
+                                      ,{' '}
+                                      {new Date(
+                                        log.appliedAt || log.id
+                                      ).toLocaleTimeString('en-US', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                </div>
+              </div>
+              ) : <EmptyStaffState />
+            )}
+
+            {/* PAYROLL TAB */}
+            {hrSubTab === 'PAYROLL' && (
+              activeStaff.id ? (
+              <div className="space-y-6 animate-in fade-in duration-500 text-left">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
+                  {/* REQ 2: Payroll Engine Black Card */}
+                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
+                    <div className="flex items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
+                        <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
+                      </h2>
+                      <select
+                        className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                      >
+                        {MONTHS.map((m) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {currentUser.type === 'ADMIN' && (
+                      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-6 space-y-4 transition-colors duration-200 text-left">
+                        <select
+                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 font-bold text-sm text-white outline-none transition-colors duration-200 text-left"
+                          value={commStaffId}
+                          onChange={(e) => setCommStaffId(e.target.value)}
+                        >
+                          {staffList.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name} - {t(s.role)}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="grid grid-cols-3 gap-4 text-left">
+                          <input
+                            type="number"
+                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
+                            placeholder={t("Comm")}
+                            value={commInput}
+                            onChange={(e) => setCommInput(e.target.value)}
+                          />
+                          <input
+                            type="number"
+                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
+                            placeholder={t("Bonus")}
+                            value={bonusInput}
+                            onChange={(e) => setBonusInput(e.target.value)}
+                          />
+                          <input
+                            type="number"
+                            readOnly
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-400 outline-none transition-colors duration-200 text-left"
+                            value={calculatedUPL}
+                          />
+                        </div>
+                        <button
+                          onClick={generatePayslip}
+                          className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center"
+                        >
+                          {t('Generate Payslip')}
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center bg-indigo-500/20 p-5 rounded-xl border border-indigo-500/30 transition-colors duration-200 text-left">
+                      <span className="text-xs font-bold text-indigo-200 uppercase text-left">
+                        {t('Estimated Net Basic')}
+                      </span>
+                      <span className="text-2xl font-bold text-white text-left">
+                        RM{' '}
+                        {hasSalary
+                          ? (activeStaff.salary - 257.05).toFixed(2)
+                          : '0.00'}
                       </span>
                     </div>
-                  ))
-              )}
-            </div>
+                  </div>
+                  <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
+                    <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left text-slate-900">
+                      {t('Johor Public Holidays 2026')}
+                    </h2>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
+                      {[
+                        { name: 'Sultan Johor Birthday', date: '2026-03-23' },
+                        { name: 'Labour Day', date: '2026-05-01' },
+                        { name: 'Agong Birthday', date: '2026-06-01' },
+                        { name: 'National Day', date: '2026-08-31' },
+                        { name: 'Malaysia Day', date: '2026-09-16' },
+                      ].map((ph, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
+                        >
+                          <div className="flex items-center gap-3 text-left">
+                            <div className={`w-2 h-2 rounded-full ${new Date(ph.date) < TODAY ? 'bg-slate-300' : 'bg-amber-400'}`} />
+                            <span className={`text-xs font-bold text-slate-800 ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
+                              {t(ph.name)}
+                            </span>
+                          </div>
+                          <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
+                            {new Date(ph.date).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200 text-left">
+                  <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
+                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
+                      <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
+                    </h2>
+                  </div>
+                  <div className="overflow-x-auto text-left">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200 text-left">
+                        <tr>
+                          <th className="p-4 text-left">{t('Period')}</th>
+                          <th className="p-4 text-left">{t('Basic RM')}</th>
+                          <th className="p-4 text-left">{t('Commission')}</th>
+                          <th className="p-4 text-left">{t('Net Total')}</th>
+                          <th className="p-4 text-center">{t('View')}</th>
+                          <th className="p-4 text-center">{t('Export')}</th>
+                          <th className="p-4 text-center">{t('Action')}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 transition-colors duration-200 text-left">
+                        {payslips.filter((p) => p.staffId === activeStaff.id)
+                          .length === 0 ? (
+                          <tr>
+                            <td
+                              colSpan="7"
+                              className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
+                            >
+                              {t('No records generated.')}
+                            </td>
+                          </tr>
+                        ) : (
+                          payslips
+                            .filter((p) => p.staffId === activeStaff.id)
+                            .map((p) => (
+                              <tr
+                                key={p.id}
+                                className="hover:bg-slate-50 transition transition-colors duration-200 text-left"
+                              >
+                                <td className="p-4 font-bold text-slate-800 uppercase text-xs text-left">
+                                  {t(p.month)} {p.year}
+                                </td>
+                                <td className="p-4 font-semibold text-slate-600 text-xs text-left">
+                                  RM {p.basic.toFixed(2)}
+                                </td>
+                                <td className="p-4 font-bold text-indigo-600 text-xs text-left">
+                                  RM {p.comm.toFixed(2)}
+                                </td>
+                                <td className="p-4 font-bold text-emerald-600 text-md text-left">
+                                  RM {p.netTotal.toFixed(2)}
+                                </td>
+                                <td className="p-4 text-center">
+                                  <button
+                                    onClick={() => setViewPayslipData(p)}
+                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
+                                  >
+                                    <Eye size={14} /> {t('View')}
+                                  </button>
+                                </td>
+                                <td className="p-4 text-center">
+                                  <button
+                                    onClick={() =>
+                                      handleDownloadPayslip(p, activeStaff)
+                                    }
+                                    disabled={isGeneratingPdf}
+                                    className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
+                                  >
+                                    <Download size={14} /> {t('PDF')}
+                                  </button>
+                                </td>
+                                <td className="p-4 text-center">
+                                  {currentUser.type === 'ADMIN' && (
+                                    <button
+                                      onClick={() => deletePayslipRecord(p.id)}
+                                      className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              ) : <EmptyStaffState />
+            )}
+
+            {/* ADMIN PANEL TAB */}
+            {hrSubTab === 'ADMIN_PANEL' && (
+              <div className="space-y-6 animate-in fade-in duration-500 text-left">
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    <Settings className="text-indigo-600" size={20} /> {t('Company Profile Settings')}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div className="space-y-1 text-left">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                        {t('Company Name')}
+                      </label>
+                      <input
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                        value={companyInfo.name}
+                        onChange={(e) =>
+                          setCompanyInfo({ ...companyInfo, name: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 text-left">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                        {t('SSM No.')}
+                      </label>
+                      <input
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                        value={companyInfo.ssm}
+                        onChange={(e) =>
+                          setCompanyInfo({ ...companyInfo, ssm: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 text-left">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase text-left block">
+                        {t('Tax No.')}
+                      </label>
+                      <input
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                        value={companyInfo.tax}
+                        onChange={(e) =>
+                          setCompanyInfo({ ...companyInfo, tax: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-6 flex justify-end text-left">
+                    <button
+                      onClick={() => updateCompanyInfo(companyInfo)}
+                      className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase shadow-lg hover:bg-indigo-700 transition"
+                    >
+                      {t('Update Settings')}
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    <UserCircle className="text-indigo-600" size={20} /> {t('Staff Designation Registry')}
+                  </h3>
+                  <div className="flex gap-4 mb-6 text-left">
+                    <input
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                      placeholder={t('Enter new designation...')}
+                      value={newDesigInput}
+                      onChange={(e) => setNewDesigInput(e.target.value)}
+                    />
+                    <button
+                      onClick={addDesignation}
+                      className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
+                    >
+                      <Plus size={16} /> {t('Add')}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                    {designations.map((d) => (
+                      <div
+                        key={d.id}
+                        className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
+                      >
+                        <span className="text-xs font-bold text-slate-700 text-left">
+                          {t(d.name)}
+                        </span>
+                        <button
+                          onClick={() => deleteDesignation(d.id)}
+                          className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Optional Public Holidays Registry (Admin Panel) */}
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    <Calendar className="text-indigo-600" size={20} /> {t('Optional Public Holidays Registry')}
+                  </h3>
+                  <div className="flex gap-4 mb-6 text-left">
+                    <input
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                      placeholder={t('Holiday Name (e.g. Thaipusam)...')}
+                      value={newPHForm.name}
+                      onChange={(e) => setNewPHForm({ ...newPHForm, name: e.target.value })}
+                    />
+                    <input
+                      className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                      placeholder={t('Date (e.g. Jan 25)')}
+                      value={newPHForm.date}
+                      onChange={(e) => setNewPHForm({ ...newPHForm, date: e.target.value })}
+                    />
+                    <button
+                      onClick={addOptionalPH}
+                      className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
+                    >
+                      <Plus size={16} /> {t('Add')}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                    {optionalPHs.map((ph) => (
+                      <div
+                        key={ph.id}
+                        className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
+                      >
+                        <div className="flex items-baseline gap-2 text-left">
+                          <span className="text-xs font-bold text-slate-700 text-left">
+                            {t(ph.name)}
+                          </span>
+                          <span className="text-[10px] text-slate-500 text-left">({ph.date})</span>
+                        </div>
+                        <button
+                          onClick={() => deleteOptionalPH(ph.id)}
+                          className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                  {[
+                    {
+                      title: 'Employment Offer Letter',
+                      Icon: FileText,
+                      color: 'text-indigo-500',
+                    },
+                    {
+                      title: 'Confirmation Letter',
+                      Icon: CheckCircle2,
+                      color: 'text-emerald-500',
+                    },
+                    {
+                      title: 'Increment Letter',
+                      Icon: TrendingUp,
+                      color: 'text-blue-500',
+                    },
+                    {
+                      title: 'Warning Letter',
+                      Icon: AlertCircle,
+                      color: 'text-rose-500',
+                    },
+                  ].map((doc, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md transition transition-colors duration-200 text-left"
+                    >
+                      <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-50 transition border border-slate-100 transition-colors duration-200">
+                        <doc.Icon size={24} className={doc.color} />
+                      </div>
+                      <h3 className="font-bold text-slate-800 mb-2 uppercase text-xs text-left">
+                        {t(doc.title)}
+                      </h3>
+                      <p className="text-[10px] text-slate-400 mb-6 font-medium uppercase text-left">
+                        {t('Generate for')} {activeStaff.name}
+                      </p>
+                      <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase border-b-2 border-indigo-50 pb-1">
+                        {t('EXPORT PDF')} <Download size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      {waivePromptData && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 bg-amber-500 text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold uppercase">{t('Probation Policy')}</h2>
-            </div>
-            <div className="p-8 space-y-6 text-left">
-              <p className="text-sm font-semibold text-slate-700 leading-relaxed text-left">
-                {t('Handle Annual Leave count?')}
-              </p>
-              <div className="space-y-3 text-left">
-                <button
-                  onClick={() => confirmWaive(false)}
-                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
-                >
-                  {t('Proceed Counting AL')}
+        {/* ALL MODALS PRESERVED AS PER BASE */}
+        {viewPayslipData && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-3">
+                  <FileText size={20} className="text-indigo-400" />
+                  <h2 className="text-lg font-bold uppercase">
+                    {t('Payslip Preview -')} {t(viewPayslipData.month)}
+                  </h2>
+                </div>
+                <button onClick={() => setViewPayslipData(null)}>
+                  <X size={20} />
                 </button>
+              </div>
+              <div className="p-8 overflow-y-auto bg-slate-50 space-y-6 flex-1 text-left">
+                <div className="bg-white p-8 rounded-xl shadow-sm border space-y-6 text-left">
+                  <div className="flex justify-between border-b pb-4 text-left">
+                    <h3 className="font-black text-indigo-600 text-xl uppercase tracking-tighter text-left">
+                      {currentUser.company}
+                    </h3>
+                    <div className="text-right text-[10px] text-slate-500 font-bold uppercase">
+                      {t('Official Document')}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 text-xs font-bold uppercase gap-6 text-left">
+                    <div className="text-left">
+                      <span className="text-slate-400 block mb-1 text-left">{t('Employee:')}</span>{' '}
+                      {activeStaff.name || activeStaff.username}
+                    </div>
+                    <div className="text-left">
+                      <span className="text-slate-400 block mb-1 text-left">{t('Period:')}</span>{' '}
+                      {t(viewPayslipData.month)} {viewPayslipData.year}
+                    </div>
+                    <div className="text-left">
+                      <span className="text-slate-400 block mb-1 text-left">
+                        {t('Basic Salary:')}
+                      </span>{' '}
+                      RM {viewPayslipData.basic.toFixed(2)}
+                    </div>
+                    <div className="text-left">
+                      <span className="text-slate-400 block mb-1 text-left">
+                        {t('Total Deductions:')}
+                      </span>{' '}
+                      RM {viewPayslipData.totalDeductions.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100 flex justify-between items-center text-left">
+                    <span className="font-bold text-slate-600 uppercase text-xs tracking-wider text-left">
+                      {t('Nett Income')}
+                    </span>
+                    <span className="text-3xl font-black text-indigo-600 text-left">
+                      RM {viewPayslipData.netTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
                 <button
-                  onClick={() => confirmWaive(true)}
-                  className="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
+                  onClick={() =>
+                    handleDownloadPayslip(viewPayslipData, activeStaff)
+                  }
+                  disabled={isGeneratingPdf}
+                  className="w-full bg-indigo-600 py-4 rounded-xl text-white font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition flex items-center justify-center gap-2 tracking-widest disabled:opacity-50 text-left"
                 >
-                  {t('Waive (Ignore) AL')}
+                  {isGeneratingPdf ? (
+                    t('GENERATING PDF...')
+                  ) : (
+                    <>
+                      <Download size={18} /> {t('DOWNLOAD PDF COPY')}
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* INJECTED GLOBAL STYLES FOR OVERRIDING VITE DEFAULTS & DARK MODE */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        
-        /* 1. OVERRIDE VITE DEFAULTS FOR FULL SCREEN */
-        html, body, #root {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 100% !important;
-          max-width: 100% !important;
-          display: block !important;
-          background-color: #f8fafc; /* Matches Tailwind bg-slate-50 */
-        }
+        {isAddStaffModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">
+                  {t('Initialize New Staff')}
+                </h2>
+                <button onClick={() => setIsAddStaffModalOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              <form onSubmit={handleConfirmAddStaff} className="p-8 space-y-6 text-left">
+                <input
+                  type="text"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
+                  placeholder={t("Set Username")}
+                  value={newStaffForm.username}
+                  onChange={(e) =>
+                    setNewStaffForm({ ...newStaffForm, username: e.target.value })
+                  }
+                  required
+                />
+                <input
+                  type="password"
+                  name="password"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-indigo-600 text-sm text-slate-900 text-left"
+                  placeholder={t("Set Password")}
+                  value={newStaffForm.password}
+                  onChange={(e) =>
+                    setNewStaffForm({ ...newStaffForm, password: e.target.value })
+                  }
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-xl hover:bg-indigo-700 transition text-xs uppercase"
+                >
+                  {t('Create Account')}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
-        * { font-family: 'Inter', system-ui, sans-serif !important; }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        /* 2. FORCE CHECKBOX TO BE WHITE IN LIGHT MODE */
-        input[type="checkbox"].custom-checkbox {
-          appearance: auto !important;
-          background-color: #ffffff !important;
-          accent-color: #4f46e5 !important;
-          border: 1px solid #cbd5e1 !important;
-          width: 16px !important;
-          height: 16px !important;
-        }
+        {isEditProfileModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+            <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden">
+              <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-indigo-600 rounded-lg">
+                    <Edit3 size={18} />
+                  </div>
+                  <h2 className="text-lg font-bold uppercase">{t('Update Details')}</h2>
+                </div>
+                <button onClick={() => setIsEditProfileModalOpen(false)}>
+                  <X size={24} />
+                </button>
+              </div>
+              <form
+                onSubmit={handleSaveProfile}
+                className="p-8 space-y-6 bg-white overflow-y-auto max-h-[75vh] text-left"
+              >
+                <div className="grid grid-cols-2 gap-6 text-left">
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Legal Name')}
+                    </label>
+                    <input
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
+                      value={editForm.name || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Contact No.')}
+                    </label>
+                    <input
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
+                      value={editForm.phone || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, phone: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('IC Number')}
+                    </label>
+                    <input
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
+                      value={editForm.ic || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, ic: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Gender')}
+                    </label>
+                    <select
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.gender || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, gender: e.target.value })
+                      }
+                    >
+                      <option value="Male">{t('Male')}</option>
+                      <option value="Female">{t('Female')}</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Designation')}
+                    </label>
+                    <select
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.role || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, role: e.target.value })
+                      }
+                    >
+                      {designations.map((d) => (
+                        <option key={d.id} value={d.name}>
+                          {t(d.name)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Join Date')}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.joinDate || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, joinDate: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Probation End Date')}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.probationEndDate || ''}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          probationEndDate: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('EPF ID')}
+                    </label>
+                    <input
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.epfNo || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, epfNo: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('SOCSO ID')}
+                    </label>
+                    <input
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.socsoNo || ''}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, socsoNo: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                      {t('Monthly Basic (RM)')}
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                      value={editForm.salary || 0}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          salary: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-6 border-t border-slate-100 text-left">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProfileModalOpen(false)}
+                    className="flex-1 py-3 rounded-lg font-bold text-slate-500 uppercase text-sm hover:bg-slate-50 border border-slate-200"
+                  >
+                    {t('Cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-indigo-600 text-white rounded-lg font-bold uppercase text-sm shadow-lg hover:bg-indigo-700 transition"
+                  >
+                    {t('Save Changes')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
-        /* 3. Dark Theme Variables / Overrides */
-        .dark-theme, .dark-theme body, .dark-theme #root {
-          background-color: #0f172a !important; /* bg-slate-900 */
-          color: #f8fafc !important; /* text-slate-50 */
-        }
-        .dark-theme header {
-          background-color: #1e293b !important;
-          border-color: #334155 !important;
-        }
-        .dark-theme .bg-white, .dark-theme .bg-slate-50 {
-          background-color: #1e293b !important; /* bg-slate-800 */
-          border-color: #334155 !important; /* border-slate-700 */
-        }
-        .dark-theme .bg-slate-100 {
-          background-color: #334155 !important;
-        }
-        /* Specific forced colors for daylight that invert in dark mode */
-        .dark-theme .text-slate-900, .dark-theme .text-slate-800, .dark-theme .text-black {
-          color: #f8fafc !important;
-        }
-        .dark-theme .text-slate-700, .dark-theme .text-slate-600 {
-          color: #cbd5e1 !important;
-        }
-        .dark-theme .text-slate-500, .dark-theme .text-slate-400 {
-          color: #94a3b8 !important;
-        }
-        .dark-theme .border, .dark-theme .border-b, .dark-theme .border-t, .dark-theme .border-slate-200, .dark-theme .border-slate-100 {
-          border-color: #334155 !important;
-        }
-        .dark-theme input, .dark-theme select, .dark-theme textarea {
-          background-color: #334155 !important;
-          color: #f8fafc !important;
-          border-color: #475569 !important;
-        }
-        /* Dark Mode Checkbox Fix */
-        .dark-theme input[type="checkbox"].custom-checkbox {
-          background-color: #1e293b !important;
-          border-color: #475569 !important;
-        }
+        {rejectPromptId && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+              <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">
+                  {t('Reject Application')}
+                </h2>
+                <button onClick={() => setRejectPromptId(null)}>
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-8 space-y-6 text-left">
+                <textarea
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-rose-500 font-medium text-sm h-24 resize-none text-slate-900 text-left"
+                  placeholder={t("Reason (Optional)")}
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
+                <div className="flex gap-3 text-left">
+                  <button
+                    onClick={() => setRejectPromptId(null)}
+                    className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
+                  >
+                    {t('Cancel')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      processLeave(rejectPromptId, 'REJECTED', rejectReason);
+                      setRejectPromptId(null);
+                    }}
+                    className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
+                  >
+                    {t('Confirm Reject')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        /* Preserve specific dark blocks */
-        .dark-theme .dark-theme-ignore, .dark-theme .career-tracker-box {
-          background-color: #020617 !important;
-        }
-        .dark-theme select option {
-          background-color: #1e293b !important;
-          color: #f8fafc !important;
-        }
-        .dark-theme .select-dark-bg option {
-           background-color: #020617 !important;
-           color: #f8fafc !important;
-        }
-      `}</style>
-    </div>
+        {cancelPromptApp && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 bg-rose-500 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">
+                  {t('Cancel Application')}
+                </h2>
+                <button onClick={() => setCancelPromptApp(null)}>
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-8 space-y-6 text-left">
+                <p className="text-sm font-semibold text-slate-700 leading-relaxed text-center text-left">
+                  {t('Are you sure you want to cancel this request?')}
+                </p>
+                <div className="flex gap-3 text-left">
+                  <button
+                    onClick={() => setCancelPromptApp(null)}
+                    className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
+                  >
+                    {t('Back')}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const app = cancelPromptApp;
+                      await updateLeaveApp(app.id, { status: 'CANCELLED' });
+                      setCancelPromptApp(null);
+                      alert(t('Cancelled.'));
+                    }}
+                    className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
+                  >
+                    {t('Confirm')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {convertPromptData && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 bg-teal-500 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">
+                  {t('Select Target Date')}
+                </h2>
+                <button onClick={() => setConvertPromptData(null)}>
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-8 space-y-6 text-left">
+                <input
+                  type="date"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-teal-500 text-sm text-slate-900 text-left"
+                  value={convertTargetDate}
+                  onChange={(e) => setConvertTargetDate(e.target.value)}
+                />
+                <div className="flex gap-3 pt-2 text-left">
+                  <button
+                    onClick={() => setConvertPromptData(null)}
+                    className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
+                  >
+                    {t('Cancel')}
+                  </button>
+                  <button
+                    onClick={confirmBatchConvert}
+                    className="flex-1 bg-teal-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-teal-600 transition text-xs uppercase"
+                  >
+                    {t('Submit')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {viewLeaveHistory && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">
+                  {t(viewLeaveHistory.replace('_', ' '))} {t('Status')}
+                </h2>
+                <button onClick={() => setViewLeaveHistory(null)}>
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left">
+                {leaveApps.filter(
+                  (a) =>
+                    a.staffId === activeStaff.id &&
+                    a.type === viewLeaveHistory &&
+                    a.status === 'APPROVED'
+                ).length === 0 ? (
+                  <div className="text-center text-xs font-bold text-slate-400 py-12 uppercase text-left">
+                    {t('No data.')}
+                  </div>
+                ) : (
+                  leaveApps
+                    .filter(
+                      (a) =>
+                        a.staffId === activeStaff.id &&
+                        a.type === viewLeaveHistory &&
+                        a.status === 'APPROVED'
+                    )
+                    .map((log) => (
+                      <div
+                        key={log.id}
+                        className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3 text-left"
+                      >
+                        <div className="text-left">
+                          <p className="font-bold text-sm text-left">
+                            {log.startDate} - {log.endDate}
+                          </p>
+                          <p className="text-[10px] text-slate-500 text-left">
+                            {log.actionAt}
+                          </p>
+                        </div>
+                        <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs text-left">
+                          {log.days}d
+                        </span>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {waivePromptData && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 bg-amber-500 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">{t('Probation Policy')}</h2>
+              </div>
+              <div className="p-8 space-y-6 text-left">
+                <p className="text-sm font-semibold text-slate-700 leading-relaxed text-left">
+                  {t('Handle Annual Leave count?')}
+                </p>
+                <div className="space-y-3 text-left">
+                  <button
+                    onClick={() => confirmWaive(false)}
+                    className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
+                  >
+                    {t('Proceed Counting AL')}
+                  </button>
+                  <button
+                    onClick={() => confirmWaive(true)}
+                    className="w-full bg-rose-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase text-left text-center"
+                  >
+                    {t('Waive (Ignore) AL')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
