@@ -280,7 +280,14 @@ const dict = {
   'Cancelled.': '已成功取消。',
   'January': '一月', 'February': '二月', 'March': '三月', 'April': '四月', 
   'May': '五月', 'June': '六月', 'July': '七月', 'August': '八月', 
-  'September': '九月', 'October': '十月', 'November': '十一月', 'December': '十二月'
+  'September': '九月', 'October': '十月', 'November': '十一月', 'December': '十二月',
+  'Approve': '批准',
+  'Reject': '拒绝',
+  'PENDING': '待处理',
+  'APPROVED': '已批准',
+  'REJECTED': '已拒绝',
+  'CANCELLED': '已取消',
+  'Approved Records': '已批准记录'
 };
 
 // --- GLOBAL CSS INJECTION ---
@@ -401,6 +408,29 @@ const getTypeFullName = (type) => {
   return types[type] || type;
 };
 
+// Malaysian Labor Law Helper for "i" Button Info
+const getLawText = (type, lang) => {
+  if (lang === 'zh') {
+    switch (type) {
+      case 'AL': return '根据1955年劳工法令，员工享有年假：服务1-2年为8天，2-5年为12天，5年以上为16天。';
+      case 'MC': return '根据1955年劳工法令，未住院病假：服务少于2年为14天，2-5年为18天，5年以上为22天。';
+      case 'PH': return '雇主须提供至少11天法定公共假期，包含5天强制假期（国庆日、元首诞辰、苏丹诞辰、劳动节、马来西亚日）。';
+      case 'UPL': return '无薪假须经公司批准，扣薪将根据员工的每日底薪率进行计算。';
+      case 'RL': return '补假由公司政策决定，通常用于补偿在公共假期或休息日的工作。';
+      default: return '';
+    }
+  } else {
+    switch (type) {
+      case 'AL': return 'Employment Act 1955: Annual leave entitlement is 8 days (1-2 yrs service), 12 days (2-5 yrs), and 16 days (>5 yrs).';
+      case 'MC': return 'Employment Act 1955: Sick leave (non-hospitalized) is 14 days (<2 yrs service), 18 days (2-5 yrs), and 22 days (>5 yrs).';
+      case 'PH': return 'Employers must observe at least 11 gazetted public holidays, including 5 mandatory days (National Day, Agong\'s Birthday, Ruler\'s Birthday, Labour Day, Malaysia Day).';
+      case 'UPL': return 'Unpaid leave is subject to management approval. Deductions are calculated based on the employee\'s daily basic rate.';
+      case 'RL': return 'Replacement leave is granted based on company policy for work performed on public holidays or rest days.';
+      default: return '';
+    }
+  }
+};
+
 const App = () => {
   // --- AUTH STATE ---
   const [currentUser, setCurrentUser] = useState(null);
@@ -408,7 +438,7 @@ const App = () => {
   const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
   const [loginError, setLoginError] = useState('');
 
-  // --- CUSTOM ALERT STATE (Replaces browser alert) ---
+  // --- CUSTOM ALERT STATE ---
   const [appAlert, setAppAlert] = useState({ show: false, message: '', title: '' });
   
   const triggerAlert = (message, title = 'System Notification') => {
@@ -420,7 +450,6 @@ const App = () => {
   const [isDark, setIsDark] = useState(false);
   const [lang, setLang] = useState('en');
 
-  // Translation Helper
   const t = (text) => lang === 'zh' ? (dict[text] || text) : text;
 
   // --- APP STATE ---
@@ -438,7 +467,7 @@ const App = () => {
 
   // UI States
   const [selectedMonth, setSelectedMonth] = useState('March');
-  const [selectedYear, setSelectedYear] = useState('2026'); // Added Year state for payslip
+  const [selectedYear, setSelectedYear] = useState('2026');
   const [selectedStaffId, setSelectedStaffId] = useState('shan-01');
   const [commStaffId, setCommStaffId] = useState('shan-01');
   const [commInput, setCommInput] = useState('');
@@ -484,18 +513,8 @@ const App = () => {
   useEffect(() => {
     if (!fbUser) return;
 
-    // Staff Sync
-    const staffRef = collection(
-      db,
-      'artifacts',
-      appId,
-      'public',
-      'data',
-      'staff'
-    );
-    const unsubStaff = onSnapshot(
-      staffRef,
-      (snap) => {
+    const staffRef = collection(db, 'artifacts', appId, 'public', 'data', 'staff');
+    const unsubStaff = onSnapshot(staffRef, (snap) => {
         const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
         if (list.length === 0) {
           const initial = {
@@ -525,77 +544,40 @@ const App = () => {
             convertedPHs: [],
             company: 'AG Health Enterprise',
           };
-          setDoc(
-            doc(db, 'artifacts', appId, 'public', 'data', 'staff', initial.id),
-            initial
-          );
+          setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'staff', initial.id), initial);
         }
         setStaffList(list);
       },
       (err) => console.error('Staff sync failed', err)
     );
 
-    // Leaves Sync
-    const leaveRef = collection(
-      db,
-      'artifacts',
-      appId,
-      'public',
-      'data',
-      'leaveApps'
-    );
-    const unsubLeaves = onSnapshot(
-      leaveRef,
-      (snap) => {
+    const leaveRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaveApps');
+    const unsubLeaves = onSnapshot(leaveRef, (snap) => {
         setLeaveApps(snap.docs.map((d) => ({ ...d.data(), id: d.id })));
       },
       (err) => console.error('Leaves sync failed', err)
     );
 
-    // Payslips Sync
-    const payslipRef = collection(
-      db,
-      'artifacts',
-      appId,
-      'public',
-      'data',
-      'payslips'
-    );
-    const unsubPayslips = onSnapshot(
-      payslipRef,
-      (snap) => {
+    const payslipRef = collection(db, 'artifacts', appId, 'public', 'data', 'payslips');
+    const unsubPayslips = onSnapshot(payslipRef, (snap) => {
         setPayslips(snap.docs.map((d) => ({ ...d.data(), id: d.id })));
       },
       (err) => console.error('Payslips sync failed', err)
     );
 
-    // Designations Sync
-    const designationsRef = collection(
-      db,
-      'artifacts',
-      appId,
-      'public',
-      'data',
-      'designations'
-    );
+    const designationsRef = collection(db, 'artifacts', appId, 'public', 'data', 'designations');
     const unsubDesig = onSnapshot(designationsRef, (snap) => {
       const list = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
       if (list.length === 0) {
         const initialList = [
-          'Sales Personal Assistant',
-          'Sales Staff',
-          'Senior Sales Staff',
-          'Sales Staff Manager',
-          'Video Editor',
-          'Accountant',
-          'Marketer',
+          'Sales Personal Assistant', 'Sales Staff', 'Senior Sales Staff',
+          'Sales Staff Manager', 'Video Editor', 'Accountant', 'Marketer',
         ];
         initialList.forEach((name) => addDoc(designationsRef, { name }));
       }
       setDesignations(list);
     });
 
-    // Optional PHs Sync
     const unsubPHs = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), (snap) => {
       if (snap.exists()) {
         setOptionalPHs(snap.data().list || []);
@@ -613,16 +595,7 @@ const App = () => {
       }
     });
 
-    // Company Info Sync
-    const companyRef = doc(
-      db,
-      'artifacts',
-      appId,
-      'public',
-      'data',
-      'companyInfo',
-      'main'
-    );
+    const companyRef = doc(db, 'artifacts', appId, 'public', 'data', 'companyInfo', 'main');
     const unsubCompany = onSnapshot(companyRef, (docSnap) => {
       if (docSnap.exists()) {
         setCompanyInfo(docSnap.data());
@@ -632,12 +605,7 @@ const App = () => {
     });
 
     return () => {
-      unsubStaff();
-      unsubLeaves();
-      unsubPayslips();
-      unsubDesig();
-      unsubCompany();
-      unsubPHs();
+      unsubStaff(); unsubLeaves(); unsubPayslips(); unsubDesig(); unsubCompany(); unsubPHs();
     };
   }, [fbUser]);
 
@@ -764,6 +732,20 @@ const App = () => {
     return groups;
   }, [leaveApps, activeStaff.id]);
 
+  // SMART PH LOCK LOGIC (Requirement 1)
+  const isPhLocked = (phId) => {
+    if (activeStaff.convertedPHs?.includes(phId)) return true;
+    if (activeStaff.selectedPHs?.includes(phId)) return true;
+    
+    // Check if there is an active (PENDING or APPROVED) request locking this specific PH
+    return leaveApps.some(app =>
+      app.staffId === activeStaff.id &&
+      (app.type === 'PH_UPDATE' || app.type === 'PH_CONVERT_BATCH') &&
+      ['PENDING', 'APPROVED'].includes(app.status) &&
+      app.data?.includes(phId)
+    );
+  };
+
   // --- PERSISTENCE WRAPPERS ---
   const updateStaffData = async (sid, data) => {
     await setDoc(
@@ -867,18 +849,17 @@ const App = () => {
       const oldStaff = staffList.find((s) => s.id === editForm.id);
       let finalEditForm = { ...editForm };
       
-      // Check if we need to prompt for probation rules
       if (
         (!oldStaff.probationEndDate || oldStaff.probationEndDate === '') &&
         editForm.probationEndDate
       ) {
-        setIsEditProfileModalOpen(false); // Close edit modal immediately
+        setIsEditProfileModalOpen(false); 
         return setWaivePromptData({ editForm });
       }
       
       await updateStaffData(editForm.id, finalEditForm);
-      setIsEditProfileModalOpen(false); // Close edit modal immediately
-      triggerAlert(t('Record Updated Successfully.')); // Trigger smooth alert
+      setIsEditProfileModalOpen(false); 
+      triggerAlert(t('Record Updated Successfully.')); 
     } else {
       await addLeaveApp({
         staffId: activeStaff.id,
@@ -892,8 +873,8 @@ const App = () => {
         timestamp: new Date().toLocaleString(),
         actionAt: null,
       });
-      setIsEditProfileModalOpen(false); // Close edit modal immediately
-      triggerAlert(t('Update Submitted for Admin Approval.')); // Trigger smooth alert
+      setIsEditProfileModalOpen(false); 
+      triggerAlert(t('Update Submitted for Admin Approval.')); 
     }
   };
 
@@ -1019,7 +1000,7 @@ const App = () => {
         id,
         staffId: target.id,
         month: selectedMonth,
-        year: Number(selectedYear), // Using dynamic selected Year
+        year: Number(selectedYear),
         basic,
         comm,
         bonus,
@@ -1633,7 +1614,7 @@ const App = () => {
                           {t('Approvals')}{' '}
                           <AlertCircle className="text-amber-500" size={16} />
                         </h2>
-                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
                           {leaveApps.filter((a) => a.status === 'PENDING')
                             .length === 0 ? (
                             <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
@@ -1667,18 +1648,18 @@ const App = () => {
                                       onClick={() =>
                                         processLeave(app.id, 'APPROVED')
                                       }
-                                      className="flex-1 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center"
+                                      className="flex-1 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
                                     >
-                                      <Check size={16} />
+                                      <Check size={16} /> {t('Approve')}
                                     </button>
                                     <button
                                       onClick={() => {
                                         setRejectPromptId(app.id);
                                         setRejectReason('');
                                       }}
-                                      className="flex-1 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center"
+                                      className="flex-1 py-2.5 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
                                     >
-                                      <X size={16} />
+                                      <X size={16} /> {t('Reject')}
                                     </button>
                                   </div>
                                 </div>
@@ -1825,42 +1806,44 @@ const App = () => {
                           {t('Optional Public Holidays (Max 6)')}
                         </h2>
                         <div className="space-y-2 mb-6 flex-1 text-left">
-                          {optionalPHs.map((ph) => (
-                            <div
-                              key={ph.id}
-                              className="flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 hover:bg-slate-100 transition transition-colors duration-200 text-left"
-                            >
-                              <label className="flex items-center gap-3 flex-1 cursor-pointer text-left">
-                                <input
-                                  type="checkbox"
-                                  checked={draftPHs.includes(ph.id)}
-                                  disabled={activeStaff.convertedPHs?.includes(
-                                    ph.id
-                                  )}
-                                  onChange={(e) =>
-                                    handleDraftTogglePH(ph.id, e.target.checked)
-                                  }
-                                  className="custom-checkbox"
-                                />
-                                <div className="text-left">
-                                  <p className="text-[11px] font-bold text-slate-800 text-left">
-                                    {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
-                                  </p>
-                                </div>
-                              </label>
-                            </div>
-                          ))}
+                          {optionalPHs.map((ph) => {
+                            const locked = isPhLocked(ph.id);
+                            const checked = draftPHs.includes(ph.id) || locked;
+                            return (
+                              <div
+                                key={ph.id}
+                                className={`flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 transition transition-colors duration-200 text-left ${locked ? 'opacity-60' : 'hover:bg-slate-100'}`}
+                              >
+                                <label className={`flex items-center gap-3 flex-1 text-left ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    disabled={locked}
+                                    onChange={(e) =>
+                                      handleDraftTogglePH(ph.id, e.target.checked)
+                                    }
+                                    className="custom-checkbox"
+                                  />
+                                  <div className="text-left">
+                                    <p className={`text-[11px] font-bold text-slate-800 text-left ${locked ? 'line-through' : ''}`}>
+                                      {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
+                                    </p>
+                                  </div>
+                                </label>
+                              </div>
+                            );
+                          })}
                         </div>
                         <div className="flex gap-4 text-left">
                           <button
                             onClick={submitPHSelection}
-                            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm hover:bg-indigo-700 transition"
                           >
                             {t('Apply')}
                           </button>
                           <button
                             onClick={triggerBatchConvert}
-                            className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm"
+                            className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm hover:bg-teal-600 transition"
                           >
                             {t('Convert')}
                           </button>
@@ -1934,12 +1917,12 @@ const App = () => {
                           <div key={dateGroup} className="mb-6 text-left">
                             <div className="flex items-center gap-4 mb-4 text-left">
                               <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                              <span className="text-sm font-bold text-slate-400 uppercase text-left">
-                                -{dateGroup}-
+                              <span className="text-[10px] font-bold text-slate-400 uppercase text-left tracking-wider">
+                                - {dateGroup} -
                               </span>
                               <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
                             </div>
-                            <div className="space-y-4 text-left">
+                            <div className="space-y-3 text-left">
                               {groupedActionLogs[dateGroup].map((log) => (
                                 <div
                                   key={log.id}
@@ -1949,57 +1932,43 @@ const App = () => {
                                     log.type !== 'SYSTEM_AL_PROBATION' &&
                                     setCancelPromptApp(log)
                                   }
-                                  className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col transition relative group transition-colors duration-200 hover:border-slate-300 cursor-pointer text-left"
+                                  className="p-4 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between transition-all duration-200 hover:border-indigo-300 hover:shadow-sm cursor-pointer text-left gap-4"
                                 >
-                                  <div className="flex items-start justify-between mb-2 text-left">
-                                    <div className="flex gap-3 items-center text-left">
-                                      <div
-                                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                          [
-                                            'AL',
-                                            'SYSTEM_AL_PROBATION',
-                                            'PROFILE_UPDATE',
-                                          ].includes(log.type)
-                                            ? 'bg-indigo-400'
-                                            : log.type === 'MC'
-                                            ? 'bg-emerald-400'
-                                            : log.type === 'RL'
-                                            ? 'bg-teal-400'
-                                            : 'bg-amber-400'
-                                        }`}
-                                      />
-                                      <p
-                                        className={`font-bold text-xs uppercase text-left ${
-                                          log.status === 'CANCELLED'
-                                            ? 'text-slate-400 line-through'
-                                            : 'text-slate-800'
-                                        }`}
-                                      >
+                                  <div className="flex items-center gap-4 text-left">
+                                    <div
+                                      className={`w-3 h-3 rounded-full shrink-0 shadow-sm ${
+                                        ['AL', 'SYSTEM_AL_PROBATION', 'PROFILE_UPDATE'].includes(log.type)
+                                          ? 'bg-indigo-400'
+                                          : log.type === 'MC'
+                                          ? 'bg-emerald-400'
+                                          : log.type === 'RL'
+                                          ? 'bg-teal-400'
+                                          : 'bg-amber-400'
+                                      }`}
+                                    />
+                                    <div>
+                                      <p className={`font-bold text-sm uppercase text-slate-800 text-left ${log.status === 'CANCELLED' ? 'text-slate-400 line-through' : ''}`}>
                                         {t(getTypeFullName(log.type))} {t('Request')}
                                       </p>
+                                      {log.startDate && (
+                                        <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
+                                          {log.startDate} to {log.endDate}
+                                        </div>
+                                      )}
                                     </div>
-                                    <span className="shrink-0 px-2 py-1 rounded text-[8px] font-bold border transition-colors duration-200 text-left">
+                                  </div>
+                                  
+                                  <div className="flex flex-col sm:items-end gap-1.5 text-left sm:text-right mt-2 sm:mt-0">
+                                    <span className={`inline-block px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${
+                                        log.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                        log.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                                        log.status === 'CANCELLED' ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                                        'bg-amber-50 text-amber-600 border-amber-200'
+                                    }`}>
                                       {t(log.status)}
                                     </span>
-                                  </div>
-                                  <div className="flex flex-col sm:flex-row items-start sm:items-center mt-3 pt-3 border-t border-slate-200/60 gap-2 justify-between transition-colors duration-200 text-left">
-                                    <div className="text-[10px] font-bold text-indigo-600 text-left">
-                                      {log.startDate
-                                        ? `${log.startDate} to ${log.endDate}`
-                                        : ''}
-                                    </div>
-                                    <div className="text-[9px] text-slate-400 font-bold uppercase ml-auto text-left">
-                                      {t('Applied Date :')}{' '}
-                                      {new Date(
-                                        log.appliedAt || log.id
-                                      ).toLocaleDateString('en-GB')}
-                                      ,{' '}
-                                      {new Date(
-                                        log.appliedAt || log.id
-                                      ).toLocaleTimeString('en-US', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                      })}
+                                    <div className="text-[9px] text-slate-400 font-bold uppercase">
+                                      {t('Applied Date :')} {new Date(log.appliedAt || log.id).toLocaleDateString('en-GB')}
                                     </div>
                                   </div>
                                 </div>
@@ -2420,8 +2389,8 @@ const App = () => {
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[600] flex items-center justify-center p-6">
             <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-200 text-left">
               <div className="p-6 bg-indigo-600 text-white flex justify-between items-center">
-                <h2 className="text-sm font-bold uppercase">{t(appAlert.title)}</h2>
-                <button onClick={closeAlert} className="hover:bg-indigo-500 p-1 rounded-lg transition">
+                <h2 className="text-sm font-bold uppercase tracking-wider">{t(appAlert.title)}</h2>
+                <button onClick={closeAlert} className="hover:bg-indigo-500 p-1 rounded-lg transition text-white">
                   <X size={18} />
                 </button>
               </div>
@@ -2431,7 +2400,7 @@ const App = () => {
                 </p>
                 <button
                   onClick={closeAlert}
-                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-indigo-700 transition text-xs uppercase"
+                  className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-indigo-700 transition text-xs uppercase tracking-widest"
                 >
                   {t('OK')}
                 </button>
@@ -2865,43 +2834,58 @@ const App = () => {
                   <X size={20} />
                 </button>
               </div>
-              <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left">
-                {leaveApps.filter(
-                  (a) =>
-                    a.staffId === activeStaff.id &&
-                    a.type === viewLeaveHistory &&
-                    a.status === 'APPROVED'
-                ).length === 0 ? (
-                  <div className="text-center text-xs font-bold text-slate-400 py-12 uppercase text-left">
-                    {t('No data.')}
+              
+              <div className="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar text-left space-y-6">
+                
+                {/* LABOR LAW EXPLANATION BLOCK */}
+                <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                  <div className="flex gap-3">
+                    <Info size={18} className="text-indigo-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-indigo-900 leading-relaxed font-medium">
+                      {getLawText(viewLeaveHistory, lang)}
+                    </p>
                   </div>
-                ) : (
-                  leaveApps
-                    .filter(
-                      (a) =>
-                        a.staffId === activeStaff.id &&
-                        a.type === viewLeaveHistory &&
-                        a.status === 'APPROVED'
-                    )
-                    .map((log) => (
-                      <div
-                        key={log.id}
-                        className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3 text-left"
-                      >
-                        <div className="text-left">
-                          <p className="font-bold text-sm text-left">
-                            {log.startDate} - {log.endDate}
-                          </p>
-                          <p className="text-[10px] text-slate-500 text-left">
-                            {log.actionAt}
-                          </p>
+                </div>
+
+                <div>
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase mb-3 border-b border-slate-100 pb-2">{t('Approved Records')}</h4>
+                  {leaveApps.filter(
+                    (a) =>
+                      a.staffId === activeStaff.id &&
+                      a.type === viewLeaveHistory &&
+                      a.status === 'APPROVED'
+                  ).length === 0 ? (
+                    <div className="text-center text-xs font-bold text-slate-400 py-6 uppercase text-left">
+                      {t('No data.')}
+                    </div>
+                  ) : (
+                    leaveApps
+                      .filter(
+                        (a) =>
+                          a.staffId === activeStaff.id &&
+                          a.type === viewLeaveHistory &&
+                          a.status === 'APPROVED'
+                      )
+                      .map((log) => (
+                        <div
+                          key={log.id}
+                          className="p-4 bg-slate-50 rounded-xl border border-l-4 border-indigo-500 flex justify-between items-center mb-3 text-left"
+                        >
+                          <div className="text-left">
+                            <p className="font-bold text-sm text-left">
+                              {log.startDate} - {log.endDate}
+                            </p>
+                            <p className="text-[10px] text-slate-500 text-left">
+                              {log.actionAt}
+                            </p>
+                          </div>
+                          <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs text-left">
+                            {log.days}d
+                          </span>
                         </div>
-                        <span className="bg-indigo-100 text-indigo-600 font-bold px-3 py-1 rounded-lg text-xs text-left">
-                          {log.days}d
-                        </span>
-                      </div>
-                    ))
-                )}
+                      ))
+                  )}
+                </div>
               </div>
             </div>
           </div>
