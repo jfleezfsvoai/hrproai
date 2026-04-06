@@ -1605,203 +1605,156 @@ const App = () => {
             {hrSubTab === 'LEAVE_APPLICATION' && (
               activeStaff.id ? (
               <div className="space-y-6 animate-in fade-in duration-300">
-                {currentUser.type === 'ADMIN' ? (
-                  <>
-                    {/* ADMIN TOP: 50/50 Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                
+                {/* STAFF ONLY: Top Application Bar */}
+                {currentUser.type !== 'ADMIN' && (
+                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
+                    <div className="flex items-center gap-3 shrink-0">
+                      <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
+                        {t('Leave Application')}
+                      </h2>
+                      <ArrowRight className="text-indigo-400" size={18} />
+                    </div>
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('Category')}
+                        </label>
+                        <select
+                          id="lType"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
+                        >
+                          <option value="AL" className="text-slate-900">
+                            {t('Annual Leave')}
+                          </option>
+                          <option value="MC" className="text-slate-900">
+                            {t('Medical Leave')}
+                          </option>
+                          <option value="RL" className="text-slate-900">
+                            {t('Replacement')}
+                          </option>
+                          <option value="UPL" className="text-slate-900">
+                            {t('Unpaid Leave')}
+                          </option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('Start Date')}
+                        </label>
+                        <input
+                          id="lStart"
+                          type="date"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                          style={{colorScheme: 'dark'}}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                          {t('End Date')}
+                        </label>
+                        <input
+                          id="lEnd"
+                          type="date"
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                          style={{colorScheme: 'dark'}}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const start = document.getElementById('lStart').value,
+                          end = document.getElementById('lEnd').value,
+                          type = document.getElementById('lType').value;
+                        if (!start || !end) return triggerAlert(t('Dates are required.'));
+                        const days =
+                          Math.ceil(
+                            Math.abs(new Date(end) - new Date(start)) /
+                              (1000 * 60 * 60 * 24)
+                          ) + 1;
+                        addLeaveApp({
+                          staffId: currentUser.id,
+                          username: currentUser.username,
+                          staffName: currentUser.name,
+                          type,
+                          startDate: start,
+                          endDate: end,
+                          days,
+                          status: 'PENDING',
+                          timestamp: new Date().toLocaleString(),
+                          actionAt: null,
+                        });
+                      }}
+                      className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
+                    >
+                      {t('Submit Request')}
+                    </button>
+                  </div>
+                )}
+
+                {/* 2/3 and 1/3 GRID LAYOUT */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start text-left">
+                  
+                  {/* LEFT COLUMN (2/3 width) */}
+                  <div className="lg:col-span-2 space-y-6">
+                    
+                    {/* Admin: Approvals OR Staff: Optional Holidays */}
+                    {currentUser.type === 'ADMIN' ? (
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col transition-colors duration-200 text-left">
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200 text-slate-900">
-                          {t('Approvals')}{' '}
-                          <AlertCircle className="text-amber-500" size={16} />
+                          {t('Approvals')} <AlertCircle className="text-amber-500" size={16} />
                         </h2>
-                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
-                          {leaveApps.filter((a) => a.status === 'PENDING')
-                            .length === 0 ? (
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar max-h-[350px] pr-2">
+                          {leaveApps.filter((a) => a.status === 'PENDING').length === 0 ? (
                             <div className="text-center py-16 text-slate-400 font-bold uppercase text-[10px]">
                               {t('No pending requests.')}
                             </div>
                           ) : (
-                            leaveApps
-                              .filter((a) => a.status === 'PENDING')
-                              .map((app) => (
-                                <div
-                                  key={app.id}
-                                  className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col gap-3 transition-colors duration-200 text-left"
-                                >
-                                  <div className="space-y-1">
-                                    <p className="font-bold text-slate-800 uppercase text-[9px]">
-                                      {app.staffName} ·{' '}
-                                      {t(getTypeFullName(app.type))}
-                                    </p>
-                                    <p className="text-xs font-bold text-indigo-600">
-                                      {app.type === 'PROFILE_UPDATE'
-                                        ? t('Requested Changes to Staff Data')
-                                        : app.type === 'PH_UPDATE'
-                                        ? `${t('PH Selection')} (${app.days} items)`
-                                        : app.type === 'PH_CONVERT_BATCH'
-                                        ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
-                                        : `${app.startDate} to ${app.endDate} (${app.days}d)`}
-                                    </p>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() =>
-                                        processLeave(app.id, 'APPROVED')
-                                      }
-                                      className="flex-1 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
-                                    >
-                                      <Check size={16} /> {t('Approve')}
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setRejectPromptId(app.id);
-                                        setRejectReason('');
-                                      }}
-                                      className="flex-1 py-2.5 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
-                                    >
-                                      <X size={16} /> {t('Reject')}
-                                    </button>
-                                  </div>
+                            leaveApps.filter((a) => a.status === 'PENDING').map((app) => (
+                              <div
+                                key={app.id}
+                                className="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-400 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-200 text-left"
+                              >
+                                <div className="space-y-1">
+                                  <p className="font-bold text-slate-800 uppercase text-[10px] leading-tight">
+                                    {app.staffName}
+                                    <span className="mx-2 text-slate-300">|</span> 
+                                    <span className="text-indigo-600">{t(getTypeFullName(app.type))}</span>
+                                  </p>
+                                  <p className="text-[11px] font-semibold text-slate-500 mt-1">
+                                    {app.type === 'PROFILE_UPDATE'
+                                      ? t('Requested Changes to Staff Data')
+                                      : app.type === 'PH_UPDATE'
+                                      ? `${t('PH Selection')} (${app.days} items)`
+                                      : app.type === 'PH_CONVERT_BATCH'
+                                      ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
+                                      : `${app.startDate} to ${app.endDate} (${app.days} ${t('Days')})`}
+                                  </p>
                                 </div>
-                              ))
+                                <div className="flex gap-2 shrink-0 mt-2 sm:mt-0">
+                                  <button
+                                    onClick={() => processLeave(app.id, 'APPROVED')}
+                                    className="px-5 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
+                                  >
+                                    <Check size={14} /> {t('Approve')}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejectPromptId(app.id);
+                                      setRejectReason('');
+                                    }}
+                                    className="px-5 py-2.5 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
+                                  >
+                                    <X size={14} /> {t('Reject')}
+                                  </button>
+                                </div>
+                              </div>
+                            ))
                           )}
                         </div>
                       </div>
-                      {/* Admin Status Balances Card (Vertical list) */}
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                          {t('Status Balances')}{' '}
-                          <Info size={14} className="text-slate-300" />
-                        </h2>
-                        <div className="flex flex-col gap-6 flex-1 justify-center text-left">
-                          <BalanceMetric
-                            label={t("Annual Leave")}
-                            current={earnedAL - activeStaff.alUsed}
-                            total={earnedAL}
-                            color="indigo"
-                            onInfoClick={() => setViewLeaveHistory('AL')}
-                          />
-                          <BalanceMetric
-                            label={t("Medical Leave")}
-                            current={14 - activeStaff.mcUsed}
-                            total={14}
-                            color="emerald"
-                            onInfoClick={() => setViewLeaveHistory('MC')}
-                          />
-                          <BalanceMetric
-                            label={t("Public Holiday")}
-                            current={6 - (activeStaff.phUsed || 0)}
-                            total={6}
-                            color="amber"
-                            onInfoClick={() => setViewLeaveHistory('PH')}
-                          />
-                          <BalanceMetric
-                            label={t("Unpaid Leave")}
-                            current={activeStaff.uplUsed}
-                            total={null}
-                            color="rose"
-                            onInfoClick={() => setViewLeaveHistory('UPL')}
-                          />
-                          <BalanceMetric
-                            label={t("Replacement")}
-                            current={activeStaff.rlUsed || 0}
-                            total={activeStaff.rlEarned || 0}
-                            color="teal"
-                            onInfoClick={() => setViewLeaveHistory('RL')}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* STAFF TOP: Full Width Horizontal Bar */}
-                    <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-6 shadow-lg text-white border border-slate-800 flex flex-col lg:flex-row items-center gap-6">
-                      <div className="flex items-center gap-3 shrink-0">
-                        <h2 className="text-lg text-white font-bold uppercase whitespace-nowrap">
-                          {t('Leave Application')}
-                        </h2>
-                        <ArrowRight className="text-indigo-400" size={18} />
-                      </div>
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                            {t('Category')}
-                          </label>
-                          <select
-                            id="lType"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
-                          >
-                            <option value="AL" className="text-slate-900">
-                              {t('Annual Leave')}
-                            </option>
-                            <option value="MC" className="text-slate-900">
-                              {t('Medical Leave')}
-                            </option>
-                            <option value="RL" className="text-slate-900">
-                              {t('Replacement')}
-                            </option>
-                            <option value="UPL" className="text-slate-900">
-                              {t('Unpaid Leave')}
-                            </option>
-                          </select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                            {t('Start Date')}
-                          </label>
-                          <input
-                            id="lStart"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                            style={{colorScheme: 'dark'}}
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                            {t('End Date')}
-                          </label>
-                          <input
-                            id="lEnd"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                            style={{colorScheme: 'dark'}}
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const start = document.getElementById('lStart').value,
-                            end = document.getElementById('lEnd').value,
-                            type = document.getElementById('lType').value;
-                          if (!start || !end) return triggerAlert(t('Dates are required.'));
-                          const days =
-                            Math.ceil(
-                              Math.abs(new Date(end) - new Date(start)) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1;
-                          addLeaveApp({
-                            staffId: currentUser.id,
-                            username: currentUser.username,
-                            staffName: currentUser.name,
-                            type,
-                            startDate: start,
-                            endDate: end,
-                            days,
-                            status: 'PENDING',
-                            timestamp: new Date().toLocaleString(),
-                            actionAt: null,
-                          });
-                        }}
-                        className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
-                      >
-                        {t('Submit Request')}
-                      </button>
-                    </div>
-
-                    {/* STAFF MIDDLE: 50/50 Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200 text-left">
+                    ) : (
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col transition-colors duration-200 text-left">
                         <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200 text-left">
                           {t('Optional Public Holidays (Max 6)')}
                         </h2>
@@ -1819,9 +1772,7 @@ const App = () => {
                                     type="checkbox"
                                     checked={checked}
                                     disabled={locked}
-                                    onChange={(e) =>
-                                      handleDraftTogglePH(ph.id, e.target.checked)
-                                    }
+                                    onChange={(e) => handleDraftTogglePH(ph.id, e.target.checked)}
                                     className="custom-checkbox"
                                   />
                                   <div className="text-left">
@@ -1849,349 +1800,140 @@ const App = () => {
                           </button>
                         </div>
                       </div>
-
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                          {t('Status Balances')}{' '}
-                          <Info size={14} className="text-slate-300" />
-                        </h2>
-                        <div className="flex flex-col gap-8 text-left">
-                          <BalanceMetric
-                            label={t("Annual Leave")}
-                            current={earnedAL - activeStaff.alUsed}
-                            total={earnedAL}
-                            color="indigo"
-                            onInfoClick={() => setViewLeaveHistory('AL')}
-                          />
-                          <BalanceMetric
-                            label={t("Medical Leave")}
-                            current={14 - activeStaff.mcUsed}
-                            total={14}
-                            color="emerald"
-                            onInfoClick={() => setViewLeaveHistory('MC')}
-                          />
-                          <BalanceMetric
-                            label={t("Public Holiday")}
-                            current={6 - (activeStaff.phUsed || 0)}
-                            total={6}
-                            color="amber"
-                            onInfoClick={() => setViewLeaveHistory('PH')}
-                          />
-                          <BalanceMetric
-                            label={t("Unpaid Leave")}
-                            current={activeStaff.uplUsed}
-                            total={null}
-                            color="rose"
-                            onInfoClick={() => setViewLeaveHistory('UPL')}
-                          />
-                          <BalanceMetric
-                            label={t("Replacement")}
-                            current={activeStaff.rlUsed || 0}
-                            total={activeStaff.rlEarned || 0}
-                            color="teal"
-                            onInfoClick={() => setViewLeaveHistory('RL')}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Action History (Bottom Full Width) */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                  <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
-                    {t('Action History')}{' '}
-                    <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
-                      {leaveApps.filter((a) => a.staffId === activeStaff.id).length} {t('Records')}
-                    </span>
-                  </h3>
-                  <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4 text-left">
-                    {Object.keys(groupedActionLogs).length === 0 ? (
-                      <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
-                        {t('No records found.')}
-                      </p>
-                    ) : (
-                      Object.keys(groupedActionLogs)
-                        .sort((a, b) => new Date(b) - new Date(a))
-                        .map((dateGroup) => (
-                          <div key={dateGroup} className="mb-6 text-left">
-                            <div className="flex items-center gap-4 mb-4 text-left">
-                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                              <span className="text-[10px] font-bold text-slate-400 uppercase text-left tracking-wider">
-                                - {dateGroup} -
-                              </span>
-                              <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
-                            </div>
-                            <div className="space-y-3 text-left">
-                              {groupedActionLogs[dateGroup].map((log) => (
-                                <div
-                                  key={log.id}
-                                  onClick={() =>
-                                    currentUser.type === 'STAFF' &&
-                                    log.status === 'PENDING' &&
-                                    log.type !== 'SYSTEM_AL_PROBATION' &&
-                                    setCancelPromptApp(log)
-                                  }
-                                  className="p-4 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between transition-all duration-200 hover:border-indigo-300 hover:shadow-sm cursor-pointer text-left gap-4"
-                                >
-                                  <div className="flex items-center gap-4 text-left">
-                                    <div
-                                      className={`w-3 h-3 rounded-full shrink-0 shadow-sm ${
-                                        ['AL', 'SYSTEM_AL_PROBATION', 'PROFILE_UPDATE'].includes(log.type)
-                                          ? 'bg-indigo-400'
-                                          : log.type === 'MC'
-                                          ? 'bg-emerald-400'
-                                          : log.type === 'RL'
-                                          ? 'bg-teal-400'
-                                          : 'bg-amber-400'
-                                      }`}
-                                    />
-                                    <div>
-                                      <p className={`font-bold text-sm uppercase text-slate-800 text-left ${log.status === 'CANCELLED' ? 'text-slate-400 line-through' : ''}`}>
-                                        {t(getTypeFullName(log.type))} {t('Request')}
-                                      </p>
-                                      {log.startDate && (
-                                        <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
-                                          {log.startDate} to {log.endDate}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="flex flex-col sm:items-end gap-1.5 text-left sm:text-right mt-2 sm:mt-0">
-                                    <span className={`inline-block px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${
-                                        log.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                        log.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-                                        log.status === 'CANCELLED' ? 'bg-slate-50 text-slate-500 border-slate-200' :
-                                        'bg-amber-50 text-amber-600 border-amber-200'
-                                    }`}>
-                                      {t(log.status)}
-                                    </span>
-                                    <div className="text-[9px] text-slate-400 font-bold uppercase">
-                                      {t('Applied Date :')} {new Date(log.appliedAt || log.id).toLocaleDateString('en-GB')}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))
                     )}
-                  </div>
-                </div>
-              </div>
-              ) : <EmptyStaffState />
-            )}
 
-            {/* PAYROLL TAB */}
-            {hrSubTab === 'PAYROLL' && (
-              activeStaff.id ? (
-              <div className="space-y-6 animate-in fade-in duration-500 text-left">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
-                  {/* REQ 2: Payroll Engine Black Card */}
-                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left gap-4">
-                      <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
-                        <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
-                      </h2>
-                      <div className="flex items-center gap-2">
-                        <select
-                          className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
-                          value={selectedYear}
-                          onChange={(e) => setSelectedYear(e.target.value)}
-                        >
-                          {YEARS.map((y) => (
-                            <option key={y} value={y}>
-                              {y}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-white outline-none transition-colors duration-200"
-                          value={selectedMonth}
-                          onChange={(e) => setSelectedMonth(e.target.value)}
-                        >
-                          {MONTHS.map((m) => (
-                            <option key={m} value={m}>
-                              {t(m)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    {currentUser.type === 'ADMIN' && (
-                      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-6 space-y-4 transition-colors duration-200 text-left">
-                        <select
-                          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 font-bold text-sm text-white outline-none transition-colors duration-200 text-left"
-                          value={commStaffId}
-                          onChange={(e) => setCommStaffId(e.target.value)}
-                        >
-                          {staffList.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name} - {t(s.role)}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="grid grid-cols-3 gap-4 text-left">
-                          <input
-                            type="number"
-                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
-                            placeholder={t("Comm")}
-                            value={commInput}
-                            onChange={(e) => setCommInput(e.target.value)}
-                          />
-                          <input
-                            type="number"
-                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2.5 text-sm text-white outline-none transition-colors duration-200 text-left"
-                            placeholder={t("Bonus")}
-                            value={bonusInput}
-                            onChange={(e) => setBonusInput(e.target.value)}
-                          />
-                          <input
-                            type="number"
-                            readOnly
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-400 outline-none transition-colors duration-200 text-left"
-                            value={calculatedUPL}
-                          />
-                        </div>
-                        <button
-                          onClick={generatePayslip}
-                          className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center shadow-md hover:bg-indigo-600 transition"
-                        >
-                          {t('Generate Payslip')}
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center bg-indigo-500/20 p-5 rounded-xl border border-indigo-500/30 transition-colors duration-200 text-left">
-                      <span className="text-xs font-bold text-indigo-200 uppercase text-left">
-                        {t('Estimated Net Basic')}
-                      </span>
-                      <span className="text-2xl font-bold text-white text-left">
-                        RM{' '}
-                        {hasSalary
-                          ? (activeStaff.salary - 257.05).toFixed(2)
-                          : '0.00'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                    <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left text-slate-900">
-                      {t('Johor Public Holidays 2026')}
-                    </h2>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
-                      {[
-                        { name: 'Sultan Johor Birthday', date: '2026-03-23' },
-                        { name: 'Labour Day', date: '2026-05-01' },
-                        { name: 'Agong Birthday', date: '2026-06-01' },
-                        { name: 'National Day', date: '2026-08-31' },
-                        { name: 'Malaysia Day', date: '2026-09-16' },
-                      ].map((ph, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
-                        >
-                          <div className="flex items-center gap-3 text-left">
-                            <div className={`w-2 h-2 rounded-full ${new Date(ph.date) < TODAY ? 'bg-slate-300' : 'bg-amber-400'}`} />
-                            <span className={`text-xs font-bold text-slate-800 ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                              {t(ph.name)}
-                            </span>
-                          </div>
-                          <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                            {new Date(ph.date).toLocaleDateString('en-GB', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200 text-left">
-                  <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
-                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
-                      <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
-                    </h2>
-                  </div>
-                  <div className="overflow-x-auto text-left">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200 text-left">
-                        <tr>
-                          <th className="p-4 text-left">{t('Period')}</th>
-                          <th className="p-4 text-left">{t('Basic RM')}</th>
-                          <th className="p-4 text-left">{t('Commission')}</th>
-                          <th className="p-4 text-left">{t('Net Total')}</th>
-                          <th className="p-4 text-center">{t('View')}</th>
-                          <th className="p-4 text-center">{t('Export')}</th>
-                          <th className="p-4 text-center">{t('Action')}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 transition-colors duration-200 text-left">
-                        {payslips.filter((p) => p.staffId === activeStaff.id)
-                          .length === 0 ? (
-                          <tr>
-                            <td
-                              colSpan="7"
-                              className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
-                            >
-                              {t('No records generated.')}
-                            </td>
-                          </tr>
+                    {/* SHARED: Action History */}
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                      <h3 className="text-lg font-bold mb-6 uppercase border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                        {t('Action History')}
+                        <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] transition-colors duration-200">
+                          {leaveApps.filter((a) => a.staffId === activeStaff.id).length} {t('Records')}
+                        </span>
+                      </h3>
+                      <div className="max-h-[500px] overflow-y-auto custom-scrollbar pr-4 text-left">
+                        {Object.keys(groupedActionLogs).length === 0 ? (
+                          <p className="text-center text-slate-400 font-bold uppercase text-xs py-10">
+                            {t('No records found.')}
+                          </p>
                         ) : (
-                          payslips
-                            .filter((p) => p.staffId === activeStaff.id)
-                            .map((p) => (
-                              <tr
-                                key={p.id}
-                                className="hover:bg-slate-50 transition transition-colors duration-200 text-left"
-                              >
-                                <td className="p-4 font-bold text-slate-800 uppercase text-xs text-left">
-                                  {t(p.month)} {p.year}
-                                </td>
-                                <td className="p-4 font-semibold text-slate-600 text-xs text-left">
-                                  RM {p.basic.toFixed(2)}
-                                </td>
-                                <td className="p-4 font-bold text-indigo-600 text-xs text-left">
-                                  RM {p.comm.toFixed(2)}
-                                </td>
-                                <td className="p-4 font-bold text-emerald-600 text-md text-left">
-                                  RM {p.netTotal.toFixed(2)}
-                                </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() => setViewPayslipData(p)}
-                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
-                                  >
-                                    <Eye size={14} /> {t('View')}
-                                  </button>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() =>
-                                      handleDownloadPayslip(p, activeStaff)
-                                    }
-                                    disabled={isGeneratingPdf}
-                                    className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
-                                  >
-                                    <Download size={14} /> {t('PDF')}
-                                  </button>
-                                </td>
-                                <td className="p-4 text-center">
-                                  {currentUser.type === 'ADMIN' && (
-                                    <button
-                                      onClick={() => deletePayslipRecord(p.id)}
-                                      className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
+                          Object.keys(groupedActionLogs)
+                            .sort((a, b) => new Date(b) - new Date(a))
+                            .map((dateGroup) => (
+                              <div key={dateGroup} className="mb-6 text-left">
+                                <div className="flex items-center gap-4 mb-4 text-left">
+                                  <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase text-left tracking-wider">
+                                    - {dateGroup} -
+                                  </span>
+                                  <div className="h-px bg-slate-200 flex-1 transition-colors duration-200" />
+                                </div>
+                                <div className="space-y-3 text-left">
+                                  {groupedActionLogs[dateGroup].map((log) => (
+                                    <div
+                                      key={log.id}
+                                      onClick={() =>
+                                        currentUser.type === 'STAFF' &&
+                                        log.status === 'PENDING' &&
+                                        log.type !== 'SYSTEM_AL_PROBATION' &&
+                                        setCancelPromptApp(log)
+                                      }
+                                      className="p-4 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between transition-all duration-200 hover:border-indigo-300 hover:shadow-sm cursor-pointer text-left gap-4"
                                     >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
+                                      <div className="flex items-center gap-4 text-left">
+                                        <div
+                                          className={`w-3 h-3 rounded-full shrink-0 shadow-sm ${
+                                            ['AL', 'SYSTEM_AL_PROBATION', 'PROFILE_UPDATE'].includes(log.type)
+                                              ? 'bg-indigo-400'
+                                              : log.type === 'MC'
+                                              ? 'bg-emerald-400'
+                                              : log.type === 'RL'
+                                              ? 'bg-teal-400'
+                                              : 'bg-amber-400'
+                                          }`}
+                                        />
+                                        <div>
+                                          <p className={`font-bold text-sm uppercase text-slate-800 text-left ${log.status === 'CANCELLED' ? 'text-slate-400 line-through' : ''}`}>
+                                            {t(getTypeFullName(log.type))} {t('Request')}
+                                          </p>
+                                          {log.startDate && (
+                                            <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
+                                              {log.startDate} to {log.endDate}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="flex flex-col sm:items-end gap-1.5 text-left sm:text-right mt-2 sm:mt-0">
+                                        <span className={`inline-block px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${
+                                            log.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                            log.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                                            log.status === 'CANCELLED' ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                                            'bg-amber-50 text-amber-600 border-amber-200'
+                                        }`}>
+                                          {t(log.status)}
+                                        </span>
+                                        <div className="text-[9px] text-slate-400 font-bold uppercase">
+                                          {t('Applied Date :')} {new Date(log.appliedAt || log.id).toLocaleDateString('en-GB')}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             ))
                         )}
-                      </tbody>
-                    </table>
+                      </div>
+                    </div>
+
                   </div>
+
+                  {/* RIGHT COLUMN (1/3 width) */}
+                  <div className="lg:col-span-1">
+                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full flex flex-col transition-colors duration-200 text-left">
+                      <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                        {t('Status Balances')}{' '}
+                        <Info size={14} className="text-slate-300" />
+                      </h2>
+                      <div className="flex flex-col gap-6 flex-1 justify-center text-left">
+                        <BalanceMetric
+                          label={t("Annual Leave")}
+                          current={earnedAL - activeStaff.alUsed}
+                          total={earnedAL}
+                          color="indigo"
+                          onInfoClick={() => setViewLeaveHistory('AL')}
+                        />
+                        <BalanceMetric
+                          label={t("Medical Leave")}
+                          current={14 - activeStaff.mcUsed}
+                          total={14}
+                          color="emerald"
+                          onInfoClick={() => setViewLeaveHistory('MC')}
+                        />
+                        <BalanceMetric
+                          label={t("Public Holiday")}
+                          current={6 - (activeStaff.phUsed || 0)}
+                          total={6}
+                          color="amber"
+                          onInfoClick={() => setViewLeaveHistory('PH')}
+                        />
+                        <BalanceMetric
+                          label={t("Unpaid Leave")}
+                          current={activeStaff.uplUsed}
+                          total={null}
+                          color="rose"
+                          onInfoClick={() => setViewLeaveHistory('UPL')}
+                        />
+                        <BalanceMetric
+                          label={t("Replacement")}
+                          current={activeStaff.rlUsed || 0}
+                          total={activeStaff.rlEarned || 0}
+                          color="teal"
+                          onInfoClick={() => setViewLeaveHistory('RL')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
               ) : <EmptyStaffState />
@@ -2963,5 +2705,5 @@ const BalanceMetric = ({ label, current, total, color, onInfoClick }) => {
     </div>
   );
 };
- 
+
 export default App;
