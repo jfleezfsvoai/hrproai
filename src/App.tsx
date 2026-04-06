@@ -432,8 +432,15 @@ const getLawText = (type, lang) => {
 };
 
 const App = () => {
-  // --- AUTH STATE ---
-  const [currentUser, setCurrentUser] = useState(null);
+  // --- AUTH STATE WITH PERSISTENCE (Requirement 2) ---
+  const [currentUser, setCurrentUser] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('hr_app_user');
+      if (savedUser) return JSON.parse(savedUser);
+    }
+    return null;
+  });
+  
   const [fbUser, setFbUser] = useState(null);
   const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
   const [loginError, setLoginError] = useState('');
@@ -468,7 +475,16 @@ const App = () => {
   // UI States
   const [selectedMonth, setSelectedMonth] = useState('March');
   const [selectedYear, setSelectedYear] = useState('2026');
-  const [selectedStaffId, setSelectedStaffId] = useState('shan-01');
+  const [selectedStaffId, setSelectedStaffId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('hr_app_user');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed.type === 'STAFF') return parsed.id;
+      }
+    }
+    return 'shan-01';
+  });
   const [commStaffId, setCommStaffId] = useState('shan-01');
   const [commInput, setCommInput] = useState('');
   const [bonusInput, setBonusInput] = useState('');
@@ -732,12 +748,9 @@ const App = () => {
     return groups;
   }, [leaveApps, activeStaff.id]);
 
-  // SMART PH LOCK LOGIC (Requirement 1)
   const isPhLocked = (phId) => {
     if (activeStaff.convertedPHs?.includes(phId)) return true;
     if (activeStaff.selectedPHs?.includes(phId)) return true;
-    
-    // Check if there is an active (PENDING or APPROVED) request locking this specific PH
     return leaveApps.some(app =>
       app.staffId === activeStaff.id &&
       (app.type === 'PH_UPDATE' || app.type === 'PH_CONVERT_BATCH') &&
@@ -1194,8 +1207,12 @@ const App = () => {
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
   };
 
+  // LOGOUT (Clear Persistence)
   const handleLogout = () => {
     setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('hr_app_user');
+    }
     setLoginForm({ user: '', pass: '' });
     setHrSubTab('PROFILE');
   };
@@ -1209,16 +1226,24 @@ const App = () => {
       (u) => u.username === loginForm.user && u.password === loginForm.pass
     );
     if (admin) {
-      setCurrentUser({ ...admin });
+      const userObj = { ...admin };
+      setCurrentUser(userObj);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hr_app_user', JSON.stringify(userObj));
+      }
       setHrSubTab('PROFILE');
       setLoginError('');
     } else if (staff) {
-      setCurrentUser({
+      const userObj = {
         ...staff,
         type: 'STAFF',
         user: staff.username,
         pass: staff.password,
-      });
+      };
+      setCurrentUser(userObj);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hr_app_user', JSON.stringify(userObj));
+      }
       setSelectedStaffId(staff.id);
       setHrSubTab('PROFILE');
       setLoginError('');
@@ -1689,7 +1714,7 @@ const App = () => {
                     {/* RIGHT: Approvals + Status Balances */}
                     <div className="space-y-6 flex flex-col text-left h-full">
                       {/* Approvals */}
-                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col h-[450px] transition-colors duration-200 text-left">
+                      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col h-[320px] shrink-0 transition-colors duration-200 text-left">
                         <h2 className="text-lg font-bold mb-4 flex items-center gap-2 uppercase border-b border-slate-200 pb-3 transition-colors duration-200 text-slate-900">
                           {t('Approvals')} <AlertCircle className="text-amber-500" size={16} />
                         </h2>
