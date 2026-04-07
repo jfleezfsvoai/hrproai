@@ -94,7 +94,7 @@ const ADMIN_CREDENTIALS = [
   },
 ];
 
-// LIVE DATE (实时获取当前现实时间)
+// LIVE DATE (實時獲取當前現實時間)
 const TODAY = new Date();
 const MONTHS = [
   'January',
@@ -113,182 +113,182 @@ const MONTHS = [
 
 const YEARS = ['2024', '2025', '2026', '2027', '2028', '2029', '2030'];
 
-// --- DICTIONARY FOR TRANSLATION ---
+// --- DICTIONARY FOR TRANSLATION (TRADITIONAL CHINESE) ---
 const dict = {
-  'PROFILE': '个人资料',
-  'LEAVE APPLICATION': '请假申请',
-  'PAYROLL': '工资单',
+  'PROFILE': '個人資料',
+  'LEAVE APPLICATION': '請假申請',
+  'PAYROLL': '工資單',
   'ADMIN PANEL': '管理面板',
-  'Leave Application': '请假申请',
-  'Category': '假期类别',
-  'Start Date': '开始日期',
-  'End Date': '结束日期',
-  'Submit Request': '提交申请',
-  'Optional Public Holidays (Max 6)': '可选公共假期 (最多6天)',
-  'Apply': '申请',
-  'Convert': '转换',
-  'Status Balances': '假期余额',
+  'Leave Application': '請假申請',
+  'Category': '假期類別',
+  'Start Date': '開始日期',
+  'End Date': '結束日期',
+  'Submit Request': '提交申請',
+  'Optional Public Holidays (Max 6)': '可選公共假期 (最多6天)',
+  'Apply': '申請',
+  'Convert': '轉換',
+  'Status Balances': '假期餘額',
   'Annual Leave': '年假',
   'Medical Leave': '病假',
   'Public Holiday': '公共假期',
-  'Unpaid Leave': '无薪假',
-  'Replacement': '补假',
-  'Action History': '操作记录',
-  'Records': '条记录',
-  'No records found.': '暂无记录。',
-  'Approvals': '审批',
-  'No pending requests.': '没有待处理的请求。',
-  'Chinese New Year': '农历新年',
-  'Hari Raya Aidilfitri': '开斋节',
-  'Wesak Day': '卫塞节',
-  'Awal Muharram': '回历元旦',
-  'Deepavali': '屠妖节',
-  'Christmas Day': '圣诞节',
-  'Management Portal': '管理门户',
+  'Unpaid Leave': '無薪假',
+  'Replacement': '補假',
+  'Action History': '操作記錄',
+  'Records': '條記錄',
+  'No records found.': '暫無記錄。',
+  'Approvals': '審批',
+  'No pending requests.': '沒有待處理的請求。',
+  'Chinese New Year': '農曆新年',
+  'Hari Raya Aidilfitri': '開齋節',
+  'Wesak Day': '衛塞節',
+  'Awal Muharram': '回曆元旦',
+  'Deepavali': '屠妖節',
+  'Christmas Day': '聖誕節',
+  'Management Portal': '管理門戶',
   'Sign In': '登入',
-  'Username': '用户名',
-  'Password': '密码',
-  'Create Account': '创建账号',
-  'Initialize New Staff': '初始化新员工',
-  'Company Profile Settings': '公司资料设置',
-  'Staff Designation Registry': '员工职位管理',
-  'Payroll Engine': '工资核算引擎',
-  'Generate Payslip': '生成工资单',
-  'Optional Public Holidays Registry': '可选公共假期管理',
-  'Status: Confirmed Employment': '状态：已确认正式员工',
-  'Status: Probation Period': '状态：试用期',
-  'Employee Portion (Deduct)': '员工扣除部分',
-  'Employer Portion (Company)': '雇主缴纳部分',
-  'Total Deduct': '总扣除',
-  'Total Contrib': '总缴纳',
-  'Career Tracker': '职业追踪',
-  'Aggregated since day 1.': '从第一天起累计。',
-  'Total Basic': '总底薪',
-  'Total Comm': '总提成',
-  'Total EPF': '总公积金',
-  'Tenure': '工龄',
-  'Months': '个月',
-  'Requested Changes to Staff Data': '要求更改员工数据',
-  'PH Selection': '公共假期选择',
-  'Holidays to RL': '天假期转为补假',
-  'Applied Date :': '申请日期：',
-  'Estimated Net Basic': '预计净底薪',
+  'Username': '用戶名',
+  'Password': '密碼',
+  'Create Account': '創建賬號',
+  'Initialize New Staff': '初始化新員工',
+  'Company Profile Settings': '公司資料設置',
+  'Staff Designation Registry': '員工職位管理',
+  'Payroll Engine': '工資核算引擎',
+  'Generate Payslip': '生成工資單',
+  'Optional Public Holidays Registry': '可選公共假期管理',
+  'Status: Confirmed Employment': '狀態：已確認正式員工',
+  'Status: Probation Period': '狀態：試用期',
+  'Employee Portion (Deduct)': '員工扣除部分',
+  'Employer Portion (Company)': '雇主繳納部分',
+  'Total Deduct': '總扣除',
+  'Total Contrib': '總繳納',
+  'Career Tracker': '職業追蹤',
+  'Aggregated since day 1.': '從第一天起累計。',
+  'Total Basic': '總底薪',
+  'Total Comm': '總提成',
+  'Total EPF': '總公積金',
+  'Tenure': '工齡',
+  'Months': '個月',
+  'Requested Changes to Staff Data': '要求更改員工數據',
+  'PH Selection': '公共假期選擇',
+  'Holidays to RL': '天假期轉為補假',
+  'Applied Date :': '申請日期：',
+  'Estimated Net Basic': '預計淨底薪',
   'Johor Public Holidays 2026': '2026年柔佛公共假期',
-  'Payslip Record': '工资单记录',
-  'No records generated.': '没有生成记录。',
-  'Export': '导出',
+  'Payslip Record': '工資單記錄',
+  'No records generated.': '沒有生成記錄。',
+  'Export': '導出',
   'View': '查看',
   'Action': '操作',
-  'Period': '期间',
+  'Period': '期間',
   'Basic RM': '底薪 RM',
   'Commission': '提成',
-  'Net Total': '净收入',
+  'Net Total': '淨收入',
   'PDF': 'PDF',
-  'Company Name': '公司名称',
-  'SSM No.': '公司注册号 (SSM)',
-  'Tax No.': '税号',
-  'Update Settings': '更新设置',
-  'Enter new designation...': '输入新职位...',
+  'Company Name': '公司名稱',
+  'SSM No.': '公司註冊號 (SSM)',
+  'Tax No.': '稅號',
+  'Update Settings': '更新設置',
+  'Enter new designation...': '輸入新職位...',
   'Add': '添加',
-  'Holiday Name (e.g. Thaipusam)...': '假期名称(如：大宝森节)...',
+  'Holiday Name (e.g. Thaipusam)...': '假期名稱(如：大寶森節)...',
   'Date (e.g. Jan 25)': '日期(如：Jan 25)',
-  'Employment Offer Letter': '录用通知书',
-  'Confirmation Letter': '转正信',
+  'Employment Offer Letter': '錄用通知書',
+  'Confirmation Letter': '轉正信',
   'Increment Letter': '加薪信',
   'Warning Letter': '警告信',
-  'Generate for': '生成给',
-  'EXPORT PDF': '导出 PDF',
-  'Payslip Preview -': '工资单预览 -',
+  'Generate for': '生成給',
+  'EXPORT PDF': '導出 PDF',
+  'Payslip Preview -': '工資單預覽 -',
   'Official Document': '官方文件',
-  'Employee:': '员工：',
-  'Period:': '期间：',
-  'Basic Salary:': '基本工资：',
-  'Total Deductions:': '总扣除额：',
-  'Nett Income': '净收入',
+  'Employee:': '員工：',
+  'Period:': '期間：',
+  'Basic Salary:': '基本工資：',
+  'Total Deductions:': '總扣除額：',
+  'Nett Income': '淨收入',
   'GENERATING PDF...': '生成PDF中...',
-  'DOWNLOAD PDF COPY': '下载PDF副本',
-  'Set Username': '设置用户名',
-  'Set Password': '设置密码',
-  'Update Details': '更新详细信息',
+  'DOWNLOAD PDF COPY': '下載PDF副本',
+  'Set Username': '設置用戶名',
+  'Set Password': '設置密碼',
+  'Update Details': '更新詳細信息',
   'Legal Name': '法定姓名',
-  'Contact No.': '联系电话',
-  'IC Number': '身份证号',
-  'Gender': '性别',
+  'Contact No.': '聯繫電話',
+  'IC Number': '身份證號',
+  'Gender': '性別',
   'Male': '男',
   'Female': '女',
-  'Designation': '职位',
-  'Join Date': '入职日期',
-  'Probation End Date': '试用期结束日期',
-  'EPF ID': '公积金账号',
-  'SOCSO ID': '社险账号',
-  'Monthly Basic (RM)': '月基本工资 (RM)',
+  'Designation': '職位',
+  'Join Date': '入職日期',
+  'Probation End Date': '試用期結束日期',
+  'EPF ID': '公積金賬號',
+  'SOCSO ID': '社險賬號',
+  'Monthly Basic (RM)': '月基本工資 (RM)',
   'Cancel': '取消',
   'Save Changes': '保存更改',
-  'Reject Application': '拒绝申请',
-  'Reason (Optional)': '原因 (可选)',
-  'Confirm Reject': '确认拒绝',
-  'Cancel Application': '取消申请',
-  'Are you sure you want to cancel this request?': '您确定要取消此请求吗？',
+  'Reject Application': '拒絕申請',
+  'Reason (Optional)': '原因 (可選)',
+  'Confirm Reject': '確認拒絕',
+  'Cancel Application': '取消申請',
+  'Are you sure you want to cancel this request?': '您確定要取消此請求嗎？',
   'Back': '返回',
-  'Confirm': '确认',
-  'Select Target Date': '选择目标日期',
+  'Confirm': '確認',
+  'Select Target Date': '選擇目標日期',
   'Submit': '提交',
-  'Status': '状态',
-  'No data.': '无数据。',
-  'Probation Policy': '试用期政策',
-  'Handle Annual Leave count?': '处理年假计算？',
-  'Proceed Counting AL': '继续计算年假',
+  'Status': '狀態',
+  'No data.': '無數據。',
+  'Probation Policy': '試用期政策',
+  'Handle Annual Leave count?': '處理年假計算？',
+  'Proceed Counting AL': '繼續計算年假',
   'Waive (Ignore) AL': '豁免(忽略)年假',
-  'Staff Access Selection': '员工权限选择',
-  'Headcount:': '总人数：',
-  'Active': '活跃',
-  'CREATE': '创建',
-  'Ref:': '参考号：',
+  'Staff Access Selection': '員工權限選擇',
+  'Headcount:': '總人數：',
+  'Active': '活躍',
+  'CREATE': '創建',
+  'Ref:': '參考號：',
   'Days': '天',
-  'Days Taken': '已用天数',
-  'No Staff Record Found': '未找到员工记录',
-  'Please click "CREATE STAFF" to initialize the database.': '请点击“创建”来初始化数据库。',
-  'Sultan Johor Birthday': '柔佛苏丹诞辰',
-  'Labour Day': '劳动节',
-  'Agong Birthday': '国家元首诞辰',
-  'National Day': '国庆日',
-  'Malaysia Day': '马来西亚日',
+  'Days Taken': '已用天數',
+  'No Staff Record Found': '未找到員工記錄',
+  'Please click "CREATE STAFF" to initialize the database.': '請點擊“創建”來初始化數據庫。',
+  'Sultan Johor Birthday': '柔佛蘇丹誕辰',
+  'Labour Day': '勞動節',
+  'Agong Birthday': '國家元首誕辰',
+  'National Day': '國慶日',
+  'Malaysia Day': '馬來西亞日',
   'Comm': '提成',
-  'Bonus': '奖金',
-  'Request': '请求',
-  'Contact': '联系方式',
-  'IC Identity': '身份证号',
-  'Prob. End Date': '试用期结束',
-  'Monthly Basic': '月基本工资',
-  'Daily Rate': '日工资率',
-  'EPF (11%)': '公积金 (11%)',
-  'SOCSO': '社险 (SOCSO)',
-  'EIS': '就业保险 (EIS)',
-  'EPF (13%)': '公积金 (13%)',
-  'System Notification': '系统通知',
-  'OK': '确定',
-  'Dates are required.': '请选择日期。',
-  'Record Updated Successfully.': '记录更新成功。',
-  'Application Submitted / 已提交申请': '申请已提交。',
-  'Maximum 6 optional Public Holidays can be selected.': '最多只能选择 6 个可选公共假期。',
-  'Select new holidays first.': '请先选择需要转换的假期。',
-  'Please specify the target date.': '请指定目标日期。',
-  'Update Submitted for Admin Approval.': '资料更新已提交，等待管理员审批。',
-  'Staff account created.': '员工账号创建成功。',
-  'Select staff member.': '请选择要操作的员工。',
-  'Record Deleted.': '记录已删除。',
+  'Bonus': '獎金',
+  'Request': '請求',
+  'Contact': '聯繫方式',
+  'IC Identity': '身份證號',
+  'Prob. End Date': '試用期結束',
+  'Monthly Basic': '月基本工資',
+  'Daily Rate': '日工資率',
+  'EPF (11%)': '公積金 (11%)',
+  'SOCSO': '社險 (SOCSO)',
+  'EIS': '就業保險 (EIS)',
+  'EPF (13%)': '公積金 (13%)',
+  'System Notification': '系統通知',
+  'OK': '確定',
+  'Dates are required.': '請選擇日期。',
+  'Record Updated Successfully.': '記錄更新成功。',
+  'Application Submitted / 已提交申请': '申請已提交。',
+  'Maximum 6 optional Public Holidays can be selected.': '最多只能選擇 6 個可選公共假期。',
+  'Select new holidays first.': '請先選擇需要轉換的假期。',
+  'Please specify the target date.': '請指定目標日期。',
+  'Update Submitted for Admin Approval.': '資料更新已提交，等待管理員審批。',
+  'Staff account created.': '員工賬號創建成功。',
+  'Select staff member.': '請選擇要操作的員工。',
+  'Record Deleted.': '記錄已刪除。',
   'Company Info Updated.': '公司信息已成功更新。',
   'Cancelled.': '已成功取消。',
   'January': '一月', 'February': '二月', 'March': '三月', 'April': '四月', 
   'May': '五月', 'June': '六月', 'July': '七月', 'August': '八月', 
   'September': '九月', 'October': '十月', 'November': '十一月', 'December': '十二月',
   'Approve': '批准',
-  'Reject': '拒绝',
-  'PENDING': '待处理',
+  'Reject': '拒絕',
+  'PENDING': '待處理',
   'APPROVED': '已批准',
-  'REJECTED': '已拒绝',
+  'REJECTED': '已拒絕',
   'CANCELLED': '已取消',
-  'Approved Records': '已批准记录'
+  'Approved Records': '已批准記錄'
 };
 
 // --- GLOBAL CSS INJECTION ---
@@ -409,7 +409,7 @@ const getTypeFullName = (type) => {
   return types[type] || type;
 };
 
-// HR Tenure Calculator Helper
+// HR Tenure Calculator Helper (精確HR月份計算)
 const getMonthsDiff = (startStr, endStr) => {
   if (!startStr || !endStr) return 0;
   const s = new Date(startStr);
@@ -423,11 +423,11 @@ const getMonthsDiff = (startStr, endStr) => {
 const getLawText = (type, lang) => {
   if (lang === 'zh') {
     switch (type) {
-      case 'AL': return '根据1955年劳工法令，员工享有年假：服务1-2年为8天，2-5年为12天，5年以上为16天。';
-      case 'MC': return '根据1955年劳工法令，未住院病假：服务少于2年为14天，2-5年为18天，5年以上为22天。';
-      case 'PH': return '雇主须提供至少11天法定公共假期，包含5天强制假期（国庆日、元首诞辰、苏丹诞辰、劳动节、马来西亚日）。';
-      case 'UPL': return '无薪假须经公司批准，扣薪将根据员工的每日底薪率进行计算。';
-      case 'RL': return '补假由公司政策决定，通常用于补偿在公共假期或休息日的工作。';
+      case 'AL': return '根據1955年勞工法令，員工享有年假：服務1-2年為8天，2-5年為12天，5年以上為16天。';
+      case 'MC': return '根據1955年勞工法令，未住院病假：服務少於2年為14天，2-5年為18天，5年以上為22天。';
+      case 'PH': return '雇主須提供至少11天法定公共假期，包含5天強制假期（國慶日、元首誕辰、蘇丹誕辰、勞動節、馬來西亞日）。';
+      case 'UPL': return '無薪假須經公司批准，扣薪將根據員工的每日底薪率進行計算。';
+      case 'RL': return '補假由公司政策決定，通常用於補償在公共假期或休息日的工作。';
       default: return '';
     }
   } else {
@@ -708,7 +708,7 @@ const App = () => {
       }, 0);
   }, [leaveApps, commStaffId, selectedMonth]);
 
-  // FULLY DYNAMIC AL ACCRUAL (Requirement 2)
+  // FULLY DYNAMIC AL ACCRUAL (無條件進位精確算法)
   const earnedAL = useMemo(() => {
     if (!activeStaff.id) return 0;
     
@@ -724,16 +724,13 @@ const App = () => {
 
     let activeMonthsInYear = 0;
     if (join.getFullYear() < currentYear) {
-        // Joined before this year. Count Jan to Current Month inclusive.
         activeMonthsInYear = TODAY.getMonth() + 1; 
     } else {
-        // Joined this year. Count from Join Month to Current Month inclusive.
         activeMonthsInYear = Math.max(0, TODAY.getMonth() - join.getMonth() + 1);
     }
 
     let totalAL = activeMonthsInYear * monthlyRate;
 
-    // Handle probation waiving
     if (activeStaff?.alWaivedProbation && activeStaff?.probationEndDate) {
         const probEnd = new Date(activeStaff.probationEndDate);
         if (TODAY <= probEnd) {
@@ -741,8 +738,8 @@ const App = () => {
         }
     }
     
-    // Malaysian HR standard rounding
-    return Math.max(0, Math.round(totalAL));
+    // Malaysian HR standard: Ceil eager rounding up (2.66 -> 3 Days)
+    return Math.max(0, Math.ceil(totalAL));
   }, [activeStaff, currentTenureMonths]);
 
   const groupedActionLogs = useMemo(() => {
@@ -1069,18 +1066,18 @@ const App = () => {
     const ytd = getStaffYTD(staff.id);
     const element = document.createElement('div');
     
-    // REQUIREMENT 1 & 3: Bulletproof Single Page Layout (210mm x 297mm strict constraint)
+    // FORCE SINGLE PAGE: Absolute height lock & precise spacing to prevent PDF break
     element.innerHTML = `
-      <div style="width: 210mm; height: 297mm; padding: 10mm 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;">
+      <div style="width: 210mm; height: 285mm; max-height: 285mm; padding: 12mm 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;">
         
         <div style="border-bottom: 2px solid #4f46e5; padding-bottom: 6px; margin-bottom: 10px;">
-          <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 22px; font-weight: 900; letter-spacing: 0.5px;">${
+          <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 24px; font-weight: 900; letter-spacing: 0.5px;">${
             staff.company
           }</h1>
           <p style="margin: 2px 0; font-size: 9px; color: #64748b;">(Registration No. ${
             companyInfo.ssm
           })</p>
-          <p style="margin: 6px 0 0; font-weight: 800; color: #1e293b; font-size: 14px; letter-spacing: 0.5px;">OFFICIAL PAYSLIP - ${
+          <p style="margin: 6px 0 0; font-weight: 800; color: #1e293b; font-size: 13px; letter-spacing: 0.5px;">OFFICIAL PAYSLIP - ${
             t(payslip.month).toUpperCase()
           } ${payslip.year}</p>
         </div>
@@ -1136,7 +1133,7 @@ const App = () => {
         <div style="height: 15px; flex-shrink: 0;"></div>
 
         <!-- CAREER TRACKER CARD WITH ROUNDED CORNERS -->
-        <div style="background: #0f172a; color: white; padding: 18px; border-radius: 12px; letter-spacing: 0.2px;">
+        <div style="background: #0f172a; color: white; padding: 16px; border-radius: 12px; letter-spacing: 0.2px;">
           <h4 style="margin: 0 0 10px 0; color: #818cf8; font-size: 10px; text-transform: uppercase;">Career Tracker (Since Joined)</h4>
           <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold;">
              <div><span style="color: #94a3b8; display: block; font-size: 8px; margin-bottom: 4px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
@@ -1158,6 +1155,7 @@ const App = () => {
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: 'avoid-all' }
     };
     window
       .html2pdf()
