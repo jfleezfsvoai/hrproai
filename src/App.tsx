@@ -711,25 +711,40 @@ const App = () => {
       }, 0);
   }, [leaveApps, commStaffId, selectedMonth]);
 
+  // AL calculation using PRO-RATED CURRENT YEAR ACTIVE MONTHS logic
   const earnedAL = useMemo(() => {
     if (!activeStaff.id) return 0;
-    let probMonths = currentTenureMonths;
-    let confirmedMonths = 0;
-    if (activeStaff?.joinDate && activeStaff?.probationEndDate) {
-      const probEnd = new Date(activeStaff.probationEndDate);
-      const join = new Date(activeStaff.joinDate);
-      const probDiff = getMonthsDiff(join, probEnd);
-      if (probEnd <= TODAY) {
-        probMonths = probDiff;
-        confirmedMonths = Math.max(0, currentTenureMonths - probMonths);
-      } else {
-        probMonths = currentTenureMonths;
-        confirmedMonths = 0;
-      }
+    
+    let monthlyRate = 8 / 12; 
+    if (currentTenureMonths >= 24 && currentTenureMonths < 60) {
+       monthlyRate = 12 / 12;
+    } else if (currentTenureMonths >= 60) {
+       monthlyRate = 16 / 12;
     }
-    let totalAL = !activeStaff?.alWaivedProbation ? probMonths * 0.5 : 0;
-    totalAL += confirmedMonths * (8 / 12);
-    // Uses Math.round to match standard Malaysian HR 0.5 rounding up policy
+
+    let activeMonthsInYear = 0;
+    const join = new Date(activeStaff.joinDate || TODAY);
+    const currentYear = TODAY.getFullYear();
+
+    if (join.getFullYear() < currentYear) {
+        // If joined in a previous year, they've been active since Jan of this year
+        activeMonthsInYear = TODAY.getMonth() + 1; // e.g. April -> index 3 + 1 = 4 months
+    } else {
+        // If joined this year, calculate active months from joining to now
+        activeMonthsInYear = Math.max(0, TODAY.getMonth() - join.getMonth() + 1);
+    }
+
+    let totalAL = activeMonthsInYear * monthlyRate;
+
+    // Handle probation waiving
+    if (activeStaff?.alWaivedProbation && activeStaff?.probationEndDate) {
+        const probEnd = new Date(activeStaff.probationEndDate);
+        if (TODAY <= probEnd) {
+           return 0; // Waived during probation
+        }
+    }
+    
+    // Malaysian HR standard rounding (0.5 rounds to 1)
     return Math.max(0, Math.round(totalAL));
   }, [activeStaff, currentTenureMonths]);
 
@@ -1059,20 +1074,20 @@ const App = () => {
     
     // Completely refined PDF Layout (Block Flow, Gap enforced via div, beautiful border-radii)
     element.innerHTML = `
-      <div style="width: 210mm; min-height: 280mm; padding: 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; display: block;">
+      <div style="width: 100%; max-width: 800px; padding: 10mm 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; display: block; margin: 0 auto;">
         <div>
           <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 10px; margin-bottom: 15px;">
-            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900;">${
+            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900; letter-spacing: 1px;">${
               staff.company
             }</h1>
-            <p style="margin: 2px 0; font-size: 10px; color: #64748b; font-weight: normal;">(Registration No. ${
+            <p style="margin: 2px 0; font-size: 10px; color: #64748b; font-weight: normal; letter-spacing: 0.5px;">(Registration No. ${
               companyInfo.ssm
             })</p>
-            <p style="margin: 8px 0 0; font-weight: 800; color: #1e293b; font-size: 15px;">OFFICIAL PAYSLIP - ${
-              t(payslip.month)
+            <p style="margin: 8px 0 0; font-weight: 800; color: #1e293b; font-size: 15px; letter-spacing: 0.5px;">OFFICIAL PAYSLIP - ${
+              t(payslip.month).toUpperCase()
             } ${payslip.year}</p>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11px; line-height: 1.6; letter-spacing: 0.2px;">
             <div><p style="margin: 2px 0"><strong>Employee:</strong> ${
               staff.name || staff.username
             }</p><p style="margin: 2px 0"><strong>Position:</strong> ${
@@ -1084,7 +1099,7 @@ const App = () => {
       staff.epfNo || '-'
     }</p><p style="margin: 2px 0"><strong>SOCSO No:</strong> ${staff.socsoNo || '-'}</p></div>
           </div>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; letter-spacing: 0.2px;">
             <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EARNINGS</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
             <tbody><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Basic Salary</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.basic.toFixed(
               2
@@ -1094,7 +1109,7 @@ const App = () => {
       2
     )}</td></tr></tbody>
           </table>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; letter-spacing: 0.2px;">
             <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYEE DEDUCTIONS</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
             <tbody style="color: #ef4444;"><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Unpaid Leave (${
               payslip.uplDays
@@ -1102,7 +1117,7 @@ const App = () => {
       2
     )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">EPF (11%)</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-242.00</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">SOCSO</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-10.75</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">EIS</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-4.30</td></tr></tbody>
           </table>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; letter-spacing: 0.2px;">
             <thead><tr style="background: #f8fafc; text-align: left; color: #059669;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYER CONTRIBUTIONS (For Info)</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
             <tbody><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">EPF (13%)</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerEpf.toFixed(
               2
@@ -1114,34 +1129,34 @@ const App = () => {
           </table>
           
           <!-- NETT PAY CARD -->
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 16px 24px; border-radius: 12px; margin-top: 25px; font-size: 18px; font-weight: 900; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 14px 20px; border-radius: 12px; margin-top: 15px; font-size: 16px; font-weight: 900; overflow: hidden; letter-spacing: 0.5px;">
             <span>NETT PAY</span>
             <span>RM ${payslip.netTotal.toFixed(2)}</span>
           </div>
 
-          <!-- GAP -->
-          <div style="height: 25px;"></div>
+          <!-- GAP ENFORCEMENT -->
+          <div style="height: 15px; width: 100%; display: block;"></div>
 
           <!-- CAREER TRACKER CARD -->
-          <div style="background: #0f172a; color: white; padding: 24px; border-radius: 12px; overflow: hidden;">
-            <h4 style="margin: 0 0 12px 0; color: #818cf8; font-size: 11px; text-transform: uppercase;">Career Tracker (Since Joined)</h4>
-            <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
+          <div style="background: #0f172a; color: white; padding: 20px; border-radius: 12px; overflow: hidden; display: block; letter-spacing: 0.2px;">
+            <h4 style="margin: 0 0 12px 0; color: #818cf8; font-size: 10px; text-transform: uppercase; font-family: Helvetica, Arial, sans-serif;">Career Tracker (Since Joined)</h4>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold;">
+               <div><span style="color: #94a3b8; display: block; font-size: 8px; margin-bottom: 6px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</div>
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL COMM</span><span style="color: #34d399;">RM ${ytd.comm.toLocaleString(
+               <div><span style="color: #94a3b8; display: block; font-size: 8px; margin-bottom: 6px;">TOTAL COMM</span><span style="color: #34d399;">RM ${ytd.comm.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</span></div>
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL EPF</span><span style="color: #a5b4fc;">RM ${ytd.epf.toLocaleString(
+               <div><span style="color: #94a3b8; display: block; font-size: 8px; margin-bottom: 6px;">TOTAL EPF</span><span style="color: #a5b4fc;">RM ${ytd.epf.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</span></div>
             </div>
           </div>
 
-          <div style="font-size: 9px; text-align: center; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 25px;">This is a computer-generated payslip. No signature is required. Tax No: ${
+          <div style="font-size: 9px; text-align: center; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 15px; letter-spacing: 0.2px;">This is a computer-generated payslip. No signature is required. Tax No: ${
             companyInfo.tax
           }</div>
         </div>
