@@ -94,8 +94,7 @@ const ADMIN_CREDENTIALS = [
   },
 ];
 
-// LIVE DATE (动态获取当前现实时间)
-const TODAY = new Date();
+const TODAY = new Date('2026-03-27');
 const MONTHS = [
   'January',
   'February',
@@ -409,14 +408,13 @@ const getTypeFullName = (type) => {
   return types[type] || type;
 };
 
-// HR Tenure Calculator Helper (精确HR月份进位算法)
+// HR Tenure Calculator Helper
 const getMonthsDiff = (startStr, endStr) => {
   if (!startStr || !endStr) return 0;
   const s = new Date(startStr);
   const e = new Date(endStr);
   let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
   
-  // HR标准满15天算一个月：如果日期的差距超过15天，代表多做了一个月；如果少于-15天，则减去未满的一个月。
   const dayDiff = e.getDate() - s.getDate();
   if (dayDiff >= 15) {
     months += 1;
@@ -1061,10 +1059,11 @@ const App = () => {
     const element = document.createElement('div');
     
     // Upgraded PDF Layout (Helvetica + Added Spacing)
+    // Modified to prevent clipping by relaxing flex heights and using pure block flow padding where necessary.
     element.innerHTML = `
-      <div style="width: 210mm; height: 285mm; padding: 12mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="width: 210mm; min-height: 280mm; padding: 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; display: flex; flex-direction: column;">
         <div>
-          <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 10px; margin-bottom: 20px;">
+          <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 10px; margin-bottom: 15px;">
             <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900; letter-spacing: 0.5px;">${
               staff.company
             }</h1>
@@ -1075,55 +1074,55 @@ const App = () => {
               t(payslip.month)
             } ${payslip.year}</p>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; line-height: 1.6;">
-            <div><p><strong>Employee:</strong> ${
+          <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; line-height: 1.6;">
+            <div><p style="margin: 2px 0"><strong>Employee:</strong> ${
               staff.name || staff.username
-            }</p><p><strong>Position:</strong> ${
+            }</p><p style="margin: 2px 0"><strong>Position:</strong> ${
       t(staff.role)
-    }</p><p><strong>ID:</strong> ${staff.username}</p></div>
-            <div style="text-align: right;"><p><strong>IC No:</strong> ${
+    }</p><p style="margin: 2px 0"><strong>ID:</strong> ${staff.username}</p></div>
+            <div style="text-align: right;"><p style="margin: 2px 0"><strong>IC No:</strong> ${
               staff.ic || '-'
-            }</p><p><strong>EPF No:</strong> ${
+            }</p><p style="margin: 2px 0"><strong>EPF No:</strong> ${
       staff.epfNo || '-'
-    }</p><p><strong>SOCSO No:</strong> ${staff.socsoNo || '-'}</p></div>
+    }</p><p style="margin: 2px 0"><strong>SOCSO No:</strong> ${staff.socsoNo || '-'}</p></div>
           </div>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
-            <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EARNINGS</th><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
-            <tbody><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">Basic Salary</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.basic.toFixed(
+            <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EARNINGS</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
+            <tbody><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Basic Salary</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.basic.toFixed(
               2
-            )}</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">Commission</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.comm.toFixed(
+            )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Commission</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.comm.toFixed(
       2
-    )}</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">Bonus</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.bonus.toFixed(
+    )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Bonus</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.bonus.toFixed(
       2
     )}</td></tr></tbody>
           </table>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
-            <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYEE DEDUCTIONS</th><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
-            <tbody style="color: #ef4444;"><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">Unpaid Leave (${
+            <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYEE DEDUCTIONS</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
+            <tbody style="color: #ef4444;"><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">Unpaid Leave (${
               payslip.uplDays
-            } days)</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-${payslip.uplDeduction.toFixed(
+            } days)</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-${payslip.uplDeduction.toFixed(
       2
-    )}</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">EPF (11%)</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-242.00</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">SOCSO</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-10.75</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">EIS</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-4.30</td></tr></tbody>
+    )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">EPF (11%)</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-242.00</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">SOCSO</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-10.75</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9;">EIS</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-4.30</td></tr></tbody>
           </table>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px;">
-            <thead><tr style="background: #f8fafc; text-align: left; color: #059669;"><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYER CONTRIBUTIONS (For Info)</th><th style="padding: 10px 12px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
-            <tbody><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">EPF (13%)</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerEpf.toFixed(
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px;">
+            <thead><tr style="background: #f8fafc; text-align: left; color: #059669;"><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYER CONTRIBUTIONS (For Info)</th><th style="padding: 8px 10px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
+            <tbody><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">EPF (13%)</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerEpf.toFixed(
               2
-            )}</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">SOCSO</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerSocso.toFixed(
+            )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">SOCSO</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerSocso.toFixed(
       2
-    )}</td></tr><tr><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">EIS</td><td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerEis.toFixed(
+    )}</td></tr><tr><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; font-weight: bold;">EIS</td><td style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">${payslip.employerEis.toFixed(
       2
     )}</td></tr></tbody>
           </table>
           
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 15px 20px; border-radius: 8px; margin-top: 20px; font-size: 18px; font-weight: 900;">
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 12px 15px; border-radius: 8px; margin-top: 15px; font-size: 18px; font-weight: 900;">
             <span>NETT PAY</span>
             <span>RM ${payslip.netTotal.toFixed(2)}</span>
           </div>
         </div>
         
-        <div>
-          <div style="background: #0f172a; color: white; padding: 20px; border-radius: 8px; margin-top: 20px; margin-bottom: 10px;">
+        <div style="margin-top: auto;">
+          <div style="background: #0f172a; color: white; padding: 15px; border-radius: 8px; margin-top: 25px; margin-bottom: 10px;">
             <h4 style="margin: 0 0 10px 0; color: #818cf8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Career Tracker (Since Joined)</h4>
             <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
                <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 4px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
