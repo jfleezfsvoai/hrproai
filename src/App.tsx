@@ -94,7 +94,8 @@ const ADMIN_CREDENTIALS = [
   },
 ];
 
-const TODAY = new Date('2026-03-27');
+// LIVE DATE (动态获取当前现实时间)
+const TODAY = new Date();
 const MONTHS = [
   'January',
   'February',
@@ -408,6 +409,23 @@ const getTypeFullName = (type) => {
   return types[type] || type;
 };
 
+// HR Tenure Calculator Helper (精确HR月份进位算法)
+const getMonthsDiff = (startStr, endStr) => {
+  if (!startStr || !endStr) return 0;
+  const s = new Date(startStr);
+  const e = new Date(endStr);
+  let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+  
+  // HR标准满15天算一个月：如果日期的差距超过15天，代表多做了一个月；如果少于-15天，则减去未满的一个月。
+  const dayDiff = e.getDate() - s.getDate();
+  if (dayDiff >= 15) {
+    months += 1;
+  } else if (dayDiff < -15) {
+    months -= 1;
+  }
+  return Math.max(0, months);
+};
+
 // Malaysian Labor Law Helper for "i" Button Info
 const getLawText = (type, lang) => {
   if (lang === 'zh') {
@@ -432,7 +450,7 @@ const getLawText = (type, lang) => {
 };
 
 const App = () => {
-  // --- AUTH STATE WITH PERSISTENCE (Requirement 2) ---
+  // --- AUTH STATE WITH PERSISTENCE ---
   const [currentUser, setCurrentUser] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedUser = localStorage.getItem('hr_app_user');
@@ -692,23 +710,9 @@ const App = () => {
       }, 0);
   }, [leaveApps, commStaffId, selectedMonth]);
 
-  const getMonthsDiff = (start, end) => {
-    if (!start || !end) return 0;
-    const s = new Date(start);
-    const e = new Date(end);
-    return Math.max(
-      0,
-      (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth())
-    );
-  };
-
+  // Uses improved HR standard month calculation
   const currentTenureMonths = activeStaff?.joinDate
-    ? Math.max(
-        0,
-        (TODAY.getFullYear() - new Date(activeStaff.joinDate).getFullYear()) *
-          12 +
-          (TODAY.getMonth() - new Date(activeStaff.joinDate).getMonth())
-      )
+    ? getMonthsDiff(activeStaff.joinDate, TODAY)
     : activeStaff?.tenureMonths || 0;
 
   const earnedAL = useMemo(() => {
@@ -718,9 +722,7 @@ const App = () => {
     if (activeStaff?.joinDate && activeStaff?.probationEndDate) {
       const probEnd = new Date(activeStaff.probationEndDate);
       const join = new Date(activeStaff.joinDate);
-      const probDiff =
-        (probEnd.getFullYear() - join.getFullYear()) * 12 +
-        (probEnd.getMonth() - join.getMonth());
+      const probDiff = getMonthsDiff(join, probEnd);
       if (probEnd <= TODAY) {
         probMonths = probDiff;
         confirmedMonths = Math.max(0, currentTenureMonths - probMonths);
@@ -1057,11 +1059,13 @@ const App = () => {
     }
     const ytd = getStaffYTD(staff.id);
     const element = document.createElement('div');
+    
+    // Upgraded PDF Layout (Helvetica + Added Spacing)
     element.innerHTML = `
-      <div style="width: 210mm; height: 285mm; padding: 12mm; font-family: 'Inter', Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="width: 210mm; height: 285mm; padding: 12mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
           <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 10px; margin-bottom: 20px;">
-            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900;">${
+            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900; letter-spacing: 0.5px;">${
               staff.company
             }</h1>
             <p style="margin: 2px 0; font-size: 10px; color: #64748b; font-weight: normal; letter-spacing: 0.5px;">(Registration No. ${
@@ -1111,12 +1115,15 @@ const App = () => {
       2
     )}</td></tr></tbody>
           </table>
-          <table style="width: 100%; border-collapse: collapse; font-size: 18px; margin-top: 5px;"><tr style="background: #4f46e5; color: white; font-weight: 900;"><td style="padding: 15px;">NETT PAY</td><td style="padding: 15px; text-align: right;">RM ${payslip.netTotal.toFixed(
-            2
-          )}</td></tr></table>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 15px 20px; border-radius: 8px; margin-top: 20px; font-size: 18px; font-weight: 900;">
+            <span>NETT PAY</span>
+            <span>RM ${payslip.netTotal.toFixed(2)}</span>
+          </div>
         </div>
+        
         <div>
-          <div style="background: #0f172a; color: white; padding: 20px; border-radius: 8px; margin-bottom: 10px;">
+          <div style="background: #0f172a; color: white; padding: 20px; border-radius: 8px; margin-top: 20px; margin-bottom: 10px;">
             <h4 style="margin: 0 0 10px 0; color: #818cf8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Career Tracker (Since Joined)</h4>
             <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
                <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 4px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
