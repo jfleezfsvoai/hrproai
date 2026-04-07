@@ -94,7 +94,8 @@ const ADMIN_CREDENTIALS = [
   },
 ];
 
-const TODAY = new Date('2026-03-27');
+// LIVE DATE (实时获取当前现实时间)
+const TODAY = new Date();
 const MONTHS = [
   'January',
   'February',
@@ -408,20 +409,15 @@ const getTypeFullName = (type) => {
   return types[type] || type;
 };
 
-// HR Tenure Calculator Helper
+// HR Tenure Calculator Helper (精确HR月份进位算法)
 const getMonthsDiff = (startStr, endStr) => {
   if (!startStr || !endStr) return 0;
   const s = new Date(startStr);
   const e = new Date(endStr);
-  let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
   
-  const dayDiff = e.getDate() - s.getDate();
-  if (dayDiff >= 15) {
-    months += 1;
-  } else if (dayDiff < -15) {
-    months -= 1;
-  }
-  return Math.max(0, months);
+  // 按照自然月差计算，包含起始月和结束月（只要跨入该月即算作一个有效服务月份）
+  let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+  return Math.max(0, months + 1);
 };
 
 // Malaysian Labor Law Helper for "i" Button Info
@@ -657,6 +653,11 @@ const App = () => {
     [activeStaff, hasSalary]
   );
 
+  // Uses improved HR standard month calculation for YTD dynamically
+  const currentTenureMonths = activeStaff?.joinDate
+    ? getMonthsDiff(activeStaff.joinDate, TODAY)
+    : activeStaff?.tenureMonths || 0;
+
   const getStaffYTD = (staffId) => {
     const sPayslips = payslips.filter((p) => p.staffId === staffId);
     if (sPayslips.length > 0) {
@@ -675,7 +676,9 @@ const App = () => {
     const staff = staffList.find((s) => s.id === staffId);
     if (!staff || Number(staff?.salary) === 0)
       return { netPay: 0, eis: 0, epf: 0, socso: 0, basic: 0, comm: 0 };
-    const m = Number(staff?.tenureMonths) || 1;
+      
+    // Use dynamic tenure calculation
+    const m = staff?.joinDate ? getMonthsDiff(staff.joinDate, TODAY) : (Number(staff?.tenureMonths) || 1);
     const salary = Number(staff?.salary) || 0;
     return {
       netPay: (salary - 257.05) * m,
@@ -708,11 +711,6 @@ const App = () => {
       }, 0);
   }, [leaveApps, commStaffId, selectedMonth]);
 
-  // Uses improved HR standard month calculation
-  const currentTenureMonths = activeStaff?.joinDate
-    ? getMonthsDiff(activeStaff.joinDate, TODAY)
-    : activeStaff?.tenureMonths || 0;
-
   const earnedAL = useMemo(() => {
     if (!activeStaff.id) return 0;
     let probMonths = currentTenureMonths;
@@ -731,7 +729,8 @@ const App = () => {
     }
     let totalAL = !activeStaff?.alWaivedProbation ? probMonths * 0.5 : 0;
     totalAL += confirmedMonths * (8 / 12);
-    return Math.max(0, Math.floor(totalAL));
+    // Uses Math.round to match standard Malaysian HR 0.5 rounding up policy
+    return Math.max(0, Math.round(totalAL));
   }, [activeStaff, currentTenureMonths]);
 
   const groupedActionLogs = useMemo(() => {
@@ -1058,16 +1057,15 @@ const App = () => {
     const ytd = getStaffYTD(staff.id);
     const element = document.createElement('div');
     
-    // Upgraded PDF Layout (Helvetica + Added Spacing)
-    // Modified to prevent clipping by relaxing flex heights and using pure block flow padding where necessary.
+    // Completely refined PDF Layout (Block Flow, Gap enforced via div, beautiful border-radii)
     element.innerHTML = `
-      <div style="width: 210mm; min-height: 280mm; padding: 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; display: flex; flex-direction: column;">
+      <div style="width: 210mm; min-height: 280mm; padding: 15mm; font-family: Helvetica, Arial, sans-serif; color: #1e293b; background: white; box-sizing: border-box; display: block;">
         <div>
           <div style="border-bottom: 3px solid #4f46e5; padding-bottom: 10px; margin-bottom: 15px;">
-            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900; letter-spacing: 0.5px;">${
+            <h1 style="margin: 0; color: #4f46e5; text-transform: uppercase; font-size: 26px; font-weight: 900;">${
               staff.company
             }</h1>
-            <p style="margin: 2px 0; font-size: 10px; color: #64748b; font-weight: normal; letter-spacing: 0.5px;">(Registration No. ${
+            <p style="margin: 2px 0; font-size: 10px; color: #64748b; font-weight: normal;">(Registration No. ${
               companyInfo.ssm
             })</p>
             <p style="margin: 8px 0 0; font-weight: 800; color: #1e293b; font-size: 15px;">OFFICIAL PAYSLIP - ${
@@ -1115,31 +1113,35 @@ const App = () => {
     )}</td></tr></tbody>
           </table>
           
-          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 12px 15px; border-radius: 8px; margin-top: 15px; font-size: 18px; font-weight: 900;">
+          <!-- NETT PAY CARD -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #4f46e5; color: white; padding: 16px 24px; border-radius: 12px; margin-top: 25px; font-size: 18px; font-weight: 900; overflow: hidden;">
             <span>NETT PAY</span>
             <span>RM ${payslip.netTotal.toFixed(2)}</span>
           </div>
-        </div>
-        
-        <div style="margin-top: auto;">
-          <div style="background: #0f172a; color: white; padding: 15px; border-radius: 8px; margin-top: 25px; margin-bottom: 10px;">
-            <h4 style="margin: 0 0 10px 0; color: #818cf8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Career Tracker (Since Joined)</h4>
+
+          <!-- GAP -->
+          <div style="height: 25px;"></div>
+
+          <!-- CAREER TRACKER CARD -->
+          <div style="background: #0f172a; color: white; padding: 24px; border-radius: 12px; overflow: hidden;">
+            <h4 style="margin: 0 0 12px 0; color: #818cf8; font-size: 11px; text-transform: uppercase;">Career Tracker (Since Joined)</h4>
             <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 4px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
+               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL BASIC</span>RM ${ytd.basic.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</div>
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 4px;">TOTAL COMM</span><span style="color: #34d399;">RM ${ytd.comm.toLocaleString(
+               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL COMM</span><span style="color: #34d399;">RM ${ytd.comm.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</span></div>
-               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 4px;">TOTAL EPF</span><span style="color: #a5b4fc;">RM ${ytd.epf.toLocaleString(
+               <div><span style="color: #94a3b8; display: block; font-size: 9px; margin-bottom: 6px;">TOTAL EPF</span><span style="color: #a5b4fc;">RM ${ytd.epf.toLocaleString(
                  undefined,
                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                )}</span></div>
             </div>
           </div>
-          <div style="font-size: 9px; text-align: center; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 8px;">This is a computer-generated payslip. No signature is required. Tax No: ${
+
+          <div style="font-size: 9px; text-align: center; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 25px;">This is a computer-generated payslip. No signature is required. Tax No: ${
             companyInfo.tax
           }</div>
         </div>
