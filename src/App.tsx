@@ -812,7 +812,7 @@ const App = () => {
   };
 
   const addLeaveApp = async (app) => {
-    const id = `leave-${Date.now()}`;
+    const id = 'leave-' + Date.now();
     await setDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'leaveApps', id),
       { ...app, id, appliedAt: Date.now() }
@@ -1001,7 +1001,7 @@ const App = () => {
   const handleConfirmAddStaff = async (e) => {
     e.preventDefault();
     if (!newStaffForm.username || !newStaffForm.password) return;
-    const newId = `staff-${Date.now()}`;
+    const newId = 'staff-' + Date.now();
     const newStaff = {
       id: newId,
       username: newStaffForm.username,
@@ -1049,7 +1049,7 @@ const App = () => {
     const uplDeduction = calculatedUPL * (basic / 22);
     const netTotal =
       basic + comm + bonus - (242.0 + 10.75 + 4.3 + 0 + uplDeduction);
-    const id = `slip-${Date.now()}`;
+    const id = 'slip-' + Date.now();
     await setDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'payslips', id),
       {
@@ -1243,7 +1243,7 @@ const App = () => {
 
   const addOptionalPH = async () => {
     if (!newPHForm.name || !newPHForm.date) return;
-    const newList = [...optionalPHs, { id: `ph-${Date.now()}`, name: newPHForm.name, date: newPHForm.date }];
+    const newList = [...optionalPHs, { id: 'ph-' + Date.now(), name: newPHForm.name, date: newPHForm.date }];
     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
     setNewPHForm({ name: '', date: '' });
   };
@@ -2443,7 +2443,7 @@ const App = () => {
                     <button
                       onClick={async () => {
                         if (!newJohorPHForm.name || !newJohorPHForm.date) return;
-                        const newList = [...johorPHs, { id: `jph-${Date.now()}`, name: newJohorPHForm.name, date: newJohorPHForm.date }];
+                        const newList = [...johorPHs, { id: 'jph-' + Date.now(), name: newJohorPHForm.name, date: newJohorPHForm.date }];
                         newList.sort((a, b) => new Date(a.date) - new Date(b.date));
                         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'johorPHs'), { list: newList }, { merge: true });
                         setNewJohorPHForm({ name: '', date: '' });
