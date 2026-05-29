@@ -144,6 +144,20 @@ const dict = {
   'Awal Muharram': '回曆元旦',
   'Deepavali': '屠妖節',
   'Christmas Day': '聖誕節',
+  
+  // NEW JOHOR PUBLIC HOLIDAYS TRANSLATION
+  'Thaipusam': '大寶森節',
+  'Chinese New Year Eve': '除夕',
+  'Chinese New Year 2nd Day': '農曆初二',
+  'Awal Ramadan': '齋戒月首日',
+  "Sultan of Johor's Birthday": '柔佛蘇丹誕辰',
+  "Agong's Birthday": '國家最高元首誕辰',
+  'Hari Hol of Sultan Iskandar': '蘇丹忌日',
+  'Labour Day': '勞動節',
+  'National Day': '國慶日',
+  'Malaysia Day': '馬來西亞日',
+  'Johor Public Holidays Registry': '柔佛公共假期管理 (Johor PH)',
+
   'Management Portal': '管理門戶',
   'Sign In': '登入',
   'Username': '用戶名',
@@ -248,11 +262,6 @@ const dict = {
   'Days Taken': '已用天數',
   'No Staff Record Found': '未找到員工記錄',
   'Please click "CREATE STAFF" to initialize the database.': '請點擊“創建”來初始化數據庫。',
-  'Sultan Johor Birthday': '柔佛蘇丹誕辰',
-  'Labour Day': '勞動節',
-  'Agong Birthday': '國家元首誕辰',
-  'National Day': '國慶日',
-  'Malaysia Day': '馬來西亞日',
   'Comm': '提成',
   'Bonus': '獎金',
   'Request': '請求',
@@ -477,6 +486,7 @@ const App = () => {
   const [payslips, setPayslips] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [optionalPHs, setOptionalPHs] = useState([]);
+  const [johorPHs, setJohorPHs] = useState([]); 
   const [companyInfo, setCompanyInfo] = useState({
     name: 'AG Health Enterprise',
     ssm: '',
@@ -522,6 +532,7 @@ const App = () => {
   const [editForm, setEditForm] = useState({});
   const [newDesigInput, setNewDesigInput] = useState('');
   const [newPHForm, setNewPHForm] = useState({ name: '', date: '' });
+  const [newJohorPHForm, setNewJohorPHForm] = useState({ name: '', date: '' }); 
 
   // --- FIREBASE SYNC ---
   useEffect(() => {
@@ -610,15 +621,39 @@ const App = () => {
         setOptionalPHs(snap.data().list || []);
       } else {
         const initial = [
-          { id: 'ph-cny', name: 'Chinese New Year', date: 'Feb 17' },
-          { id: 'ph-hari-raya', name: 'Hari Raya Aidilfitri', date: 'Mar 20' },
-          { id: 'ph-wesak', name: 'Wesak Day', date: 'May 1' },
-          { id: 'ph-awal-muharram', name: 'Awal Muharram', date: 'Jun 17' },
-          { id: 'ph-deepavali', name: 'Deepavali', date: 'Nov 8' },
-          { id: 'ph-christmas', name: 'Christmas Day', date: 'Dec 25' },
+          { id: 'ph-cny', name: 'Chinese New Year', date: '2026-02-17' },
+          { id: 'ph-hari-raya', name: 'Hari Raya Aidilfitri', date: '2026-03-20' },
+          { id: 'ph-wesak', name: 'Wesak Day', date: '2026-05-01' },
+          { id: 'ph-awal-muharram', name: 'Awal Muharram', date: '2026-06-17' },
+          { id: 'ph-deepavali', name: 'Deepavali', date: '2026-11-08' },
+          { id: 'ph-christmas', name: 'Christmas Day', date: '2026-12-25' },
         ];
         setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: initial });
         setOptionalPHs(initial);
+      }
+    });
+
+    // JOHOR PH INIT & SYNC
+    const unsubJohorPHs = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'johorPHs'), (snap) => {
+      if (snap.exists()) {
+        setJohorPHs(snap.data().list || []);
+      } else {
+        const initial = [
+          { id: 'jph-1', name: 'Thaipusam', date: '2026-02-02' },
+          { id: 'jph-2', name: 'Chinese New Year Eve', date: '2026-02-16' },
+          { id: 'jph-3', name: 'Chinese New Year', date: '2026-02-17' },
+          { id: 'jph-4', name: 'Chinese New Year 2nd Day', date: '2026-02-18' },
+          { id: 'jph-5', name: 'Awal Ramadan', date: '2026-02-19' },
+          { id: 'jph-6', name: "Sultan of Johor's Birthday", date: '2026-03-23' },
+          { id: 'jph-7', name: 'Labour Day', date: '2026-05-01' },
+          { id: 'jph-8', name: "Agong's Birthday", date: '2026-06-01' },
+          { id: 'jph-9', name: 'Hari Hol of Sultan Iskandar', date: '2026-07-21' },
+          { id: 'jph-10', name: 'National Day', date: '2026-08-31' },
+          { id: 'jph-11', name: 'Malaysia Day', date: '2026-09-16' },
+          { id: 'jph-12', name: 'Christmas Day', date: '2026-12-25' },
+        ];
+        setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'johorPHs'), { list: initial });
+        setJohorPHs(initial);
       }
     });
 
@@ -632,7 +667,7 @@ const App = () => {
     });
 
     return () => {
-      unsubStaff(); unsubLeaves(); unsubPayslips(); unsubDesig(); unsubCompany(); unsubPHs();
+      unsubStaff(); unsubLeaves(); unsubPayslips(); unsubDesig(); unsubCompany(); unsubPHs(); unsubJohorPHs();
     };
   }, [fbUser]);
 
@@ -2129,31 +2164,29 @@ const App = () => {
                       {t('Johor Public Holidays 2026')}
                     </h2>
                     <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
-                      {[
-                        { name: 'Sultan Johor Birthday', date: '2026-03-23' },
-                        { name: 'Labour Day', date: '2026-05-01' },
-                        { name: 'Agong Birthday', date: '2026-06-01' },
-                        { name: 'National Day', date: '2026-08-31' },
-                        { name: 'Malaysia Day', date: '2026-09-16' },
-                      ].map((ph, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
-                        >
-                          <div className="flex items-center gap-3 text-left">
-                            <div className={`w-2 h-2 rounded-full ${new Date(ph.date) < TODAY ? 'bg-slate-300' : 'bg-amber-400'}`} />
-                            <span className={`text-xs font-bold text-slate-800 ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                              {t(ph.name)}
+                      {johorPHs.map((ph, idx) => {
+                        const isPassed = new Date(ph.date + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0));
+                        return (
+                          <div
+                            key={ph.id || idx}
+                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
+                          >
+                            <div className="flex items-center gap-3 text-left">
+                              <div className={`w-2 h-2 rounded-full ${isPassed ? 'bg-slate-300' : 'bg-amber-400'}`} />
+                              <span className={`text-xs font-bold text-slate-800 ${isPassed ? 'line-through opacity-50' : ''}`}>
+                                {t(ph.name)}
+                              </span>
+                            </div>
+                            <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${isPassed ? 'line-through opacity-50' : ''}`}>
+                              {new Date(ph.date).toLocaleDateString('en-GB', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
                             </span>
                           </div>
-                          <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${new Date(ph.date) < TODAY ? 'line-through opacity-50' : ''}`}>
-                            {new Date(ph.date).toLocaleDateString('en-GB', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -2352,8 +2385,8 @@ const App = () => {
                       onChange={(e) => setNewPHForm({ ...newPHForm, name: e.target.value })}
                     />
                     <input
+                      type="date"
                       className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      placeholder={t('Date (e.g. Jan 25)')}
                       value={newPHForm.date}
                       onChange={(e) => setNewPHForm({ ...newPHForm, date: e.target.value })}
                     />
@@ -2370,14 +2403,75 @@ const App = () => {
                         key={ph.id}
                         className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
                       >
-                        <div className="flex items-baseline gap-2 text-left">
+                        <div className="flex flex-col items-start gap-1 text-left">
                           <span className="text-xs font-bold text-slate-700 text-left">
                             {t(ph.name)}
                           </span>
-                          <span className="text-[10px] text-slate-500 text-left">({ph.date})</span>
+                          <span className="text-[10px] text-slate-500 text-left">
+                            {new Date(ph.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
                         </div>
                         <button
                           onClick={() => deleteOptionalPH(ph.id)}
+                          className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Johor Public Holidays Registry (Admin Panel) */}
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                    <Calendar className="text-indigo-600" size={20} /> {t('Johor Public Holidays Registry')}
+                  </h3>
+                  <div className="flex gap-4 mb-6 text-left">
+                    <input
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                      placeholder={t('Holiday Name (e.g. Thaipusam)...')}
+                      value={newJohorPHForm.name}
+                      onChange={(e) => setNewJohorPHForm({ ...newJohorPHForm, name: e.target.value })}
+                    />
+                    <input
+                      type="date"
+                      className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
+                      value={newJohorPHForm.date}
+                      onChange={(e) => setNewJohorPHForm({ ...newJohorPHForm, date: e.target.value })}
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!newJohorPHForm.name || !newJohorPHForm.date) return;
+                        const newList = [...johorPHs, { id: `jph-${Date.now()}`, name: newJohorPHForm.name, date: newJohorPHForm.date }];
+                        newList.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'johorPHs'), { list: newList }, { merge: true });
+                        setNewJohorPHForm({ name: '', date: '' });
+                      }}
+                      className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
+                    >
+                      <Plus size={16} /> {t('Add')}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                    {johorPHs.map((ph) => (
+                      <div
+                        key={ph.id}
+                        className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
+                      >
+                        <div className="flex flex-col items-start gap-1 text-left">
+                          <span className="text-xs font-bold text-slate-700 text-left">
+                            {t(ph.name)}
+                          </span>
+                          <span className="text-[10px] text-slate-500 text-left">
+                            {new Date(ph.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            const newList = johorPHs.filter(item => item.id !== ph.id);
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'johorPHs'), { list: newList }, { merge: true });
+                          }}
                           className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
                         >
                           <Trash2 size={14} />
