@@ -158,6 +158,11 @@ const dict = {
   'Malaysia Day': '馬來西亞日',
   'Johor Public Holidays Registry': '柔佛公共假期管理 (Johor PH)',
 
+  // HOLIDAY SWAP TRANSLATION
+  'Holiday Swapping': '公共假期替工 (Holiday Swap)',
+  'Select Holiday': '選擇公共假期',
+  'Work on Holiday': '公共假期替工',
+
   'Management Portal': '管理門戶',
   'Sign In': '登入',
   'Username': '用戶名',
@@ -414,6 +419,7 @@ const getTypeFullName = (type) => {
     UPL: 'Unpaid Leave',
     RL: 'Replacement',
     PROFILE_UPDATE: 'Profile Update',
+    HOLIDAY_SWAP: 'Holiday Swapping'
   };
   return types[type] || type;
 };
@@ -510,6 +516,7 @@ const App = () => {
   const [commInput, setCommInput] = useState('');
   const [bonusInput, setBonusInput] = useState('');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [applyCategory, setApplyCategory] = useState('AL'); // Staff Leave Form state
 
   // Modal States
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
@@ -983,6 +990,8 @@ const App = () => {
           rlEarned: (s.rlEarned || 0) + app.days,
           rlUsed: (s.rlUsed || 0) + app.days,
         };
+      } else if (app.type === 'HOLIDAY_SWAP') {
+        updates = { rlEarned: (s.rlEarned || 0) + 1 };
       } else {
         const typeKey =
           app.type === 'AL'
@@ -1729,7 +1738,8 @@ const App = () => {
                                           </p>
                                           {log.startDate && (
                                             <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
-                                              {log.startDate} to {log.endDate}
+                                              {log.startDate} {log.endDate && log.endDate !== log.startDate ? `to ${log.endDate}` : ''}
+                                              {log.type === 'HOLIDAY_SWAP' && ` (${t(log.holidayName)})`}
                                             </div>
                                           )}
                                         </div>
@@ -1788,6 +1798,8 @@ const App = () => {
                                       ? `${t('PH Selection')} (${app.days} items)`
                                       : app.type === 'PH_CONVERT_BATCH'
                                       ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
+                                      : app.type === 'HOLIDAY_SWAP'
+                                      ? `${t('Work on Holiday')}: ${app.startDate} (${t(app.holidayName)})`
                                       : `${app.startDate} to ${app.endDate} (${app.days} ${t('Days')})`}
                                   </p>
                                 </div>
@@ -1847,68 +1859,106 @@ const App = () => {
                           </label>
                           <select
                             id="lType"
+                            value={applyCategory}
+                            onChange={(e) => setApplyCategory(e.target.value)}
                             className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
                           >
-                            <option value="AL" className="text-slate-900">
-                              {t('Annual Leave')}
-                            </option>
-                            <option value="MC" className="text-slate-900">
-                              {t('Medical Leave')}
-                            </option>
-                            <option value="RL" className="text-slate-900">
-                              {t('Replacement')}
-                            </option>
-                            <option value="UPL" className="text-slate-900">
-                              {t('Unpaid Leave')}
-                            </option>
+                            <option value="AL" className="text-slate-900">{t('Annual Leave')}</option>
+                            <option value="MC" className="text-slate-900">{t('Medical Leave')}</option>
+                            <option value="RL" className="text-slate-900">{t('Replacement')}</option>
+                            <option value="UPL" className="text-slate-900">{t('Unpaid Leave')}</option>
+                            <option value="HOLIDAY_SWAP" className="text-slate-900">{t('Holiday Swapping')}</option>
                           </select>
                         </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                            {t('Start Date')}
-                          </label>
-                          <input
-                            id="lStart"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                            style={{colorScheme: 'dark'}}
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
-                            {t('End Date')}
-                          </label>
-                          <input
-                            id="lEnd"
-                            type="date"
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
-                            style={{colorScheme: 'dark'}}
-                          />
-                        </div>
+                        
+                        {applyCategory === 'HOLIDAY_SWAP' ? (
+                          <div className="space-y-1.5 md:col-span-2">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                              {t('Select Holiday')}
+                            </label>
+                            <select
+                              id="lSwapDate"
+                              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none cursor-pointer text-xs focus:bg-white/20 text-white select-dark-bg text-left"
+                            >
+                              {johorPHs.filter(ph => !['Sultan of Johor\'s Birthday', 'Labour Day', "Agong's Birthday", 'National Day', 'Malaysia Day'].includes(ph.name)).map((ph) => (
+                                <option key={ph.id} value={ph.date} className="text-slate-900">
+                                  {t(ph.name)} ({ph.date})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="space-y-1.5">
+                              <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                                {t('Start Date')}
+                              </label>
+                              <input
+                                id="lStart"
+                                type="date"
+                                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                                style={{colorScheme: 'dark'}}
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                                {t('End Date')}
+                              </label>
+                              <input
+                                id="lEnd"
+                                type="date"
+                                className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs focus:bg-white/20 text-white text-left"
+                                style={{colorScheme: 'dark'}}
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                       <button
                         onClick={() => {
-                          const start = document.getElementById('lStart').value,
-                            end = document.getElementById('lEnd').value,
-                            type = document.getElementById('lType').value;
-                          if (!start || !end) return triggerAlert(t('Dates are required.'));
-                          const days =
-                            Math.ceil(
-                              Math.abs(new Date(end) - new Date(start)) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1;
-                          addLeaveApp({
-                            staffId: currentUser.id,
-                            username: currentUser.username,
-                            staffName: currentUser.name,
-                            type,
-                            startDate: start,
-                            endDate: end,
-                            days,
-                            status: 'PENDING',
-                            timestamp: new Date().toLocaleString(),
-                            actionAt: null,
-                          });
+                          const type = document.getElementById('lType').value;
+                          
+                          if (type === 'HOLIDAY_SWAP') {
+                            const swapDate = document.getElementById('lSwapDate').value;
+                            if (!swapDate) return triggerAlert(t('Dates are required.'));
+                            const selectedPh = johorPHs.find(p => p.date === swapDate);
+                            
+                            addLeaveApp({
+                              staffId: currentUser.id,
+                              username: currentUser.username,
+                              staffName: currentUser.name,
+                              type: 'HOLIDAY_SWAP',
+                              startDate: swapDate,
+                              endDate: swapDate,
+                              days: 1,
+                              holidayName: selectedPh?.name || 'Public Holiday',
+                              status: 'PENDING',
+                              timestamp: new Date().toLocaleString(),
+                              actionAt: null,
+                            });
+                          } else {
+                            const start = document.getElementById('lStart').value;
+                            const end = document.getElementById('lEnd').value;
+                            
+                            if (!start || !end) return triggerAlert(t('Dates are required.'));
+                            const days =
+                              Math.ceil(
+                                Math.abs(new Date(end) - new Date(start)) /
+                                  (1000 * 60 * 60 * 24)
+                              ) + 1;
+                            addLeaveApp({
+                              staffId: currentUser.id,
+                              username: currentUser.username,
+                              staffName: currentUser.name,
+                              type,
+                              startDate: start,
+                              endDate: end,
+                              days,
+                              status: 'PENDING',
+                              timestamp: new Date().toLocaleString(),
+                              actionAt: null,
+                            });
+                          }
                         }}
                         className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
                       >
@@ -1918,59 +1968,43 @@ const App = () => {
 
                     {/* STAFF MIDDLE: 50/50 Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-full transition-colors duration-200 text-left">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-4 border-b border-slate-200 pb-3 transition-colors duration-200 text-left">
-                          {t('Optional Public Holidays (Max 6)')}
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-[460px] transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left shrink-0">
+                          {t('Johor Public Holidays 2026')} <Calendar size={14} className="text-slate-300" />
                         </h2>
-                        <div className="space-y-2 mb-6 flex-1 text-left">
-                          {optionalPHs.map((ph) => {
-                            const locked = isPhLocked(ph.id);
-                            const checked = draftPHs.includes(ph.id) || locked;
+                        <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2 text-left">
+                          {johorPHs.map((ph, idx) => {
+                            const isPassed = new Date(ph.date + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0));
                             return (
                               <div
-                                key={ph.id}
-                                className={`flex items-center justify-between p-2.5 rounded-lg border bg-slate-50 border-slate-100 transition transition-colors duration-200 text-left ${locked ? 'opacity-60' : 'hover:bg-slate-100'}`}
+                                key={ph.id || idx}
+                                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
                               >
-                                <label className={`flex items-center gap-3 flex-1 text-left ${locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                                  <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    disabled={locked}
-                                    onChange={(e) => handleDraftTogglePH(ph.id, e.target.checked)}
-                                    className="custom-checkbox"
-                                  />
-                                  <div className="text-left">
-                                    <p className={`text-[11px] font-bold text-slate-800 text-left ${locked ? 'line-through' : ''}`}>
-                                      {t(ph.name)} <span className="font-normal text-slate-500 ml-1">({ph.date})</span>
-                                    </p>
-                                  </div>
-                                </label>
+                                <div className="flex items-center gap-3 text-left">
+                                  <div className={`w-2 h-2 rounded-full ${isPassed ? 'bg-slate-300' : 'bg-amber-400'}`} />
+                                  <span className={`text-xs font-bold text-slate-800 ${isPassed ? 'line-through opacity-50' : ''}`}>
+                                    {t(ph.name)}
+                                  </span>
+                                </div>
+                                <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${isPassed ? 'line-through opacity-50' : ''}`}>
+                                  {new Date(ph.date).toLocaleDateString('en-GB', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </span>
                               </div>
                             );
                           })}
                         </div>
-                        <div className="flex gap-4 text-left">
-                          <button
-                            onClick={submitPHSelection}
-                            className="flex-1 bg-indigo-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm hover:bg-indigo-700 transition"
-                          >
-                            {t('Apply')}
-                          </button>
-                          <button
-                            onClick={triggerBatchConvert}
-                            className="flex-1 bg-teal-500 text-white py-3 rounded-xl text-xs font-bold uppercase shadow-sm hover:bg-teal-600 transition"
-                          >
-                            {t('Convert')}
-                          </button>
-                        </div>
                       </div>
 
-                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left">
+                      <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col h-[460px] transition-colors duration-200 text-left">
+                        <h2 className="text-lg font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-4 flex items-center justify-between transition-colors duration-200 text-left shrink-0">
                           {t('Status Balances')}{' '}
                           <Info size={14} className="text-slate-300" />
                         </h2>
-                        <div className="flex flex-col gap-8 text-left">
+                        <div className="flex flex-col gap-6 flex-1 justify-center text-left overflow-y-auto custom-scrollbar pr-2">
                           <BalanceMetric label={t("Annual Leave")} current={earnedAL - activeStaff.alUsed} total={earnedAL} color="indigo" onInfoClick={() => setViewLeaveHistory('AL')} />
                           <BalanceMetric label={t("Medical Leave")} current={14 - activeStaff.mcUsed} total={14} color="emerald" onInfoClick={() => setViewLeaveHistory('MC')} />
                           <BalanceMetric label={t("Public Holiday")} current={6 - (activeStaff.phUsed || 0)} total={6} color="amber" onInfoClick={() => setViewLeaveHistory('PH')} />
@@ -2035,7 +2069,8 @@ const App = () => {
                                           </p>
                                           {log.startDate && (
                                             <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
-                                              {log.startDate} to {log.endDate}
+                                              {log.startDate} {log.endDate && log.endDate !== log.startDate ? `to ${log.endDate}` : ''}
+                                              {log.type === 'HOLIDAY_SWAP' && ` (${t(log.holidayName)})`}
                                             </div>
                                           )}
                                         </div>
@@ -2072,9 +2107,9 @@ const App = () => {
             {hrSubTab === 'PAYROLL' && (
               activeStaff.id ? (
               <div className="space-y-6 animate-in fade-in duration-500 text-left">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start text-left">
+                <div className="w-full text-left">
                   {/* REQ 2: Payroll Engine Black Card */}
-                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left">
+                  <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left w-full">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left gap-4">
                       <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
                         <Wallet className="text-indigo-400" /> {t('Payroll Engine')}
@@ -2157,36 +2192,6 @@ const App = () => {
                           ? (activeStaff.salary - 257.05).toFixed(2)
                           : '0.00'}
                       </span>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 h-full transition-colors duration-200 text-left">
-                    <h2 className="text-lg font-bold mb-6 uppercase border-b border-slate-100 pb-4 transition-colors duration-200 text-left text-slate-900">
-                      {t('Johor Public Holidays 2026')}
-                    </h2>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 text-left">
-                      {johorPHs.map((ph, idx) => {
-                        const isPassed = new Date(ph.date + 'T00:00:00') < new Date(new Date().setHours(0,0,0,0));
-                        return (
-                          <div
-                            key={ph.id || idx}
-                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 transition-colors duration-200 text-left"
-                          >
-                            <div className="flex items-center gap-3 text-left">
-                              <div className={`w-2 h-2 rounded-full ${isPassed ? 'bg-slate-300' : 'bg-amber-400'}`} />
-                              <span className={`text-xs font-bold text-slate-800 ${isPassed ? 'line-through opacity-50' : ''}`}>
-                                {t(ph.name)}
-                              </span>
-                            </div>
-                            <span className={`text-[10px] font-bold text-slate-500 uppercase text-left ${isPassed ? 'line-through opacity-50' : ''}`}>
-                              {new Date(ph.date).toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        );
-                      })}
                     </div>
                   </div>
                 </div>
@@ -2363,56 +2368,6 @@ const App = () => {
                         </span>
                         <button
                           onClick={() => deleteDesignation(d.id)}
-                          className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Optional Public Holidays Registry (Admin Panel) */}
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
-                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
-                    <Calendar className="text-indigo-600" size={20} /> {t('Optional Public Holidays Registry')}
-                  </h3>
-                  <div className="flex gap-4 mb-6 text-left">
-                    <input
-                      className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      placeholder={t('Holiday Name (e.g. Thaipusam)...')}
-                      value={newPHForm.name}
-                      onChange={(e) => setNewPHForm({ ...newPHForm, name: e.target.value })}
-                    />
-                    <input
-                      type="date"
-                      className="w-48 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 transition-colors duration-200 text-left"
-                      value={newPHForm.date}
-                      onChange={(e) => setNewPHForm({ ...newPHForm, date: e.target.value })}
-                    />
-                    <button
-                      onClick={addOptionalPH}
-                      className="bg-indigo-600 text-white px-6 rounded-lg text-xs font-bold uppercase hover:bg-indigo-700 transition shadow flex items-center gap-2"
-                    >
-                      <Plus size={16} /> {t('Add')}
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
-                    {optionalPHs.map((ph) => (
-                      <div
-                        key={ph.id}
-                        className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center justify-between group hover:border-indigo-200 transition transition-colors duration-200 text-left"
-                      >
-                        <div className="flex flex-col items-start gap-1 text-left">
-                          <span className="text-xs font-bold text-slate-700 text-left">
-                            {t(ph.name)}
-                          </span>
-                          <span className="text-[10px] text-slate-500 text-left">
-                            {new Date(ph.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => deleteOptionalPH(ph.id)}
                           className="text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition"
                         >
                           <Trash2 size={14} />
