@@ -593,9 +593,9 @@ const App = () => {
         if (parsed.type === 'STAFF') return parsed.id;
       }
     }
-    return 'shan-01';
+    return ''; // will be set to first active staff once list loads
   });
-  const [commStaffId, setCommStaffId] = useState('shan-01');
+  const [commStaffId, setCommStaffId] = useState('');
   const [commInput, setCommInput] = useState('');
   const [bonusInput, setBonusInput] = useState('');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
@@ -680,6 +680,17 @@ const App = () => {
           setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'staff', initial.id), initial);
         }
         setStaffList(list);
+        // Auto-select first active staff for Admin if none selected yet
+        setSelectedStaffId(prev => {
+          if (prev) return prev;
+          const firstActive = list.find(s => s.status !== 'resigned') || list[0];
+          return firstActive?.id || '';
+        });
+        setCommStaffId(prev => {
+          if (prev) return prev;
+          const firstActive = list.find(s => s.status !== 'resigned') || list[0];
+          return firstActive?.id || '';
+        });
       },
       (err) => console.error('Staff sync failed', err)
     );
@@ -798,12 +809,11 @@ const App = () => {
     const m = staff?.joinDate ? getMonthsDiff(staff.joinDate, TODAY) : (Number(staff?.tenureMonths) || 1);
     const salary = Number(staff?.salary) || 0;
 
-    // Pro-rate first month if joined mid-month
+    // Pro-rate first month if joined mid-month (parse as local date to avoid timezone shift)
     let firstMonthBasic = salary;
-    const join = staff?.joinDate ? new Date(staff.joinDate) : null;
-    if (join) {
-      const joinMonth = join.getMonth();
-      const joinYear = join.getFullYear();
+    if (staff?.joinDate) {
+      const [jy, jm, jd] = staff.joinDate.split('-').map(Number);
+      const joinYear = jy, joinMonth = jm - 1; // 0-indexed month
       const workDaysInJoinMonth = getWorkingDaysInMonth(joinYear, joinMonth);
       const actualDays = getProRatedWorkDays(staff.joinDate, joinYear, joinMonth);
       if (actualDays < workDaysInJoinMonth) {
@@ -1117,12 +1127,14 @@ const App = () => {
     const yr = parseInt(selectedYear);
     const workDaysInMonth = getWorkingDaysInMonth(yr, mIdx);
 
-    // NEW: pro-rate basic salary if this is the staff's joining month
+    // Fix: parse joinDate as local date to avoid timezone shift
     let proRatedBasic = basic;
-    const join = target.joinDate ? new Date(target.joinDate) : null;
-    if (join && join.getFullYear() === yr && join.getMonth() === mIdx) {
-      const actualDays = getProRatedWorkDays(target.joinDate, yr, mIdx);
-      proRatedBasic = Math.round((basic / workDaysInMonth) * actualDays * 100) / 100;
+    if (target.joinDate) {
+      const [jy, jm, jd] = target.joinDate.split('-').map(Number);
+      if (jy === yr && (jm - 1) === mIdx) {
+        const actualDays = getProRatedWorkDays(target.joinDate, yr, mIdx);
+        proRatedBasic = Math.round((basic / workDaysInMonth) * actualDays * 100) / 100;
+      }
     }
 
     const dailyRate = basic / workDaysInMonth; // NEW: based on actual working days, not flat 22
@@ -2405,88 +2417,82 @@ const App = () => {
                 {/* RIGHT: Payslip Record */}
                 <div className="w-full lg:w-1/2 min-w-0">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-colors duration-200 text-left">
-                  <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
+                  <div className="p-4 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
                     <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
                       <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
                     </h2>
+                    {/* Year filter tabs — show on right side of header */}
+                    <div className="flex gap-1">
+                      {[...new Set(payslips.filter(p => p.staffId === activeStaff.id).map(p => p.year))].sort((a,b) => b-a).map(yr => (
+                        <button key={yr} onClick={() => setSelectedYear(String(yr))}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-bold transition ${String(yr) === selectedYear ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                          {yr}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div className="overflow-x-auto text-left">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-500 border-b border-slate-200 transition-colors duration-200 text-left">
                         <tr>
-                          <th className="p-4 text-left">{t('Period')}</th>
-                          <th className="p-4 text-left">{t('Basic RM')}</th>
-                          <th className="p-4 text-left">{t('Commission')}</th>
-                          <th className="p-4 text-left">{t('Net Total')}</th>
-                          <th className="p-4 text-center">{t('View')}</th>
-                          <th className="p-4 text-center">{t('Export')}</th>
-                          <th className="p-4 text-center">{t('Action')}</th>
+                          <th className="p-3 text-left">Month</th>
+                          <th className="p-3 text-left">{t('Basic RM')}</th>
+                          <th className="p-3 text-left">Comm</th>
+                          <th className="p-3 text-left">Net</th>
+                          <th className="p-3 text-center">👁</th>
+                          <th className="p-3 text-center">⬇</th>
+                          {currentUser.type === 'ADMIN' && <th className="p-3 text-center">🗑</th>}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 transition-colors duration-200 text-left">
-                        {payslips.filter((p) => p.staffId === activeStaff.id)
-                          .length === 0 ? (
+                        {payslips.filter(p => p.staffId === activeStaff.id && String(p.year) === selectedYear).length === 0 ? (
                           <tr>
-                            <td
-                              colSpan="7"
-                              className="p-16 text-center text-slate-400 font-bold uppercase text-xs"
-                            >
+                            <td colSpan="7" className="p-12 text-center text-slate-400 font-bold uppercase text-xs">
                               {t('No records generated.')}
                             </td>
                           </tr>
                         ) : (
                           payslips
-                            .filter((p) => p.staffId === activeStaff.id)
+                            .filter(p => p.staffId === activeStaff.id && String(p.year) === selectedYear)
+                            .sort((a, b) => MONTHS.indexOf(a.month) - MONTHS.indexOf(b.month))
                             .map((p) => (
-                              <tr
-                                key={p.id}
-                                className="hover:bg-slate-50 transition transition-colors duration-200 text-left"
-                              >
-                                <td className="p-4 font-bold text-slate-800 uppercase text-xs text-left">
-                                  {t(p.month)} {p.year}
-                                </td>
-                                <td className="p-4 font-semibold text-slate-600 text-xs text-left">
-                                  RM {p.basic.toFixed(2)}
-                                  {/* === NEW: pro-rated indicator === */}
+                              <tr key={p.id} className="hover:bg-slate-50 transition text-left">
+                                <td className="p-3 font-bold text-slate-800 uppercase text-xs text-left">
+                                  {t(p.month)}
                                   {p.originalBasic && p.basic !== p.originalBasic && (
-                                    <span className="ml-1 text-[8px] text-amber-500 font-bold">Pro-rated</span>
+                                    <span className="ml-1 text-[8px] text-amber-500 font-bold block">Pro-rated</span>
                                   )}
                                 </td>
-                                <td className="p-4 font-bold text-indigo-600 text-xs text-left">
-                                  RM {p.comm.toFixed(2)}
+                                <td className="p-3 font-semibold text-slate-600 text-xs text-left">
+                                  RM {p.basic.toFixed(2)}
                                 </td>
-                                <td className="p-4 font-bold text-emerald-600 text-md text-left">
+                                <td className="p-3 font-bold text-indigo-600 text-xs text-left">
+                                  RM {(p.comm||0).toFixed(2)}
+                                </td>
+                                <td className="p-3 font-bold text-emerald-600 text-xs text-left">
                                   RM {p.netTotal.toFixed(2)}
                                 </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() => setViewPayslipData(p)}
-                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition shadow-sm w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center"
-                                  >
-                                    <Eye size={14} /> {t('View')}
+                                <td className="p-3 text-center">
+                                  <button onClick={() => setViewPayslipData(p)}
+                                    className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition mx-auto flex items-center justify-center">
+                                    <Eye size={14} />
                                   </button>
                                 </td>
-                                <td className="p-4 text-center">
-                                  <button
-                                    onClick={() =>
-                                      handleDownloadPayslip(p, activeStaff)
-                                    }
+                                <td className="p-3 text-center">
+                                  <button onClick={() => handleDownloadPayslip(p, activeStaff)}
                                     disabled={isGeneratingPdf}
-                                    className="bg-indigo-600 p-2 rounded-lg text-white hover:bg-indigo-700 shadow transition w-full gap-2 text-[10px] font-bold uppercase flex justify-center items-center disabled:opacity-50"
-                                  >
-                                    <Download size={14} /> {t('PDF')}
+                                    className="p-2 bg-indigo-600 rounded-lg text-white hover:bg-indigo-700 transition mx-auto flex items-center justify-center disabled:opacity-50">
+                                    <Download size={14} />
                                   </button>
                                 </td>
-                                <td className="p-4 text-center">
-                                  {currentUser.type === 'ADMIN' && (
-                                    <button
-                                      onClick={() => deletePayslipRecord(p.id)}
-                                      className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition shadow-sm w-full flex justify-center items-center"
-                                    >
+                                {currentUser.type === 'ADMIN' && (
+                                  <td className="p-3 text-center">
+                                    <button onClick={() => deletePayslipRecord(p.id)}
+                                      className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition mx-auto flex items-center justify-center">
                                       <Trash2 size={14} />
                                     </button>
-                                  )}
-                                </td>
+                                  </td>
+                                )}
                               </tr>
                             ))
                         )}
@@ -2650,26 +2656,24 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* HR Letters — 4 individual cards in 2x2 grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* HR Letters — 4 columns in one row */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
                     { title: 'Employment Offer Letter', Icon: FileText, color: 'text-indigo-500', bg: 'bg-indigo-50 group-hover:bg-indigo-100' },
                     { title: 'Confirmation Letter', Icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50 group-hover:bg-emerald-100' },
                     { title: 'Increment Letter', Icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50 group-hover:bg-blue-100' },
                     { title: 'Warning Letter', Icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50 group-hover:bg-rose-100' },
                   ].map((doc, idx) => (
-                    <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-center justify-between group hover:shadow-md hover:border-slate-300 transition">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 ${doc.bg} rounded-xl flex items-center justify-center border border-slate-100 transition`}>
-                          <doc.Icon size={22} className={doc.color} />
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-800 text-xs uppercase">{t(doc.title)}</p>
-                          <p className="text-[10px] text-slate-400 font-medium mt-0.5">{t('Generate for')} {activeStaff.name || 'Staff'}</p>
-                        </div>
+                    <div key={idx} className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md hover:border-slate-300 transition gap-3">
+                      <div className={`w-11 h-11 ${doc.bg} rounded-xl flex items-center justify-center border border-slate-100 transition`}>
+                        <doc.Icon size={20} className={doc.color} />
                       </div>
-                      <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-3 py-2 rounded-lg transition shrink-0">
-                        <Download size={13} /> PDF
+                      <div>
+                        <p className="font-bold text-slate-800 text-[10px] uppercase leading-tight">{t(doc.title)}</p>
+                        <p className="text-[9px] text-slate-400 font-medium mt-0.5">{activeStaff.name || 'Staff'}</p>
+                      </div>
+                      <button className="flex items-center gap-1.5 text-indigo-600 font-bold text-[10px] uppercase bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-3 py-1.5 rounded-lg transition w-full justify-center">
+                        <Download size={12} /> PDF
                       </button>
                     </div>
                   ))}
