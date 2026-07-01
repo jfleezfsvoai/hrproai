@@ -794,15 +794,32 @@ const App = () => {
     const staff = staffList.find((s) => s.id === staffId);
     if (!staff || Number(staff?.salary) === 0)
       return { netPay: 0, eis: 0, epf: 0, socso: 0, basic: 0, comm: 0 };
-      
+
     const m = staff?.joinDate ? getMonthsDiff(staff.joinDate, TODAY) : (Number(staff?.tenureMonths) || 1);
     const salary = Number(staff?.salary) || 0;
+
+    // Pro-rate first month if joined mid-month
+    let firstMonthBasic = salary;
+    const join = staff?.joinDate ? new Date(staff.joinDate) : null;
+    if (join) {
+      const joinMonth = join.getMonth();
+      const joinYear = join.getFullYear();
+      const workDaysInJoinMonth = getWorkingDaysInMonth(joinYear, joinMonth);
+      const actualDays = getProRatedWorkDays(staff.joinDate, joinYear, joinMonth);
+      if (actualDays < workDaysInJoinMonth) {
+        firstMonthBasic = Math.round((salary / workDaysInJoinMonth) * actualDays * 100) / 100;
+      }
+    }
+
+    const fullMonths = Math.max(0, m - 1);
+    const estimatedTotal = firstMonthBasic + (salary * fullMonths);
+
     return {
-      netPay: (salary - 257.05) * m,
+      netPay: estimatedTotal - (257.05 * m),
       eis: 4.3 * m,
-      epf: 242.0 * m,
+      epf: Math.round(salary * 0.11 * m * 100) / 100,
       socso: 10.75 * m,
-      basic: salary * m,
+      basic: estimatedTotal,
       comm: 0,
     };
   };
@@ -829,23 +846,28 @@ const App = () => {
       }, 0);
   }, [leaveApps, commStaffId, selectedMonth, selectedYear]);
 
-  // === MODIFIED AL ACCRUAL: now uses completed months × 0.67/month (per your exact spec table), kept as raw decimal for accuracy ===
+  // === AL ACCRUAL: by default (alWaivedProbation=false) counts from Day 1.
+  // If alWaivedProbation=true, counts only from day after probation ends (confirmDate). ===
   const rawAccruedAL = useMemo(() => {
     if (!activeStaff.id) return 0;
+
+    let accrualStartDate = activeStaff.joinDate;
 
     if (activeStaff?.alWaivedProbation && activeStaff?.probationEndDate) {
       const probEnd = new Date(activeStaff.probationEndDate);
       if (TODAY <= probEnd) return 0;
+      const confirmStart = new Date(probEnd);
+      confirmStart.setDate(confirmStart.getDate() + 1);
+      accrualStartDate = confirmStart.toISOString().split('T')[0];
     }
 
-    let monthlyRate = 8 / 12; // < 2 years
-    if (currentTenureMonths >= 24 && currentTenureMonths < 60) {
-      monthlyRate = 12 / 12;
-    } else if (currentTenureMonths >= 60) {
-      monthlyRate = 16 / 12;
-    }
+    const monthsAccrued = getCompletedMonths(accrualStartDate, TODAY);
 
-    return completedMonths * monthlyRate;
+    let monthlyRate = 8 / 12;
+    if (currentTenureMonths >= 60) monthlyRate = 16 / 12;
+    else if (currentTenureMonths >= 24) monthlyRate = 12 / 12;
+
+    return monthsAccrued * monthlyRate;
   }, [activeStaff, currentTenureMonths, completedMonths]);
 
   // earnedAL kept for backward compatibility with existing JSX (rounded display value)
@@ -1721,14 +1743,17 @@ const App = () => {
                         { label: t('Contact'), value: activeStaff.phone },
                         { label: t('IC Identity'), value: activeStaff.ic },
                         { label: t('Gender'), value: t(activeStaff.gender) },
-                        {
-                          label: t('Join Date'),
-                          value: activeStaff.joinDate || 'Not Set',
-                        },
-                        {
-                          label: t('Prob. End Date'),
-                          value: activeStaff.probationEndDate || 'Not Set',
-                        },
+                        { label: t('Join Date'), value: activeStaff.joinDate || 'Not Set' },
+                        { label: t('Prob. End Date'), value: activeStaff.probationEndDate || 'Not Set' },
+                        { label: 'Confirmed Date', value: (() => {
+                          if (activeStaff.confirmDate) return activeStaff.confirmDate;
+                          if (activeStaff.probationEndDate) {
+                            const d = new Date(activeStaff.probationEndDate);
+                            d.setDate(d.getDate() + 1);
+                            return d.toISOString().split('T')[0];
+                          }
+                          return 'Not Set';
+                        })() },
                         { label: t('SOCSO ID'), value: activeStaff.socsoNo },
                       ].map((item) => (
                         <div key={item.label} className="space-y-1 text-left">
@@ -1762,121 +1787,75 @@ const App = () => {
                           RM {DAILY_RATE}
                         </p>
                       </div>
-                      {/* === NEW: AL accrued raw display for transparency === */}
                       <div className="h-10 w-px bg-slate-200" />
                       <div className="text-left">
                         <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
                           AL Accrued
                         </p>
                         <p className="font-bold text-emerald-600 text-lg text-left">
-                          {rawAccruedAL.toFixed(2)} {t('Days')}
+                          {Math.max(0, earnedAL - (activeStaff.alUsed || 0)).toFixed(1)} Left
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-semibold">
+                          / {earnedAL.toFixed(1)} Total ({rawAccruedAL.toFixed(2)} accrued)
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200 text-left">
-                    <h3 className="text-lg font-bold text-indigo-500 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                {/* 3 equal cards: Employee Deduct | Employer Contrib | Career Tracker */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Card 1: Employee Deduct */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 hover:border-indigo-200 transition-colors duration-200 text-left">
+                    <h3 className="text-sm font-bold text-indigo-500 uppercase border-b border-slate-200 pb-3">
                       {t('Employee Portion (Deduct)')}
                     </h3>
                     <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                      <div className="flex justify-between">
-                        <span>{t('EPF (11%)')}</span>
-                        <span>RM {hasSalary ? '242.00' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{t('SOCSO')}</span>
-                        <span>RM {hasSalary ? '10.75' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{t('EIS')}</span>
-                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                      </div>
-                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-lg uppercase transition-colors duration-200">
+                      <div className="flex justify-between"><span>{t('EPF (11%)')}</span><span>RM {hasSalary ? (Number(activeStaff.salary)*0.11).toFixed(2) : '0.00'}</span></div>
+                      <div className="flex justify-between"><span>{t('SOCSO')}</span><span>RM {hasSalary ? '10.75' : '0.00'}</span></div>
+                      <div className="flex justify-between"><span>{t('EIS')}</span><span>RM {hasSalary ? '4.30' : '0.00'}</span></div>
+                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-indigo-600 text-base uppercase">
                         <span>{t('Total Deduct')}</span>
-                        <span>RM {hasSalary ? '257.05' : '0.00'}</span>
+                        <span>RM {hasSalary ? (Number(activeStaff.salary)*0.11 + 15.05).toFixed(2) : '0.00'}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200 text-left">
-                    <h3 className="text-lg font-bold text-emerald-600 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
+                  {/* Card 2: Employer Contrib */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 hover:border-emerald-200 transition-colors duration-200 text-left">
+                    <h3 className="text-sm font-bold text-emerald-600 uppercase border-b border-slate-200 pb-3">
                       {t('Employer Portion (Company)')}
                     </h3>
                     <div className="space-y-3 font-bold text-[11px] text-slate-600">
-                      <div className="flex justify-between">
-                        <span>{t('EPF (13%)')}</span>
-                        <span>RM {hasSalary ? '286.00' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{t('SOCSO')}</span>
-                        <span>RM {hasSalary ? '37.65' : '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{t('EIS')}</span>
-                        <span>RM {hasSalary ? '4.30' : '0.00'}</span>
-                      </div>
-                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-lg uppercase transition-colors duration-200">
+                      <div className="flex justify-between"><span>{t('EPF (13%)')}</span><span>RM {hasSalary ? (Number(activeStaff.salary)*0.13).toFixed(2) : '0.00'}</span></div>
+                      <div className="flex justify-between"><span>{t('SOCSO')}</span><span>RM {hasSalary ? '37.65' : '0.00'}</span></div>
+                      <div className="flex justify-between"><span>{t('EIS')}</span><span>RM {hasSalary ? '4.30' : '0.00'}</span></div>
+                      <div className="pt-3 border-t border-slate-200 flex justify-between font-bold text-emerald-600 text-base uppercase">
                         <span>{t('Total Contrib')}</span>
-                        <span>RM {hasSalary ? '327.95' : '0.00'}</span>
+                        <span>RM {hasSalary ? (Number(activeStaff.salary)*0.13 + 41.95).toFixed(2) : '0.00'}</span>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="bg-slate-900 career-tracker-box rounded-2xl p-10 text-white shadow-xl relative overflow-hidden group text-left">
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 text-left">
-                    <div className="md:w-1/4 border-r border-white/10 pr-6 text-left">
-                      <h3 className="text-lg font-bold text-indigo-400 uppercase mb-2 flex items-center gap-2 justify-start">
-                        <History size={16} /> {t('Career Tracker')}
-                      </h3>
-                      <p className="text-[9px] text-slate-400 uppercase font-medium leading-relaxed text-left">
-                        {t('Aggregated since day 1.')}
-                      </p>
-                    </div>
-                    <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
-                      <div className="text-left">
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                          {t('Total Basic')}
-                        </p>
-                        <p className="text-xl font-bold text-white tracking-preserve text-left">
-                          RM{' '}
-                          {careerTotals.basic.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
+                  {/* Card 3: Career Tracker */}
+                  <div className="bg-slate-900 career-tracker-box rounded-2xl p-6 text-white shadow-xl text-left">
+                    <h3 className="text-sm font-bold text-indigo-400 uppercase border-b border-white/10 pb-3 mb-4 flex items-center gap-2">
+                      <History size={14} /> {t('Career Tracker')}
+                    </h3>
+                    <p className="text-[9px] text-slate-500 uppercase font-medium mb-4">{t('Aggregated since day 1.')}</p>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[9px] text-slate-500 uppercase font-semibold mb-0.5">{t('Total Basic')}</p>
+                        <p className="text-base font-bold text-white">RM {careerTotals.basic.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                          {t('Total Comm')}
-                        </p>
-                        <p className="text-xl font-bold text-emerald-400 tracking-preserve text-left">
-                          RM{' '}
-                          {careerTotals.comm.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
+                      <div>
+                        <p className="text-[9px] text-slate-500 uppercase font-semibold mb-0.5">{t('Total Comm')}</p>
+                        <p className="text-base font-bold text-emerald-400">RM {careerTotals.comm.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                          {t('Total EPF')}
-                        </p>
-                        <p className="text-xl font-bold text-indigo-300 tracking-preserve text-left">
-                          RM{' '}
-                          {careerTotals.epf.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </p>
+                      <div>
+                        <p className="text-[9px] text-slate-500 uppercase font-semibold mb-0.5">{t('Total EPF')}</p>
+                        <p className="text-base font-bold text-indigo-300">RM {careerTotals.epf.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-[10px] text-slate-500 uppercase font-semibold mb-1 text-left">
-                          {t('Tenure')}
-                        </p>
-                        <p className="text-xl font-bold text-white tracking-preserve text-left">
-                          {currentTenureMonths} {t('Months')}
-                        </p>
+                      <div>
+                        <p className="text-[9px] text-slate-500 uppercase font-semibold mb-0.5">{t('Tenure')}</p>
+                        <p className="text-base font-bold text-white">{currentTenureMonths} {t('Months')}</p>
                       </div>
                     </div>
                   </div>
@@ -2328,9 +2307,10 @@ const App = () => {
             {/* PAYROLL TAB */}
             {hrSubTab === 'PAYROLL' && (
               activeStaff.id ? (
-              <div className="space-y-6 animate-in fade-in duration-500 text-left">
-                <div className="w-full text-left">
-                  {/* REQ 2: Payroll Engine Black Card */}
+              <div className="animate-in fade-in duration-500 text-left">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                {/* LEFT: Payroll Engine */}
+                <div className="text-left">
                   <div className="bg-slate-900 dark-theme-ignore rounded-2xl p-8 shadow-xl text-white border border-slate-800 transition-colors duration-200 text-left w-full">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 border-b border-slate-700 pb-4 transition-colors duration-200 text-left gap-4">
                       <h2 className="text-lg font-bold text-white flex items-center gap-3 text-left">
@@ -2421,7 +2401,10 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-6 transition-colors duration-200 text-left">
+                </div>
+                {/* RIGHT: Payslip Record */}
+                <div className="text-left">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-colors duration-200 text-left">
                   <div className="p-6 border-b border-slate-100 flex items-center justify-between transition-colors duration-200 text-left">
                     <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3 uppercase text-left">
                       <FileText className="text-indigo-600" size={20} /> {t('Payslip Record')}
@@ -2510,6 +2493,7 @@ const App = () => {
                       </tbody>
                     </table>
                   </div>
+                </div>
                 </div>
               </div>
               ) : <EmptyStaffState />
@@ -2666,47 +2650,34 @@ const App = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                  {[
-                    {
-                      title: 'Employment Offer Letter',
-                      Icon: FileText,
-                      color: 'text-indigo-500',
-                    },
-                    {
-                      title: 'Confirmation Letter',
-                      Icon: CheckCircle2,
-                      color: 'text-emerald-500',
-                    },
-                    {
-                      title: 'Increment Letter',
-                      Icon: TrendingUp,
-                      color: 'text-blue-500',
-                    },
-                    {
-                      title: 'Warning Letter',
-                      Icon: AlertCircle,
-                      color: 'text-rose-500',
-                    },
-                  ].map((doc, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center text-center group hover:shadow-md transition transition-colors duration-200 text-left"
-                    >
-                      <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-50 transition border border-slate-100 transition-colors duration-200">
-                        <doc.Icon size={24} className={doc.color} />
+                {/* HR Letters — single card with 4 rows */}
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4">
+                    <FileText className="text-indigo-600" size={20} /> HR Documents
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { title: 'Employment Offer Letter', Icon: FileText, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+                      { title: 'Confirmation Letter', Icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                      { title: 'Increment Letter', Icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
+                      { title: 'Warning Letter', Icon: AlertCircle, color: 'text-rose-500', bg: 'bg-rose-50' },
+                    ].map((doc, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 transition group">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 ${doc.bg} rounded-lg flex items-center justify-center border border-slate-100`}>
+                            <doc.Icon size={18} className={doc.color} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-800 text-xs uppercase">{t(doc.title)}</p>
+                            <p className="text-[10px] text-slate-400 font-medium">{t('Generate for')} {activeStaff.name || 'Staff'}</p>
+                          </div>
+                        </div>
+                        <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+                          {t('EXPORT PDF')} <Download size={12} />
+                        </button>
                       </div>
-                      <h3 className="font-bold text-slate-800 mb-2 uppercase text-xs text-left">
-                        {t(doc.title)}
-                      </h3>
-                      <p className="text-[10px] text-slate-400 mb-6 font-medium uppercase text-left">
-                        {t('Generate for')} {activeStaff.name}
-                      </p>
-                      <button className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase border-b-2 border-indigo-50 pb-1">
-                        {t('EXPORT PDF')} <Download size={14} />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
