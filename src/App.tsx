@@ -36,7 +36,10 @@ import {
   Settings,
   Sun,
   Moon,
-  Globe
+  Globe,
+  Bell,
+  UserCheck,
+  UserX,
 } from 'lucide-react';
 
 // --- FIREBASE IMPORTS ---
@@ -266,7 +269,7 @@ const dict = {
   'Days': '天',
   'Days Taken': '已用天數',
   'No Staff Record Found': '未找到員工記錄',
-  'Please click "CREATE STAFF" to initialize the database.': '請點擊“創建”來初始化數據庫。',
+  'Please click "CREATE STAFF" to initialize the database.': '請點擊"創建"來初始化數據庫。',
   'Comm': '提成',
   'Bonus': '獎金',
   'Request': '請求',
@@ -302,7 +305,22 @@ const dict = {
   'APPROVED': '已批准',
   'REJECTED': '已拒絕',
   'CANCELLED': '已取消',
-  'Approved Records': '已批准記錄'
+  'Approved Records': '已批准記錄',
+
+  // === NEW ADDITIONS ===
+  'Special Leave': '世假',
+  'Extra Leave': '特批假',
+  'Half Day': '半天',
+  'Full Day': '全天',
+  'Duration': '天數',
+  'Special Request': '特批申請',
+  'Mark as Extra Leave': '標記為特批假',
+  'Immediate Family (3 days)': '直屬 (3天)',
+  'Grandparent (1 day)': '外公外婆 (1天)',
+  'Resigned': '已離職',
+  'Confirm Employment': '確認轉正',
+  'Extend Probation': '延長試用期',
+  'Probation Ended': '試用期結束',
 };
 
 // --- GLOBAL CSS INJECTION ---
@@ -398,6 +416,13 @@ const globalCss = `
      background-color: #020617 !important;
      color: #f8fafc !important;
   }
+
+  /* NEW: probation notification pulse */
+  .probation-badge { animation: pulse-glow 2s ease-in-out infinite; }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+  }
 `;
 
 // --- HELPERS ---
@@ -419,7 +444,10 @@ const getTypeFullName = (type) => {
     UPL: 'Unpaid Leave',
     RL: 'Replacement',
     PROFILE_UPDATE: 'Profile Update',
-    HOLIDAY_SWAP: 'Holiday Swapping'
+    HOLIDAY_SWAP: 'Holiday Swapping',
+    // NEW
+    SL: 'Special Leave',
+    EXTRA: 'Extra Leave',
   };
   return types[type] || type;
 };
@@ -434,24 +462,80 @@ const getMonthsDiff = (startStr, endStr) => {
   return Math.max(0, months + 1);
 };
 
+// === NEW HELPER: Completed months (for accurate AL accrual - only full months count) ===
+const getCompletedMonths = (joinDateStr, asOfDate) => {
+  if (!joinDateStr) return 0;
+  const join = new Date(joinDateStr);
+  const end = asOfDate || TODAY;
+  let months = (end.getFullYear() - join.getFullYear()) * 12 + (end.getMonth() - join.getMonth());
+  if (end.getDate() < join.getDate()) months--;
+  return Math.max(0, months);
+};
+
+// === NEW HELPER: Working days in a given month (excludes Sat & Sun) ===
+const getWorkingDaysInMonth = (year, monthIdx) => {
+  const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+  let workDays = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const day = new Date(year, monthIdx, d).getDay();
+    if (day !== 0 && day !== 6) workDays++;
+  }
+  return workDays;
+};
+
+// === NEW HELPER: Actual working days an employee worked in their join month (pro-rate) ===
+const getProRatedWorkDays = (joinDateStr, year, monthIdx) => {
+  const join = new Date(joinDateStr);
+  if (join.getFullYear() !== year || join.getMonth() !== monthIdx) {
+    return getWorkingDaysInMonth(year, monthIdx);
+  }
+  const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+  let workDays = 0;
+  for (let d = join.getDate(); d <= daysInMonth; d++) {
+    const day = new Date(year, monthIdx, d).getDay();
+    if (day !== 0 && day !== 6) workDays++;
+  }
+  return workDays;
+};
+
+// === NEW HELPER: Probation end date = 3 months after join date ===
+const calcProbationEnd = (joinDateStr) => {
+  if (!joinDateStr) return '';
+  const join = new Date(joinDateStr);
+  const end = new Date(join);
+  end.setMonth(end.getMonth() + 3);
+  end.setDate(end.getDate() - 1);
+  return end.toISOString().split('T')[0];
+};
+
+// === NEW HELPER: Is probation ending today/soon (for notification) ===
+const isProbationEndingSoon = (probEndDateStr) => {
+  if (!probEndDateStr) return false;
+  const end = new Date(probEndDateStr);
+  const diffDays = (end - TODAY) / (1000 * 60 * 60 * 24);
+  return diffDays >= -1 && diffDays <= 1;
+};
+
 // Malaysian Labor Law Helper for "i" Button Info
 const getLawText = (type, lang) => {
   if (lang === 'zh') {
     switch (type) {
-      case 'AL': return '根據1955年勞工法令，員工享有年假：服務1-2年為8天，2-5年為12天，5年以上為16天。';
+      case 'AL': return '根據1955年勞工法令，員工享有年假：服務1-2年為8天，2-5年為12天，5年以上為16天。每做滿1個月累積0.67天，未滿1天不可申請（會被視為無薪假）。';
       case 'MC': return '根據1955年勞工法令，未住院病假：服務少於2年為14天，2-5年為18天，5年以上為22天。';
       case 'PH': return '雇主須提供至少11天法定公共假期，包含5天強制假期（國慶日、元首誕辰、蘇丹誕辰、勞動節、馬來西亞日）。';
-      case 'UPL': return '無薪假須經公司批准，扣薪將根據員工的每日底薪率進行計算。';
+      case 'UPL': return '無薪假須經公司批准，扣薪將根據當月實際工作天數（扣除週六日）計算每日扣薪率。';
       case 'RL': return '補假由公司政策決定，通常用於補償在公共假期或休息日的工作。';
+      case 'SL': return '世假（喪假）：直屬親人（父母/兄弟姐妹/配偶/子女）3天；外公外婆1天。屬於額外有薪假期，不扣薪。';
       default: return '';
     }
   } else {
     switch (type) {
-      case 'AL': return 'Employment Act 1955: Annual leave entitlement is 8 days (1-2 yrs service), 12 days (2-5 yrs), and 16 days (>5 yrs).';
+      case 'AL': return 'Employment Act 1955: Annual leave entitlement is 8 days (1-2 yrs service), 12 days (2-5 yrs), and 16 days (>5 yrs). Accrues at 0.67 days per completed month; less than 1 day accrued cannot be applied (treated as Unpaid Leave).';
       case 'MC': return 'Employment Act 1955: Sick leave (non-hospitalized) is 14 days (<2 yrs service), 18 days (2-5 yrs), and 22 days (>5 yrs).';
       case 'PH': return 'Employers must observe at least 11 gazetted public holidays, including 5 mandatory days (National Day, Agong\'s Birthday, Ruler\'s Birthday, Labour Day, Malaysia Day).';
-      case 'UPL': return 'Unpaid leave is subject to management approval. Deductions are calculated based on the employee\'s daily basic rate.';
+      case 'UPL': return 'Unpaid leave is subject to management approval. Deductions are calculated based on actual working days in the month (excluding weekends).';
       case 'RL': return 'Replacement leave is granted based on company policy for work performed on public holidays or rest days.';
+      case 'SL': return 'Special (Bereavement) Leave: Immediate family (parent/sibling/spouse/child) 3 days; Grandparent 1 day. This is paid leave with no deduction.';
       default: return '';
     }
   }
@@ -491,7 +575,6 @@ const App = () => {
   const [leaveApps, setLeaveApps] = useState([]);
   const [payslips, setPayslips] = useState([]);
   const [designations, setDesignations] = useState([]);
-  const [optionalPHs, setOptionalPHs] = useState([]);
   const [johorPHs, setJohorPHs] = useState([]); 
   const [companyInfo, setCompanyInfo] = useState({
     name: 'AG Health Enterprise',
@@ -517,6 +600,9 @@ const App = () => {
   const [bonusInput, setBonusInput] = useState('');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [applyCategory, setApplyCategory] = useState('AL'); // Staff Leave Form state
+  // === NEW STATE: half day duration toggle & SL sub-type ===
+  const [applyDuration, setApplyDuration] = useState('1');
+  const [slType, setSlType] = useState('immediate');
 
   // Modal States
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
@@ -526,19 +612,18 @@ const App = () => {
   const [waivePromptData, setWaivePromptData] = useState(null);
   const [rejectPromptId, setRejectPromptId] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [convertPromptData, setConvertPromptData] = useState(null);
-  const [convertTargetDate, setConvertTargetDate] = useState('');
   const [cancelPromptApp, setCancelPromptApp] = useState(null);
+  // === NEW MODAL STATE ===
+  const [probationPromptStaff, setProbationPromptStaff] = useState(null);
+  const [approveWithExtra, setApproveWithExtra] = useState(null);
 
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
-  const [draftPHs, setDraftPHs] = useState([]);
   const [newStaffForm, setNewStaffForm] = useState({
     username: '',
     password: '',
   });
   const [editForm, setEditForm] = useState({});
   const [newDesigInput, setNewDesigInput] = useState('');
-  const [newPHForm, setNewPHForm] = useState({ name: '', date: '' });
   const [newJohorPHForm, setNewJohorPHForm] = useState({ name: '', date: '' }); 
 
   // --- FIREBASE SYNC ---
@@ -585,9 +670,12 @@ const App = () => {
             phUsed: 0,
             rlUsed: 0,
             rlEarned: 0,
+            slUsed: 0, // NEW
             selectedPHs: [],
             convertedPHs: [],
             company: 'AG Health Enterprise',
+            status: 'active', // NEW: active / resigned
+            confirmed: false, // NEW: probation confirmed flag
           };
           setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'staff', initial.id), initial);
         }
@@ -621,23 +709,6 @@ const App = () => {
         initialList.forEach((name) => addDoc(designationsRef, { name }));
       }
       setDesignations(list);
-    });
-
-    const unsubPHs = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), (snap) => {
-      if (snap.exists()) {
-        setOptionalPHs(snap.data().list || []);
-      } else {
-        const initial = [
-          { id: 'ph-cny', name: 'Chinese New Year', date: '2026-02-17' },
-          { id: 'ph-hari-raya', name: 'Hari Raya Aidilfitri', date: '2026-03-20' },
-          { id: 'ph-wesak', name: 'Wesak Day', date: '2026-05-01' },
-          { id: 'ph-awal-muharram', name: 'Awal Muharram', date: '2026-06-17' },
-          { id: 'ph-deepavali', name: 'Deepavali', date: '2026-11-08' },
-          { id: 'ph-christmas', name: 'Christmas Day', date: '2026-12-25' },
-        ];
-        setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: initial });
-        setOptionalPHs(initial);
-      }
     });
 
     // JOHOR PH INIT & SYNC
@@ -674,7 +745,7 @@ const App = () => {
     });
 
     return () => {
-      unsubStaff(); unsubLeaves(); unsubPayslips(); unsubDesig(); unsubCompany(); unsubPHs(); unsubJohorPHs();
+      unsubStaff(); unsubLeaves(); unsubPayslips(); unsubDesig(); unsubCompany(); unsubJohorPHs();
     };
   }, [fbUser]);
 
@@ -684,19 +755,26 @@ const App = () => {
     [staffList, selectedStaffId]
   );
 
-  useEffect(() => {
-    if (activeStaff.id) setDraftPHs(activeStaff.selectedPHs || []);
-  }, [activeStaff]);
+  // === NEW: working days in selected payroll month, for daily rate / UPL deduction ===
+  const payrollMonthWorkDays = useMemo(() => {
+    const mIdx = MONTHS.indexOf(selectedMonth);
+    const yr = parseInt(selectedYear);
+    return getWorkingDaysInMonth(yr, mIdx);
+  }, [selectedMonth, selectedYear]);
 
   const hasSalary = Number(activeStaff?.salary) > 0;
+  // === MODIFIED: DAILY_RATE now divides by actual working days in selected month, not flat 22 ===
   const DAILY_RATE = useMemo(
-    () => (hasSalary ? (Number(activeStaff.salary) / 22).toFixed(2) : '0.00'),
-    [activeStaff, hasSalary]
+    () => (hasSalary ? (Number(activeStaff.salary) / payrollMonthWorkDays).toFixed(2) : '0.00'),
+    [activeStaff, hasSalary, payrollMonthWorkDays]
   );
 
   const currentTenureMonths = activeStaff?.joinDate
     ? getMonthsDiff(activeStaff.joinDate, TODAY)
     : activeStaff?.tenureMonths || 0;
+
+  // === NEW: completed months (used for accurate AL accrual) ===
+  const completedMonths = useMemo(() => getCompletedMonths(activeStaff?.joinDate, TODAY), [activeStaff]);
 
   const getStaffYTD = (staffId) => {
     const sPayslips = payslips.filter((p) => p.staffId === staffId);
@@ -734,7 +812,10 @@ const App = () => {
     [activeStaff, payslips]
   );
 
+  // === MODIFIED: calculatedUPL now also matches year, not just month name ===
   const calculatedUPL = useMemo(() => {
+    const mIdx = MONTHS.indexOf(selectedMonth);
+    const yr = parseInt(selectedYear);
     return leaveApps
       .filter(
         (app) =>
@@ -743,46 +824,37 @@ const App = () => {
           app.status === 'APPROVED'
       )
       .reduce((sum, app) => {
-        const monthName = new Date(app.startDate).toLocaleString('default', {
-          month: 'long',
-        });
-        return monthName === selectedMonth ? sum + app.days : sum;
+        const appDate = new Date(app.startDate);
+        return (appDate.getMonth() === mIdx && appDate.getFullYear() === yr) ? sum + app.days : sum;
       }, 0);
-  }, [leaveApps, commStaffId, selectedMonth]);
+  }, [leaveApps, commStaffId, selectedMonth, selectedYear]);
 
-  // FULLY DYNAMIC AL ACCRUAL (無條件進位精確算法)
-  const earnedAL = useMemo(() => {
+  // === MODIFIED AL ACCRUAL: now uses completed months × 0.67/month (per your exact spec table), kept as raw decimal for accuracy ===
+  const rawAccruedAL = useMemo(() => {
     if (!activeStaff.id) return 0;
-    
-    const join = new Date(activeStaff.joinDate || TODAY);
-    const currentYear = TODAY.getFullYear();
-    
-    let monthlyRate = 8 / 12;
-    if (currentTenureMonths >= 24 && currentTenureMonths < 60) {
-        monthlyRate = 12 / 12;
-    } else if (currentTenureMonths >= 60) {
-        monthlyRate = 16 / 12;
-    }
-
-    let activeMonthsInYear = 0;
-    if (join.getFullYear() < currentYear) {
-        activeMonthsInYear = TODAY.getMonth() + 1; 
-    } else {
-        activeMonthsInYear = Math.max(0, TODAY.getMonth() - join.getMonth() + 1);
-    }
-
-    let totalAL = activeMonthsInYear * monthlyRate;
 
     if (activeStaff?.alWaivedProbation && activeStaff?.probationEndDate) {
-        const probEnd = new Date(activeStaff.probationEndDate);
-        if (TODAY <= probEnd) {
-           return 0;
-        }
+      const probEnd = new Date(activeStaff.probationEndDate);
+      if (TODAY <= probEnd) return 0;
     }
-    
-    // Malaysian HR standard: Ceil eager rounding up (2.66 -> 3 Days)
-    return Math.max(0, Math.ceil(totalAL));
-  }, [activeStaff, currentTenureMonths]);
+
+    let monthlyRate = 8 / 12; // < 2 years
+    if (currentTenureMonths >= 24 && currentTenureMonths < 60) {
+      monthlyRate = 12 / 12;
+    } else if (currentTenureMonths >= 60) {
+      monthlyRate = 16 / 12;
+    }
+
+    return completedMonths * monthlyRate;
+  }, [activeStaff, currentTenureMonths, completedMonths]);
+
+  // earnedAL kept for backward compatibility with existing JSX (rounded display value)
+  const earnedAL = useMemo(() => {
+    return Math.max(0, Math.ceil(rawAccruedAL));
+  }, [rawAccruedAL]);
+
+  // === NEW: can staff actually apply AL (must have accrued >= 1 full day) ===
+  const canApplyAL = rawAccruedAL >= 1;
 
   const groupedActionLogs = useMemo(() => {
     const logs = leaveApps.filter((a) => a.staffId === activeStaff.id);
@@ -798,16 +870,22 @@ const App = () => {
     return groups;
   }, [leaveApps, activeStaff.id]);
 
-  const isPhLocked = (phId) => {
-    if (activeStaff.convertedPHs?.includes(phId)) return true;
-    if (activeStaff.selectedPHs?.includes(phId)) return true;
-    return leaveApps.some(app =>
-      app.staffId === activeStaff.id &&
-      (app.type === 'PH_UPDATE' || app.type === 'PH_CONVERT_BATCH') &&
-      ['PENDING', 'APPROVED'].includes(app.status) &&
-      app.data?.includes(phId)
-    );
-  };
+  // === NEW: probation notifications (admin gets notified when staff's probation ends) ===
+  const probationNotifications = useMemo(() => {
+    return staffList.filter(s => {
+      if (!s.probationEndDate || s.confirmed) return false;
+      return isProbationEndingSoon(s.probationEndDate);
+    });
+  }, [staffList]);
+
+  // === NEW: sort staff so Active appear first, Resigned appear last (greyed/strikethrough) ===
+  const sortedStaffList = useMemo(() => {
+    const activeOnes = staffList.filter(s => s.status !== 'resigned')
+      .sort((a, b) => (a.name || a.username || '').localeCompare(b.name || b.username || ''));
+    const resignedOnes = staffList.filter(s => s.status === 'resigned')
+      .sort((a, b) => (a.name || a.username || '').localeCompare(b.name || b.username || ''));
+    return [...activeOnes, ...resignedOnes];
+  }, [staffList]);
 
   // --- PERSISTENCE WRAPPERS ---
   const updateStaffData = async (sid, data) => {
@@ -845,61 +923,6 @@ const App = () => {
     }
   };
 
-  const handleDraftTogglePH = (phId, isChecked) => {
-    if (isChecked) {
-      if (draftPHs.length >= 6)
-        return triggerAlert(t('Maximum 6 optional Public Holidays can be selected.'));
-      setDraftPHs([...draftPHs, phId]);
-    } else {
-      setDraftPHs(draftPHs.filter((id) => id !== phId));
-    }
-  };
-
-  const submitPHSelection = async () => {
-    await addLeaveApp({
-      staffId: activeStaff.id,
-      username: activeStaff.username,
-      staffName: activeStaff.name,
-      type: 'PH_UPDATE',
-      days: draftPHs.length,
-      data: draftPHs,
-      status: 'PENDING',
-      appliedAt: Date.now(),
-      timestamp: new Date().toLocaleString(),
-      actionAt: null,
-    });
-  };
-
-  const triggerBatchConvert = () => {
-    const newToConvert = draftPHs.filter(
-      (id) =>
-        !activeStaff.selectedPHs?.includes(id) &&
-        !activeStaff.convertedPHs?.includes(id)
-    );
-    if (newToConvert.length === 0) return triggerAlert(t('Select new holidays first.'));
-    setConvertPromptData(newToConvert);
-    setConvertTargetDate('');
-  };
-
-  const confirmBatchConvert = async () => {
-    if (!convertTargetDate) return triggerAlert(t('Please specify the target date.'));
-    await addLeaveApp({
-      staffId: activeStaff.id,
-      username: activeStaff.username,
-      staffName: activeStaff.name,
-      type: 'PH_CONVERT_BATCH',
-      data: convertPromptData,
-      days: convertPromptData.length,
-      targetDate: convertTargetDate,
-      status: 'PENDING',
-      appliedAt: Date.now(),
-      timestamp: new Date().toLocaleString(),
-      actionAt: null,
-    });
-    setDraftPHs((prev) => prev.filter((id) => !convertPromptData.includes(id)));
-    setConvertPromptData(null);
-  };
-
   const openEditModal = () => {
     setEditForm({ ...activeStaff });
     setIsAdminUnlocked(currentUser.type === 'ADMIN');
@@ -911,13 +934,18 @@ const App = () => {
     if (currentUser.type === 'ADMIN') {
       const oldStaff = staffList.find((s) => s.id === editForm.id);
       let finalEditForm = { ...editForm };
+
+      // === NEW: auto-calc probation end date if join date set and prob date empty ===
+      if (finalEditForm.joinDate && !finalEditForm.probationEndDate) {
+        finalEditForm.probationEndDate = calcProbationEnd(finalEditForm.joinDate);
+      }
       
       if (
         (!oldStaff.probationEndDate || oldStaff.probationEndDate === '') &&
         editForm.probationEndDate
       ) {
         setIsEditProfileModalOpen(false); 
-        return setWaivePromptData({ editForm });
+        return setWaivePromptData({ editForm: finalEditForm });
       }
       
       await updateStaffData(editForm.id, finalEditForm);
@@ -968,30 +996,29 @@ const App = () => {
     triggerAlert(t('Record Updated Successfully.'));
   };
 
-  const processLeave = async (id, status, reason = '') => {
+  // === MODIFIED processLeave: now supports markAsExtra (Admin Special Request override -> no deduction) ===
+  const processLeave = async (id, status, reason = '', markAsExtra = false) => {
     const actionTime = new Date().toLocaleString();
     const app = leaveApps.find((a) => a.id === id);
     if (!app) return;
+
+    const finalType = markAsExtra ? 'EXTRA' : app.type;
     await updateLeaveApp(id, {
       status,
       actionAt: actionTime,
       rejectReason: reason,
+      finalType, // NEW field to track if it was approved as Extra Leave
     });
     if (status === 'APPROVED') {
       const s = staffList.find((s) => s.id === app.staffId);
       let updates = {};
       if (app.type === 'PROFILE_UPDATE') {
         updates = app.data;
-      } else if (app.type === 'PH_UPDATE') {
-        updates = { selectedPHs: app.data, phUsed: app.data.length };
-      } else if (app.type === 'PH_CONVERT_BATCH') {
-        updates = {
-          convertedPHs: [...(s.convertedPHs || []), ...app.data],
-          rlEarned: (s.rlEarned || 0) + app.days,
-          rlUsed: (s.rlUsed || 0) + app.days,
-        };
       } else if (app.type === 'HOLIDAY_SWAP') {
         updates = { rlEarned: (s.rlEarned || 0) + 1 };
+      } else if (markAsExtra) {
+        // NEW: Extra Leave -> no balance deduction, no pay deduction
+        updates = {};
       } else {
         const typeKey =
           app.type === 'AL'
@@ -1000,6 +1027,8 @@ const App = () => {
             ? 'mcUsed'
             : app.type === 'RL'
             ? 'rlUsed'
+            : app.type === 'SL' // NEW
+            ? 'slUsed'
             : 'uplUsed';
         updates = { [typeKey]: (s[typeKey] || 0) + app.days };
       }
@@ -1011,6 +1040,8 @@ const App = () => {
     e.preventDefault();
     if (!newStaffForm.username || !newStaffForm.password) return;
     const newId = 'staff-' + Date.now();
+    const joinDate = TODAY.toISOString().split('T')[0];
+    const probEnd = calcProbationEnd(joinDate); // NEW: auto-calc 3-month probation
     const newStaff = {
       id: newId,
       username: newStaffForm.username,
@@ -1024,8 +1055,8 @@ const App = () => {
       epfNo: '',
       taxNo: '',
       socsoNo: '',
-      joinDate: TODAY.toISOString().split('T')[0],
-      probationEndDate: '',
+      joinDate,
+      probationEndDate: probEnd, // NEW: auto-filled
       alWaivedProbation: false,
       tenureMonths: 0,
       alUsed: 0,
@@ -1034,9 +1065,12 @@ const App = () => {
       phUsed: 0,
       rlUsed: 0,
       rlEarned: 0,
+      slUsed: 0, // NEW
       selectedPHs: [],
       convertedPHs: [],
       company: companyInfo.name,
+      status: 'active', // NEW
+      confirmed: false, // NEW
     };
     await setDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'staff', newId),
@@ -1046,18 +1080,37 @@ const App = () => {
     setCommStaffId(newId);
     setNewStaffForm({ username: '', password: '' });
     setIsAddStaffModalOpen(false);
-    triggerAlert(t('Staff account created.'));
+    triggerAlert(t('Staff account created.') + ` Probation ends: ${probEnd}`);
   };
 
+  // === MODIFIED generatePayslip: pro-rates first-month basic salary by actual working days, daily rate uses actual month working days ===
   const generatePayslip = async () => {
     const target = staffList.find((s) => s.id === commStaffId);
     if (!target) return triggerAlert(t('Select staff member.'));
     const basic = Number(target.salary),
       comm = parseFloat(commInput) || 0,
       bonus = parseFloat(bonusInput) || 0;
-    const uplDeduction = calculatedUPL * (basic / 22);
-    const netTotal =
-      basic + comm + bonus - (242.0 + 10.75 + 4.3 + 0 + uplDeduction);
+
+    const mIdx = MONTHS.indexOf(selectedMonth);
+    const yr = parseInt(selectedYear);
+    const workDaysInMonth = getWorkingDaysInMonth(yr, mIdx);
+
+    // NEW: pro-rate basic salary if this is the staff's joining month
+    let proRatedBasic = basic;
+    const join = target.joinDate ? new Date(target.joinDate) : null;
+    if (join && join.getFullYear() === yr && join.getMonth() === mIdx) {
+      const actualDays = getProRatedWorkDays(target.joinDate, yr, mIdx);
+      proRatedBasic = Math.round((basic / workDaysInMonth) * actualDays * 100) / 100;
+    }
+
+    const dailyRate = basic / workDaysInMonth; // NEW: based on actual working days, not flat 22
+    const uplDeduction = calculatedUPL * dailyRate;
+    const empEpf = Math.round(proRatedBasic * 0.11 * 100) / 100; // NEW: EPF calculated off pro-rated basic
+    const empSocso = 10.75, empEis = 4.3;
+    const totalDeductions = empEpf + empSocso + empEis + uplDeduction;
+    const netTotal = proRatedBasic + comm + bonus - totalDeductions;
+    const employerEpf = Math.round(proRatedBasic * 0.13 * 100) / 100;
+
     const id = 'slip-' + Date.now();
     await setDoc(
       doc(db, 'artifacts', appId, 'public', 'data', 'payslips', id),
@@ -1066,22 +1119,24 @@ const App = () => {
         staffId: target.id,
         month: selectedMonth,
         year: Number(selectedYear),
-        basic,
+        basic: proRatedBasic, // NEW: pro-rated if joining month
+        originalBasic: basic, // NEW: keep original for reference
         comm,
         bonus,
         uplDays: calculatedUPL,
-        dailyRate: basic / 22,
+        dailyRate,
         uplDeduction,
-        empEpf: 242.0,
-        empSocso: 10.75,
-        empEis: 4.3,
+        empEpf,
+        empSocso,
+        empEis,
         tax: 0,
-        totalEarnings: basic + comm + bonus,
-        totalDeductions: 242.0 + 10.75 + 4.3 + 0 + uplDeduction,
+        totalEarnings: proRatedBasic + comm + bonus,
+        totalDeductions,
         netTotal,
-        employerEpf: 286.0,
+        employerEpf,
         employerSocso: 37.65,
         employerEis: 4.3,
+        workDaysInMonth, // NEW: stored for reference
       }
     );
     setCommInput('');
@@ -1142,7 +1197,7 @@ const App = () => {
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px; letter-spacing: 0.2px;">
           <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 6px 8px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EARNINGS</th><th style="padding: 6px 8px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
           <tbody>
-            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Basic Salary</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.basic.toFixed(2)}</td></tr>
+            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Basic Salary${payslip.basic !== payslip.originalBasic ? ' (Pro-rated)' : ''}</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.basic.toFixed(2)}</td></tr>
             <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Commission</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.comm.toFixed(2)}</td></tr>
             <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Bonus</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${payslip.bonus.toFixed(2)}</td></tr>
           </tbody>
@@ -1151,8 +1206,8 @@ const App = () => {
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 11px; letter-spacing: 0.2px;">
           <thead><tr style="background: #f1f5f9; text-align: left;"><th style="padding: 6px 8px; border-bottom: 2px solid #e2e8f0; font-weight: 800;">EMPLOYEE DEDUCTIONS</th><th style="padding: 6px 8px; border-bottom: 2px solid #e2e8f0; text-align: right; font-weight: 800;">AMOUNT (RM)</th></tr></thead>
           <tbody style="color: #ef4444;">
-            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Unpaid Leave (${payslip.uplDays} days)</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-${payslip.uplDeduction.toFixed(2)}</td></tr>
-            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">EPF (11%)</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-242.00</td></tr>
+            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">Unpaid Leave (${payslip.uplDays} days × RM${(payslip.dailyRate||0).toFixed(2)}/day)</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-${payslip.uplDeduction.toFixed(2)}</td></tr>
+            <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">EPF (11%)</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-${(payslip.empEpf||242).toFixed(2)}</td></tr>
             <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">SOCSO</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-10.75</td></tr>
             <tr><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9;">EIS</td><td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold;">-4.30</td></tr>
           </tbody>
@@ -1250,16 +1305,95 @@ const App = () => {
     await deleteDoc(designationsRef);
   };
 
-  const addOptionalPH = async () => {
-    if (!newPHForm.name || !newPHForm.date) return;
-    const newList = [...optionalPHs, { id: 'ph-' + Date.now(), name: newPHForm.name, date: newPHForm.date }];
-    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
-    setNewPHForm({ name: '', date: '' });
+  // === NEW: confirm employment / extend probation handler ===
+  const handleConfirmEmployment = async (staffId, extend = false) => {
+    const staff = staffList.find(s => s.id === staffId);
+    if (!staff) return;
+    if (extend) {
+      const newProbEnd = calcProbationEnd(staff.probationEndDate);
+      await updateStaffData(staffId, { probationEndDate: newProbEnd, confirmed: false });
+      triggerAlert(`Probation extended until ${newProbEnd}`);
+    } else {
+      await updateStaffData(staffId, { confirmed: true, confirmDate: TODAY.toISOString().split('T')[0] });
+      triggerAlert(`${staff.name || staff.username} confirmed as permanent employee!`);
+    }
+    setProbationPromptStaff(null);
   };
 
-  const deleteOptionalPH = async (id) => {
-    const newList = optionalPHs.filter(ph => ph.id !== id);
-    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'optionalPHs'), { list: newList }, { merge: true });
+  // === NEW: half-day-aware leave submission for staff (extends existing submit button logic, used inline in JSX too) ===
+  const handleSubmitLeaveWithHalfDay = () => {
+    const type = document.getElementById('lType').value;
+
+    if (type === 'HOLIDAY_SWAP') {
+      const swapDate = document.getElementById('lSwapDate').value;
+      if (!swapDate) return triggerAlert(t('Dates are required.'));
+      const selectedPh = johorPHs.find(p => p.date === swapDate);
+      addLeaveApp({
+        staffId: currentUser.id,
+        username: currentUser.username,
+        staffName: currentUser.name,
+        type: 'HOLIDAY_SWAP',
+        startDate: swapDate,
+        endDate: swapDate,
+        days: 1,
+        holidayName: selectedPh?.name || 'Public Holiday',
+        status: 'PENDING',
+        timestamp: new Date().toLocaleString(),
+        actionAt: null,
+      });
+      return;
+    }
+
+    if (type === 'SL') {
+      const start = document.getElementById('lStart').value;
+      if (!start) return triggerAlert(t('Dates are required.'));
+      const slDays = slType === 'immediate' ? 3 : 1;
+      addLeaveApp({
+        staffId: currentUser.id,
+        username: currentUser.username,
+        staffName: currentUser.name,
+        type: 'SL',
+        startDate: start,
+        endDate: start,
+        days: slDays,
+        slType,
+        status: 'PENDING',
+        timestamp: new Date().toLocaleString(),
+        actionAt: null,
+      });
+      return;
+    }
+
+    const start = document.getElementById('lStart').value;
+    const end = document.getElementById('lEnd').value;
+    if (!start || !end) return triggerAlert(t('Dates are required.'));
+
+    if (type === 'AL' && !canApplyAL) {
+      triggerAlert('Annual Leave not yet accrued to 1 full day. This request will be treated as Unpaid Leave unless Admin grants Extra Leave approval.');
+    }
+
+    const duration = parseFloat(applyDuration);
+    let days;
+    if (duration === 0.5) {
+      days = 0.5;
+    } else {
+      days = Math.ceil(Math.abs(new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    addLeaveApp({
+      staffId: currentUser.id,
+      username: currentUser.username,
+      staffName: currentUser.name,
+      type,
+      startDate: start,
+      endDate: duration === 0.5 ? start : end,
+      days,
+      duration,
+      isHalfDay: duration === 0.5,
+      status: 'PENDING',
+      timestamp: new Date().toLocaleString(),
+      actionAt: null,
+    });
   };
 
   // LOGOUT (Clear Persistence)
@@ -1277,8 +1411,13 @@ const App = () => {
     const admin = ADMIN_CREDENTIALS.find(
       (u) => u.user === loginForm.user && u.pass === loginForm.pass
     );
+    // === MODIFIED: staff can login with username OR legalName(name) if no username is set ===
     const staff = staffList.find(
-      (u) => u.username === loginForm.user && u.password === loginForm.pass
+      (u) => {
+        const matchUsername = u.username && u.username === loginForm.user && u.password === loginForm.pass;
+        const matchLegalName = !u.username && u.name && u.name.toLowerCase() === loginForm.user.toLowerCase() && u.password === loginForm.pass;
+        return matchUsername || matchLegalName;
+      }
     );
     if (admin) {
       const userObj = { ...admin };
@@ -1292,7 +1431,7 @@ const App = () => {
       const userObj = {
         ...staff,
         type: 'STAFF',
-        user: staff.username,
+        user: staff.username || staff.name,
         pass: staff.password,
       };
       setCurrentUser(userObj);
@@ -1370,6 +1509,9 @@ const App = () => {
     );
   }
 
+  // === NEW: confirmed employment check helper for header badge ===
+  const isConfirmed = activeStaff?.confirmed || (activeStaff?.probationEndDate && new Date(activeStaff.probationEndDate) < TODAY);
+
   return (
     <>
       <style>{globalCss}</style>
@@ -1385,6 +1527,19 @@ const App = () => {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            {/* === NEW: Probation notification bell (Admin only) === */}
+            {currentUser.type === 'ADMIN' && probationNotifications.length > 0 && (
+              <button
+                onClick={() => setProbationPromptStaff(probationNotifications[0])}
+                className="relative p-1.5 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 probation-badge"
+                title="Probation ending notifications"
+              >
+                <Bell size={16} />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white text-[8px] rounded-full flex items-center justify-center font-bold">
+                  {probationNotifications.length}
+                </span>
+              </button>
+            )}
             <button onClick={() => setLang(lang === 'en' ? 'zh' : 'en')} className="p-1.5 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition" title="Toggle Language">
               <Globe size={16} />
             </button>
@@ -1436,24 +1591,57 @@ const App = () => {
                     value={selectedStaffId}
                     onChange={(e) => setSelectedStaffId(e.target.value)}
                   >
-                    {staffList.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name || s.username}
+                    {/* === MODIFIED: use sortedStaffList so resigned staff appear last with strike-through styling === */}
+                    {sortedStaffList.map((s) => (
+                      <option
+                        key={s.id}
+                        value={s.id}
+                        style={{
+                          textDecoration: s.status === 'resigned' ? 'line-through' : 'none',
+                          color: s.status === 'resigned' ? '#94a3b8' : 'inherit',
+                        }}
+                      >
+                        {s.status === 'resigned' ? '— ' : ''}{s.name || s.username}{s.status === 'resigned' ? ' [Resigned]' : ''}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className="h-8 w-px bg-slate-200" />
                 <div className="text-[10px] font-bold text-slate-500 uppercase">
-                  {t('Headcount:')} {staffList.length} {t('Active')}
+                  {t('Headcount:')} {staffList.filter(s => s.status !== 'resigned').length} {t('Active')}
                 </div>
+                {/* === NEW: resigned badge next to selector === */}
+                {activeStaff?.status === 'resigned' && (
+                  <span className="bg-slate-100 text-slate-500 text-[9px] px-2 py-1 rounded font-bold uppercase border line-through">
+                    {t('Resigned')}
+                  </span>
+                )}
               </div>
-              <button
-                onClick={() => setIsAddStaffModalOpen(true)}
-                className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-md flex items-center gap-2"
-              >
-                <Plus size={14} /> {t('CREATE')}
-              </button>
+              <div className="flex gap-2">
+                {/* === NEW: Active/Resigned toggle buttons === */}
+                {activeStaff?.id && activeStaff?.status !== 'resigned' && (
+                  <button
+                    onClick={() => { if (window.confirm('Mark this staff as Resigned?')) updateStaffData(activeStaff.id, { status: 'resigned' }); }}
+                    className="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-rose-50 hover:text-rose-600 transition flex items-center gap-1"
+                  >
+                    <UserX size={14} /> {t('Resigned')}
+                  </button>
+                )}
+                {activeStaff?.id && activeStaff?.status === 'resigned' && (
+                  <button
+                    onClick={() => updateStaffData(activeStaff.id, { status: 'active' })}
+                    className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-100 transition flex items-center gap-1"
+                  >
+                    <UserCheck size={14} /> Re-activate
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsAddStaffModalOpen(true)}
+                  className="bg-indigo-600 text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 transition shadow-md flex items-center gap-2"
+                >
+                  <Plus size={14} /> {t('CREATE')}
+                </button>
+              </div>
             </div>
           )}
 
@@ -1512,6 +1700,12 @@ const App = () => {
                             ? t('Status: Confirmed Employment')
                             : t('Status: Probation Period')}
                         </p>
+                        {/* === NEW: Manage Probation quick-link for Admin === */}
+                        {currentUser.type === 'ADMIN' && !activeStaff.confirmed && activeStaff.probationEndDate && (
+                          <button onClick={() => setProbationPromptStaff(activeStaff)} className="text-[9px] font-bold text-indigo-600 underline mt-1">
+                            {t('Probation Ended')} - Manage
+                          </button>
+                        )}
                       </div>
                       <div className="text-left md:text-right">
                         <label className="text-[9px] font-bold uppercase text-slate-400 block mb-2">
@@ -1566,6 +1760,16 @@ const App = () => {
                         </p>
                         <p className="font-bold text-slate-800 text-lg text-left">
                           RM {DAILY_RATE}
+                        </p>
+                      </div>
+                      {/* === NEW: AL accrued raw display for transparency === */}
+                      <div className="h-10 w-px bg-slate-200" />
+                      <div className="text-left">
+                        <p className="text-xs font-semibold text-slate-500 uppercase mb-1 text-left">
+                          AL Accrued
+                        </p>
+                        <p className="font-bold text-emerald-600 text-lg text-left">
+                          {rawAccruedAL.toFixed(2)} {t('Days')}
                         </p>
                       </div>
                     </div>
@@ -1729,12 +1933,17 @@ const App = () => {
                                               ? 'bg-emerald-400'
                                               : log.type === 'RL'
                                               ? 'bg-teal-400'
+                                              : log.type === 'SL' // NEW color for Special Leave
+                                              ? 'bg-violet-400'
                                               : 'bg-amber-400'
                                           }`}
                                         />
                                         <div>
                                           <p className={`font-bold text-sm uppercase text-slate-800 text-left ${log.status === 'CANCELLED' ? 'text-slate-400 line-through' : ''}`}>
-                                            {t(getTypeFullName(log.type))} {t('Request')}
+                                            {t(getTypeFullName(log.finalType || log.type))} {t('Request')}
+                                            {/* === NEW: Half-day badge & Extra Leave badge === */}
+                                            {log.isHalfDay && <span className="ml-2 text-[8px] bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded">½ {t('Day')}</span>}
+                                            {log.finalType === 'EXTRA' && <span className="ml-2 text-[8px] bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded font-bold">{t('Extra Leave')}</span>}
                                           </p>
                                           {log.startDate && (
                                             <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
@@ -1790,22 +1999,23 @@ const App = () => {
                                     {app.staffName}
                                     <span className="mx-2 text-slate-300">|</span> 
                                     <span className="text-indigo-600">{t(getTypeFullName(app.type))}</span>
+                                    {/* === NEW: half-day badge in approvals list === */}
+                                    {app.isHalfDay && <span className="ml-2 text-[8px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded font-bold">½ {t('Day')}</span>}
                                   </p>
                                   <p className="text-[11px] font-semibold text-slate-500 mt-1">
                                     {app.type === 'PROFILE_UPDATE'
                                       ? t('Requested Changes to Staff Data')
-                                      : app.type === 'PH_UPDATE'
-                                      ? `${t('PH Selection')} (${app.days} items)`
-                                      : app.type === 'PH_CONVERT_BATCH'
-                                      ? `${t('Convert')} ${app.days} ${t('Holidays to RL')}`
                                       : app.type === 'HOLIDAY_SWAP'
                                       ? `${t('Work on Holiday')}: ${app.startDate} (${t(app.holidayName)})`
+                                      : app.type === 'SL' // NEW
+                                      ? `${app.slType === 'immediate' ? t('Immediate Family (3 days)') : t('Grandparent (1 day)')} — ${app.startDate}`
                                       : `${app.startDate} to ${app.endDate} (${app.days} ${t('Days')})`}
                                   </p>
                                 </div>
                                 <div className="flex gap-2 shrink-0 mt-2 sm:mt-0">
+                                  {/* === MODIFIED: Approve button now opens special-request modal so Admin can mark as Extra Leave === */}
                                   <button
-                                    onClick={() => processLeave(app.id, 'APPROVED')}
+                                    onClick={() => setApproveWithExtra(app)}
                                     className="px-5 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition shadow active:scale-95 flex items-center justify-center gap-2 font-bold text-[10px] uppercase"
                                   >
                                     <Check size={14} /> {t('Approve')}
@@ -1834,7 +2044,8 @@ const App = () => {
                         <div className="flex flex-col gap-6 flex-1 justify-center text-left">
                           <BalanceMetric label={t("Annual Leave")} current={earnedAL - activeStaff.alUsed} total={earnedAL} color="indigo" onInfoClick={() => setViewLeaveHistory('AL')} />
                           <BalanceMetric label={t("Medical Leave")} current={14 - activeStaff.mcUsed} total={14} color="emerald" onInfoClick={() => setViewLeaveHistory('MC')} />
-                          <BalanceMetric label={t("Public Holiday")} current={6 - (activeStaff.phUsed || 0)} total={6} color="amber" onInfoClick={() => setViewLeaveHistory('PH')} />
+                          {/* === NEW: Special Leave balance row === */}
+                          <BalanceMetric label={t("Special Leave")} current={(activeStaff.slUsed || 0)} total={null} color="violet" onInfoClick={() => setViewLeaveHistory('SL')} />
                           <BalanceMetric label={t("Unpaid Leave")} current={activeStaff.uplUsed} total={null} color="rose" onInfoClick={() => setViewLeaveHistory('UPL')} />
                           <BalanceMetric label={t("Replacement")} current={activeStaff.rlUsed || 0} total={activeStaff.rlEarned || 0} color="teal" onInfoClick={() => setViewLeaveHistory('RL')} />
                         </div>
@@ -1852,7 +2063,7 @@ const App = () => {
                         </h2>
                         <ArrowRight className="text-indigo-400" size={18} />
                       </div>
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
                         <div className="space-y-1.5">
                           <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
                             {t('Category')}
@@ -1867,6 +2078,8 @@ const App = () => {
                             <option value="MC" className="text-slate-900">{t('Medical Leave')}</option>
                             <option value="RL" className="text-slate-900">{t('Replacement')}</option>
                             <option value="UPL" className="text-slate-900">{t('Unpaid Leave')}</option>
+                            {/* === NEW: Special Leave option === */}
+                            <option value="SL" className="text-slate-900">{t('Special Leave')}</option>
                             <option value="HOLIDAY_SWAP" className="text-slate-900">{t('Holiday Swapping')}</option>
                           </select>
                         </div>
@@ -1886,6 +2099,24 @@ const App = () => {
                                 </option>
                               ))}
                             </select>
+                          </div>
+                        ) : applyCategory === 'SL' ? (
+                          // === NEW: Special Leave sub-type + date selector ===
+                          <div className="space-y-1.5 md:col-span-2">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                              {t('Special Leave')} {t('Category')}
+                            </label>
+                            <div className="flex gap-3">
+                              <select
+                                value={slType}
+                                onChange={(e) => setSlType(e.target.value)}
+                                className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs text-white select-dark-bg"
+                              >
+                                <option value="immediate" className="text-slate-900">{t('Immediate Family (3 days)')}</option>
+                                <option value="grandparent" className="text-slate-900">{t('Grandparent (1 day)')}</option>
+                              </select>
+                              <input id="lStart" type="date" className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 font-bold outline-none text-xs text-white" style={{colorScheme:'dark'}} />
+                            </div>
                           </div>
                         ) : (
                           <>
@@ -1913,58 +2144,44 @@ const App = () => {
                             </div>
                           </>
                         )}
+
+                        {/* === NEW: Half Day / Full Day toggle (not shown for Holiday Swap or Special Leave) === */}
+                        {!['HOLIDAY_SWAP', 'SL'].includes(applyCategory) && (
+                          <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 text-left block">
+                              {t('Duration')}
+                            </label>
+                            <div className="flex gap-2">
+                              {['0.5', '1'].map(v => (
+                                <button
+                                  key={v}
+                                  type="button"
+                                  onClick={() => setApplyDuration(v)}
+                                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition border ${applyDuration === v ? 'bg-indigo-600 border-indigo-400 text-white' : 'bg-white/10 border-white/20 text-white/70 hover:bg-white/20'}`}
+                                >
+                                  {v === '0.5' ? `½ ${t('Day')}` : `1 ${t('Day')}`}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <button
-                        onClick={() => {
-                          const type = document.getElementById('lType').value;
-                          
-                          if (type === 'HOLIDAY_SWAP') {
-                            const swapDate = document.getElementById('lSwapDate').value;
-                            if (!swapDate) return triggerAlert(t('Dates are required.'));
-                            const selectedPh = johorPHs.find(p => p.date === swapDate);
-                            
-                            addLeaveApp({
-                              staffId: currentUser.id,
-                              username: currentUser.username,
-                              staffName: currentUser.name,
-                              type: 'HOLIDAY_SWAP',
-                              startDate: swapDate,
-                              endDate: swapDate,
-                              days: 1,
-                              holidayName: selectedPh?.name || 'Public Holiday',
-                              status: 'PENDING',
-                              timestamp: new Date().toLocaleString(),
-                              actionAt: null,
-                            });
-                          } else {
-                            const start = document.getElementById('lStart').value;
-                            const end = document.getElementById('lEnd').value;
-                            
-                            if (!start || !end) return triggerAlert(t('Dates are required.'));
-                            const days =
-                              Math.ceil(
-                                Math.abs(new Date(end) - new Date(start)) /
-                                  (1000 * 60 * 60 * 24)
-                              ) + 1;
-                            addLeaveApp({
-                              staffId: currentUser.id,
-                              username: currentUser.username,
-                              staffName: currentUser.name,
-                              type,
-                              startDate: start,
-                              endDate: end,
-                              days,
-                              status: 'PENDING',
-                              timestamp: new Date().toLocaleString(),
-                              actionAt: null,
-                            });
-                          }
-                        }}
+                        onClick={handleSubmitLeaveWithHalfDay}
                         className="shrink-0 bg-indigo-600 px-10 py-3.5 rounded-xl font-bold uppercase text-xs shadow-lg hover:bg-indigo-700 transition active:scale-95 whitespace-nowrap lg:mt-4 text-white"
                       >
                         {t('Submit Request')}
                       </button>
                     </div>
+
+                    {/* === NEW: AL accrual warning banner === */}
+                    {applyCategory === 'AL' && !canApplyAL && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 text-amber-700 text-xs font-semibold">
+                        ⚠️ {lang === 'zh'
+                          ? `年假尚未累積滿1天（目前累積 ${rawAccruedAL.toFixed(2)} 天）。此申請將被視為無薪假，除非管理員批准為特批假。`
+                          : `Annual Leave not yet accrued to 1 full day (currently ${rawAccruedAL.toFixed(2)} days). This will be treated as Unpaid Leave unless Admin approves as Extra Leave.`}
+                      </div>
+                    )}
 
                     {/* STAFF MIDDLE: 50/50 Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch text-left">
@@ -2007,7 +2224,8 @@ const App = () => {
                         <div className="flex flex-col gap-6 flex-1 justify-center text-left overflow-y-auto custom-scrollbar pr-2">
                           <BalanceMetric label={t("Annual Leave")} current={earnedAL - activeStaff.alUsed} total={earnedAL} color="indigo" onInfoClick={() => setViewLeaveHistory('AL')} />
                           <BalanceMetric label={t("Medical Leave")} current={14 - activeStaff.mcUsed} total={14} color="emerald" onInfoClick={() => setViewLeaveHistory('MC')} />
-                          <BalanceMetric label={t("Public Holiday")} current={6 - (activeStaff.phUsed || 0)} total={6} color="amber" onInfoClick={() => setViewLeaveHistory('PH')} />
+                          {/* === NEW: Special Leave balance row === */}
+                          <BalanceMetric label={t("Special Leave")} current={(activeStaff.slUsed || 0)} total={null} color="violet" onInfoClick={() => setViewLeaveHistory('SL')} />
                           <BalanceMetric label={t("Unpaid Leave")} current={activeStaff.uplUsed} total={null} color="rose" onInfoClick={() => setViewLeaveHistory('UPL')} />
                           <BalanceMetric label={t("Replacement")} current={activeStaff.rlUsed || 0} total={activeStaff.rlEarned || 0} color="teal" onInfoClick={() => setViewLeaveHistory('RL')} />
                         </div>
@@ -2060,12 +2278,16 @@ const App = () => {
                                               ? 'bg-emerald-400'
                                               : log.type === 'RL'
                                               ? 'bg-teal-400'
+                                              : log.type === 'SL'
+                                              ? 'bg-violet-400'
                                               : 'bg-amber-400'
                                           }`}
                                         />
                                         <div>
                                           <p className={`font-bold text-sm uppercase text-slate-800 text-left ${log.status === 'CANCELLED' ? 'text-slate-400 line-through' : ''}`}>
-                                            {t(getTypeFullName(log.type))} {t('Request')}
+                                            {t(getTypeFullName(log.finalType || log.type))} {t('Request')}
+                                            {log.isHalfDay && <span className="ml-2 text-[8px] bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded">½ {t('Day')}</span>}
+                                            {log.finalType === 'EXTRA' && <span className="ml-2 text-[8px] bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded font-bold">{t('Extra Leave')}</span>}
                                           </p>
                                           {log.startDate && (
                                             <div className="text-[10px] font-semibold text-slate-500 mt-0.5">
@@ -2174,6 +2396,10 @@ const App = () => {
                             value={calculatedUPL}
                           />
                         </div>
+                        {/* === NEW: working days reference line === */}
+                        <div className="text-[9px] text-slate-500 uppercase">
+                          {selectedMonth} {selectedYear} working days (excl. weekends): {payrollMonthWorkDays} days | Daily rate: RM {DAILY_RATE}
+                        </div>
                         <button
                           onClick={generatePayslip}
                           className="w-full bg-indigo-500 text-white py-3 rounded-lg font-bold text-sm uppercase text-left text-center shadow-md hover:bg-indigo-600 transition"
@@ -2238,6 +2464,10 @@ const App = () => {
                                 </td>
                                 <td className="p-4 font-semibold text-slate-600 text-xs text-left">
                                   RM {p.basic.toFixed(2)}
+                                  {/* === NEW: pro-rated indicator === */}
+                                  {p.originalBasic && p.basic !== p.originalBasic && (
+                                    <span className="ml-1 text-[8px] text-amber-500 font-bold">Pro-rated</span>
+                                  )}
                                 </td>
                                 <td className="p-4 font-bold text-indigo-600 text-xs text-left">
                                   RM {p.comm.toFixed(2)}
@@ -2377,7 +2607,7 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Johor Public Holidays Registry (Admin Panel) */}
+                {/* Johor Public Holidays Registry (Admin sets master PH list; staff just view it) */}
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 transition-colors duration-200 text-left">
                   <h3 className="text-lg font-bold mb-6 flex items-center gap-3 uppercase border-b border-slate-200 pb-4 transition-colors duration-200 text-left">
                     <Calendar className="text-indigo-600" size={20} /> {t('Johor Public Holidays Registry')}
@@ -2508,6 +2738,90 @@ const App = () => {
           </div>
         )}
 
+        {/* === NEW MODAL: Approve with possible Extra Leave override (Special Request) === */}
+        {approveWithExtra && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[400] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+              <div className="p-6 bg-emerald-600 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">{t('Approve')}</h2>
+                <button onClick={() => setApproveWithExtra(null)}><X size={18} /></button>
+              </div>
+              <div className="p-8 space-y-4 text-left">
+                <p className="text-sm font-semibold text-slate-700 text-center leading-relaxed">
+                  {approveWithExtra.staffName} — {t(getTypeFullName(approveWithExtra.type))}
+                  {approveWithExtra.startDate && (
+                    <span className="block text-slate-500 text-xs mt-1">
+                      {approveWithExtra.startDate}{approveWithExtra.endDate && approveWithExtra.endDate !== approveWithExtra.startDate ? ` to ${approveWithExtra.endDate}` : ''}
+                    </span>
+                  )}
+                </p>
+                <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+                  <p className="text-xs text-violet-700 font-semibold">
+                    {t('Mark as Extra Leave')}: {lang === 'zh' ? '批准但不從任何餘額或工資中扣除（特批假）。' : 'Approve without deducting from any leave balance or pay.'}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => { processLeave(approveWithExtra.id, 'APPROVED', '', false); setApproveWithExtra(null); }}
+                    className="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl hover:bg-emerald-600 transition text-xs uppercase"
+                  >
+                    ✓ {t('Approve')} ({t('Normal')})
+                  </button>
+                  <button
+                    onClick={() => { processLeave(approveWithExtra.id, 'APPROVED', '', true); setApproveWithExtra(null); }}
+                    className="w-full bg-violet-500 text-white font-bold py-3 rounded-xl hover:bg-violet-600 transition text-xs uppercase"
+                  >
+                    ★ {t('Mark as Extra Leave')}
+                  </button>
+                  <button
+                    onClick={() => setApproveWithExtra(null)}
+                    className="w-full bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
+                  >
+                    {t('Cancel')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* === NEW MODAL: Probation ended notification (Confirm or Extend) === */}
+        {probationPromptStaff && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[400] flex items-center justify-center p-6">
+            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+              <div className="p-6 bg-amber-500 text-white flex justify-between items-center">
+                <h2 className="text-lg font-bold uppercase">⏰ {t('Probation Ended')}</h2>
+                <button onClick={() => setProbationPromptStaff(null)}><X size={18} /></button>
+              </div>
+              <div className="p-8 space-y-4 text-left">
+                <p className="text-sm font-semibold text-slate-700 text-center">
+                  <strong>{probationPromptStaff.name || probationPromptStaff.username}</strong>{lang === 'zh' ? '的試用期已於' : "'s probation ended on"} <strong>{probationPromptStaff.probationEndDate}</strong>{lang === 'zh' ? '結束。' : '.'}
+                </p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => handleConfirmEmployment(probationPromptStaff.id, false)}
+                    className="w-full bg-emerald-500 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-600 transition text-xs uppercase flex items-center justify-center gap-2"
+                  >
+                    <UserCheck size={16} /> {t('Confirm Employment')}
+                  </button>
+                  <button
+                    onClick={() => handleConfirmEmployment(probationPromptStaff.id, true)}
+                    className="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl hover:bg-amber-600 transition text-xs uppercase"
+                  >
+                    {t('Extend Probation')} (+3 {t('Months')})
+                  </button>
+                  <button
+                    onClick={() => setProbationPromptStaff(null)}
+                    className="w-full bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
+                  >
+                    {t('Cancel')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ALL MODALS PRESERVED AS PER BASE */}
         {viewPayslipData && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6">
@@ -2617,6 +2931,10 @@ const App = () => {
                   }
                   required
                 />
+                {/* === NEW: Probation note === */}
+                <p className="text-[9px] text-amber-600 font-medium">
+                  {lang === 'zh' ? '試用期結束日期將自動計算（加入日期後3個月）。' : 'Probation end date will be auto-calculated (3 months from join date).'}
+                </p>
                 <button
                   type="submit"
                   className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-lg shadow-xl hover:bg-indigo-700 transition text-xs uppercase"
@@ -2785,6 +3103,55 @@ const App = () => {
                       }
                     />
                   </div>
+                  {/* === NEW: Admin-only Username assignment field === */}
+                  {currentUser.type === 'ADMIN' && (
+                    <div className="space-y-1 text-left col-span-2">
+                      <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                        {t('Username')} ({lang === 'zh' ? '僅限管理員' : 'Admin Only'})
+                      </label>
+                      <input
+                        className="w-full bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none focus:border-indigo-500 text-slate-900 text-left"
+                        placeholder={lang === 'zh' ? '當員工ID出來後在此填寫' : 'Assign once staff ID is ready'}
+                        value={editForm.username || ''}
+                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                      />
+                      <p className="text-[9px] text-slate-400">
+                        {lang === 'zh' ? '一旦設置用戶名，員工必須用用戶名而非法定姓名登入。' : 'Once set, staff must login with Username instead of Legal Name.'}
+                      </p>
+                    </div>
+                  )}
+                  {/* === NEW: Admin-only Active/Resigned status field === */}
+                  {currentUser.type === 'ADMIN' && (
+                    <div className="space-y-1 text-left">
+                      <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                        {t('Status')}
+                      </label>
+                      <select
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                        value={editForm.status || 'active'}
+                        onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                      >
+                        <option value="active">{t('Active')}</option>
+                        <option value="resigned">{t('Resigned')}</option>
+                      </select>
+                    </div>
+                  )}
+                  {/* === NEW: Admin-only manual Confirm Employment toggle === */}
+                  {currentUser.type === 'ADMIN' && (
+                    <div className="space-y-1 text-left">
+                      <label className="text-xs font-semibold text-slate-500 uppercase block text-left">
+                        {t('Status: Confirmed Employment')}
+                      </label>
+                      <select
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 font-medium text-sm outline-none text-slate-900 text-left"
+                        value={editForm.confirmed ? 'yes' : 'no'}
+                        onChange={(e) => setEditForm({ ...editForm, confirmed: e.target.value === 'yes' })}
+                      >
+                        <option value="no">{t('Status: Probation Period')}</option>
+                        <option value="yes">{t('Status: Confirmed Employment')} ✓</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-4 pt-6 border-t border-slate-100 text-left">
                   <button
@@ -2878,43 +3245,6 @@ const App = () => {
                     className="flex-1 bg-rose-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-rose-600 transition text-xs uppercase"
                   >
                     {t('Confirm')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {convertPromptData && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-6">
-            <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-              <div className="p-6 bg-teal-500 text-white flex justify-between items-center">
-                <h2 className="text-lg font-bold uppercase">
-                  {t('Select Target Date')}
-                </h2>
-                <button onClick={() => setConvertPromptData(null)}>
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="p-8 space-y-6 text-left">
-                <input
-                  type="date"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-bold outline-none focus:border-teal-500 text-sm text-slate-900 text-left"
-                  value={convertTargetDate}
-                  onChange={(e) => setConvertTargetDate(e.target.value)}
-                />
-                <div className="flex gap-3 pt-2 text-left">
-                  <button
-                    onClick={() => setConvertPromptData(null)}
-                    className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition text-xs uppercase"
-                  >
-                    {t('Cancel')}
-                  </button>
-                  <button
-                    onClick={confirmBatchConvert}
-                    className="flex-1 bg-teal-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-teal-600 transition text-xs uppercase"
-                  >
-                    {t('Submit')}
                   </button>
                 </div>
               </div>
@@ -3032,7 +3362,7 @@ const BalanceMetric = ({ label, current, total, color, onInfoClick }) => {
       <div className="flex justify-between items-end mb-2 text-left">
         <div className="flex items-baseline gap-2 text-left">
           <span className={`text-2xl font-bold text-${color}-600 uppercase leading-none text-left`}>
-            {current}
+            {typeof current === 'number' ? (current % 1 === 0 ? current : current.toFixed(1)) : current}
           </span>
           <span className="text-xs font-bold text-slate-400 uppercase leading-none text-left">
             {total !== null ? `/ ${total} Days` : 'Days Taken'}
